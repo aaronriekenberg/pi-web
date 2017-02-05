@@ -47,7 +47,9 @@ func mainPageHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<html><head><title>Aaron's Raspberry Pi</title></head>")
 	fmt.Fprintf(w, "<body><ul>")
 	for _, commandInfo := range commands {
-		fmt.Fprintf(w, "<li><a href=\"%v\">%v</a></li>", commandInfo.httpPath, commandInfo.description)
+		fmt.Fprintf(w,
+			"<li><a href=\"%v\">%v</a></li>",
+			commandInfo.httpPath, commandInfo.description)
 	}
 	fmt.Fprintf(w, "</ul></body>")
 }
