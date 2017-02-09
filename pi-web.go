@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"net/http"
 	"os/exec"
 	"strings"
@@ -21,13 +22,19 @@ var commands = []*commandInfo{
 		httpPath:    "/ntpq",
 		description: "ntpq",
 		command:     "ntpq",
-		args:        []string{"-p"},
+		args:        strings.Fields("-p"),
 	},
 	&commandInfo{
 		httpPath:    "/pitemp",
 		description: "pitemp",
 		command:     "pitemp.sh",
 		args:        []string{},
+	},
+	&commandInfo{
+		httpPath:    "/top",
+		description: "top",
+		command:     "top",
+		args:        strings.Fields("-b -n1"),
 	},
 	&commandInfo{
 		httpPath:    "/uptime",
@@ -43,15 +50,23 @@ var commands = []*commandInfo{
 	},
 }
 
-func mainPageHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "<html><head><title>Aaron's Raspberry Pi</title></head>")
-	fmt.Fprintf(w, "<body><ul>")
+var mainPageString = buildMainPageString()
+
+func buildMainPageString() string {
+	var buffer bytes.Buffer
+	buffer.WriteString("<html><head><title>Aaron's Raspberry Pi</title></head>")
+	buffer.WriteString("<body><ul>")
 	for _, commandInfo := range commands {
-		fmt.Fprintf(w,
-			"<li><a href=\"%v\">%v</a></li>",
-			commandInfo.httpPath, commandInfo.description)
+		buffer.WriteString(
+			fmt.Sprintf("<li><a href=\"%v\">%v</a></li>",
+				commandInfo.httpPath, commandInfo.description))
 	}
-	fmt.Fprintf(w, "</ul></body>")
+	buffer.WriteString("</ul></body>")
+	return buffer.String()
+}
+
+func mainPageHandler(w http.ResponseWriter, r *http.Request) {
+	io.WriteString(w, mainPageString)
 }
 
 type commandRunnerHandler struct {
