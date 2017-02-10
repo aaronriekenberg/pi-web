@@ -20,6 +20,12 @@ type commandInfo struct {
 
 var commands = []*commandInfo{
 	&commandInfo{
+		httpPath:    "/netstat",
+		description: "netstat",
+		command:     "netstat",
+		args:        strings.Fields("-an"),
+	},
+	&commandInfo{
 		httpPath:    "/ntpq",
 		description: "ntpq",
 		command:     "ntpq",
