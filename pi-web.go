@@ -81,8 +81,8 @@ func newCommandRunnerHandler(commandInfo *commandInfo) http.Handler {
 }
 
 func (c *commandRunnerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	out, err := exec.Command(c.commandInfo.command, c.commandInfo.args...).Output()
 	var outputString string
+	commandOutput, err := exec.Command(c.commandInfo.command, c.commandInfo.args...).Output()
 	if err != nil {
 		outputString = fmt.Sprintf("cmd err %v", err)
 	} else {
@@ -99,7 +99,7 @@ func (c *commandRunnerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		}
 		buffer.WriteString("\n\n")
 
-		buffer.WriteString(html.EscapeString(string(out)))
+		buffer.WriteString(html.EscapeString(string(commandOutput)))
 
 		outputString = buffer.String()
 	}
