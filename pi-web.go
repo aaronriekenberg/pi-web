@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"html"
 	"io"
 	"net/http"
 	"os/exec"
@@ -98,7 +99,7 @@ func (c *commandRunnerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		}
 		buffer.WriteString("\n\n")
 
-		buffer.Write(out)
+		buffer.WriteString(html.EscapeString(string(out)))
 
 		outputString = buffer.String()
 	}
