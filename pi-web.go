@@ -72,9 +72,9 @@ func commandRunnerHandlerFunc(configuration *Configuration, commandInfo *Command
 			}
 			buffer.WriteString("\n\n")
 
-			buffer.WriteString(html.EscapeString(string(commandOutput)))
+			buffer.Write(commandOutput)
 
-			outputString = buffer.String()
+			outputString = html.EscapeString(buffer.String())
 		}
 		fmt.Fprintf(w,
 			"<html><head><meta http-equiv=\"refresh\" content=\"%d\"></head>"+
