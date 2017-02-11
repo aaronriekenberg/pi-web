@@ -52,7 +52,7 @@ func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 	}
 }
 
-func commandRunnerHandlerFunc(refreshSeconds int, commandInfo *CommandInfo) http.HandlerFunc {
+func commandRunnerHandlerFunc(configuration *Configuration, commandInfo *CommandInfo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var outputString string
 		commandOutput, err := exec.Command(commandInfo.Command, commandInfo.Args...).Output()
@@ -78,7 +78,8 @@ func commandRunnerHandlerFunc(refreshSeconds int, commandInfo *CommandInfo) http
 		}
 		fmt.Fprintf(w,
 			"<html><head><meta http-equiv=\"refresh\" content=\"%d\"></head>"+
-				"<body><pre>%s</pre></body></html>", refreshSeconds, outputString)
+				"<body><pre>%s</pre></body></html>",
+			configuration.RefreshSeconds, outputString)
 	}
 }
 
@@ -107,8 +108,9 @@ func main() {
 
 	for i := range configuration.Commands {
 		commandInfo := &(configuration.Commands[i])
-		handlerFunc := commandRunnerHandlerFunc(configuration.RefreshSeconds, commandInfo)
-		http.HandleFunc(commandInfo.HttpPath, handlerFunc)
+		http.HandleFunc(
+			commandInfo.HttpPath,
+			commandRunnerHandlerFunc(&configuration, commandInfo))
 	}
 
 	logger.Fatal(
