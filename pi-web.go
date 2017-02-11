@@ -113,7 +113,6 @@ func main() {
 
 	var configuration Configuration
 	err = yaml.Unmarshal(source, &configuration)
-
 	if err != nil {
 		logger.Fatalf("error parsing %v: %v", configFile, err)
 	}
