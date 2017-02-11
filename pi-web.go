@@ -41,7 +41,7 @@ func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 	}
 }
 
-func commandRunnerHandlerFunc(configuration *Configuration, commandInfo *CommandInfo) http.HandlerFunc {
+func commandRunnerHandlerFunc(commandInfo *CommandInfo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var outputString string
 		commandOutput, err := exec.Command(commandInfo.Command, commandInfo.Args...).Output()
@@ -107,7 +107,7 @@ func main() {
 		commandInfo := &(configuration.Commands[i])
 		http.HandleFunc(
 			commandInfo.HttpPath,
-			commandRunnerHandlerFunc(configuration, commandInfo))
+			commandRunnerHandlerFunc(commandInfo))
 	}
 
 	logger.Fatal(
