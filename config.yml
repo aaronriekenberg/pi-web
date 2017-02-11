@@ -1,0 +1,33 @@
+refreshSeconds: 5
+
+commands:
+
+- httpPath: /netstat
+  description: netstat
+  command: netstat
+  args: [-a, -n]
+
+- httpPath: /ntpq
+  description: ntpq
+  command: ntpq
+  args: [-p]
+
+- httpPath: /pitemp
+  description: pitemp
+  command: pitemp.sh
+  args: []
+
+- httpPath: /top
+  description: top
+  command: top
+  args: [-b, -n1]
+
+- httpPath: /uptime
+  description: uptime
+  command: uptime
+  args: []
+
+- httpPath: /vmstat
+  description: vmstat
+  command: vmstat
+  args: []

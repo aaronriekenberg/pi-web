@@ -5,90 +5,74 @@ import (
 	"fmt"
 	"html"
 	"io"
+	"io/ioutil"
+	"log"
 	"net/http"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
+
+	"gopkg.in/yaml.v2"
 )
 
-type commandInfo struct {
-	httpPath    string
-	description string
-	command     string
-	args        []string
+var logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lmicroseconds)
+
+type CommandInfo struct {
+	HttpPath    string   `yaml:"httpPath"`
+	Description string   `yaml:"description"`
+	Command     string   `yaml:"command"`
+	Args        []string `yaml:"args"`
 }
 
-var commands = []*commandInfo{
-	&commandInfo{
-		httpPath:    "/netstat",
-		description: "netstat",
-		command:     "netstat",
-		args:        strings.Fields("-an"),
-	},
-	&commandInfo{
-		httpPath:    "/ntpq",
-		description: "ntpq",
-		command:     "ntpq",
-		args:        strings.Fields("-p"),
-	},
-	&commandInfo{
-		httpPath:    "/pitemp",
-		description: "pitemp",
-		command:     "pitemp.sh",
-		args:        []string{},
-	},
-	&commandInfo{
-		httpPath:    "/top",
-		description: "top",
-		command:     "top",
-		args:        strings.Fields("-b -n1"),
-	},
-	&commandInfo{
-		httpPath:    "/uptime",
-		description: "uptime",
-		command:     "uptime",
-		args:        []string{},
-	},
-	&commandInfo{
-		httpPath:    "/vmstat",
-		description: "vmstat",
-		command:     "vmstat",
-		args:        []string{},
-	},
+type Configuration struct {
+	RefreshSeconds int           `yaml:"refreshSeconds"`
+	Commands       []CommandInfo `yaml:"commands"`
 }
 
-var mainPageString = buildMainPageString()
-
-func buildMainPageString() string {
+func buildMainPageString(configuration *Configuration) string {
 	var buffer bytes.Buffer
 	buffer.WriteString("<html><head><title>Aaron's Raspberry Pi</title></head>")
 	buffer.WriteString("<body><ul>")
-	for _, commandInfo := range commands {
+	for i, _ := range configuration.Commands {
+		commandInfo := &(configuration.Commands[i])
 		buffer.WriteString(
 			fmt.Sprintf("<li><a href=\"%v\">%v</a></li>",
-				commandInfo.httpPath, commandInfo.description))
+				commandInfo.HttpPath, commandInfo.Description))
 	}
 	buffer.WriteString("</ul></body>")
 	return buffer.String()
 }
 
-func mainPageHandler(w http.ResponseWriter, r *http.Request) {
-	io.WriteString(w, mainPageString)
+type mainPageHandler struct {
+	mainPageString string
+}
+
+func newMainPageHandler(configuration *Configuration) http.Handler {
+	return &mainPageHandler{
+		mainPageString: buildMainPageString(configuration),
+	}
+}
+
+func (m *mainPageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	io.WriteString(w, m.mainPageString)
 }
 
 type commandRunnerHandler struct {
-	commandInfo *commandInfo
+	refreshSeconds int
+	commandInfo    *CommandInfo
 }
 
-func newCommandRunnerHandler(commandInfo *commandInfo) http.Handler {
+func newCommandRunnerHandler(refreshSeconds int, commandInfo *CommandInfo) http.Handler {
 	return &commandRunnerHandler{
-		commandInfo: commandInfo,
+		refreshSeconds: refreshSeconds,
+		commandInfo:    commandInfo,
 	}
 }
 
 func (c *commandRunnerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var outputString string
-	commandOutput, err := exec.Command(c.commandInfo.command, c.commandInfo.args...).Output()
+	commandOutput, err := exec.Command(c.commandInfo.Command, c.commandInfo.Args...).Output()
 	if err != nil {
 		outputString = fmt.Sprintf("cmd err %v", err)
 	} else {
@@ -98,10 +82,10 @@ func (c *commandRunnerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		buffer.WriteString("\n\n")
 
 		buffer.WriteString("$ ")
-		buffer.WriteString(c.commandInfo.command)
-		if len(c.commandInfo.args) > 0 {
+		buffer.WriteString(c.commandInfo.Command)
+		if len(c.commandInfo.Args) > 0 {
 			buffer.WriteString(" ")
-			buffer.WriteString(strings.Join(c.commandInfo.args, " "))
+			buffer.WriteString(strings.Join(c.commandInfo.Args, " "))
 		}
 		buffer.WriteString("\n\n")
 
@@ -110,16 +94,38 @@ func (c *commandRunnerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		outputString = buffer.String()
 	}
 	fmt.Fprintf(w,
-		"<html><head><meta http-equiv=\"refresh\" content=\"5\"></head>"+
-			"<body><pre>%v</pre></body></html>", outputString)
+		"<html><head><meta http-equiv=\"refresh\" content=\"%d\"></head>"+
+			"<body><pre>%s</pre></body></html>", c.refreshSeconds, outputString)
 }
 
 func main() {
-	http.HandleFunc("/", mainPageHandler)
+	if len(os.Args) < 2 {
+		logger.Fatalf("Usage: %v <config yml file>", os.Args[0])
+	}
 
-	for _, commandInfo := range commands {
-		handler := newCommandRunnerHandler(commandInfo)
-		http.Handle(commandInfo.httpPath, handler)
+	configFile := os.Args[1]
+	logger.Printf("reading %v", configFile)
+
+	source, err := ioutil.ReadFile(configFile)
+	if err != nil {
+		logger.Fatalf("error reading %v: %v", configFile, err)
+	}
+
+	var configuration Configuration
+	err = yaml.Unmarshal(source, &configuration)
+
+	if err != nil {
+		logger.Fatalf("error parsing %v: %v", configFile, err)
+	}
+
+	logger.Printf("configuration = %+v", configuration)
+
+	http.Handle("/", newMainPageHandler(&configuration))
+
+	for i, _ := range configuration.Commands {
+		commandInfo := &(configuration.Commands[i])
+		handler := newCommandRunnerHandler(configuration.RefreshSeconds, commandInfo)
+		http.Handle(commandInfo.HttpPath, handler)
 	}
 
 	http.ListenAndServe(":8080", nil)
