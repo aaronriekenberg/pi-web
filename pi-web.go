@@ -45,58 +45,41 @@ func buildMainPageString(configuration *Configuration) string {
 	return buffer.String()
 }
 
-type mainPageHandler struct {
-	mainPageString string
-}
-
-func newMainPageHandler(configuration *Configuration) http.Handler {
-	return &mainPageHandler{
-		mainPageString: buildMainPageString(configuration),
+func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
+	mainPageString := buildMainPageString(configuration)
+	return func(w http.ResponseWriter, r *http.Request) {
+		io.WriteString(w, mainPageString)
 	}
 }
 
-func (m *mainPageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	io.WriteString(w, m.mainPageString)
-}
+func commandRunnerHandlerFunc(refreshSeconds int, commandInfo *CommandInfo) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var outputString string
+		commandOutput, err := exec.Command(commandInfo.Command, commandInfo.Args...).Output()
+		if err != nil {
+			outputString = fmt.Sprintf("cmd err %v", err)
+		} else {
+			var buffer bytes.Buffer
 
-type commandRunnerHandler struct {
-	refreshSeconds int
-	commandInfo    *CommandInfo
-}
+			buffer.WriteString(time.Now().Local().String())
+			buffer.WriteString("\n\n")
 
-func newCommandRunnerHandler(refreshSeconds int, commandInfo *CommandInfo) http.Handler {
-	return &commandRunnerHandler{
-		refreshSeconds: refreshSeconds,
-		commandInfo:    commandInfo,
-	}
-}
+			buffer.WriteString("$ ")
+			buffer.WriteString(commandInfo.Command)
+			if len(commandInfo.Args) > 0 {
+				buffer.WriteString(" ")
+				buffer.WriteString(strings.Join(commandInfo.Args, " "))
+			}
+			buffer.WriteString("\n\n")
 
-func (c *commandRunnerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var outputString string
-	commandOutput, err := exec.Command(c.commandInfo.Command, c.commandInfo.Args...).Output()
-	if err != nil {
-		outputString = fmt.Sprintf("cmd err %v", err)
-	} else {
-		var buffer bytes.Buffer
+			buffer.WriteString(html.EscapeString(string(commandOutput)))
 
-		buffer.WriteString(time.Now().Local().String())
-		buffer.WriteString("\n\n")
-
-		buffer.WriteString("$ ")
-		buffer.WriteString(c.commandInfo.Command)
-		if len(c.commandInfo.Args) > 0 {
-			buffer.WriteString(" ")
-			buffer.WriteString(strings.Join(c.commandInfo.Args, " "))
+			outputString = buffer.String()
 		}
-		buffer.WriteString("\n\n")
-
-		buffer.WriteString(html.EscapeString(string(commandOutput)))
-
-		outputString = buffer.String()
+		fmt.Fprintf(w,
+			"<html><head><meta http-equiv=\"refresh\" content=\"%d\"></head>"+
+				"<body><pre>%s</pre></body></html>", refreshSeconds, outputString)
 	}
-	fmt.Fprintf(w,
-		"<html><head><meta http-equiv=\"refresh\" content=\"%d\"></head>"+
-			"<body><pre>%s</pre></body></html>", c.refreshSeconds, outputString)
 }
 
 func main() {
@@ -120,12 +103,12 @@ func main() {
 
 	logger.Printf("configuration = %+v", configuration)
 
-	http.Handle("/", newMainPageHandler(&configuration))
+	http.HandleFunc("/", mainPageHandlerFunc(&configuration))
 
 	for i := range configuration.Commands {
 		commandInfo := &(configuration.Commands[i])
-		handler := newCommandRunnerHandler(configuration.RefreshSeconds, commandInfo)
-		http.Handle(commandInfo.HttpPath, handler)
+		handlerFunc := commandRunnerHandlerFunc(configuration.RefreshSeconds, commandInfo)
+		http.HandleFunc(commandInfo.HttpPath, handlerFunc)
 	}
 
 	logger.Fatal(
