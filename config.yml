@@ -1,3 +1,5 @@
+listenAddress: :8080
+
 refreshSeconds: 5
 
 commands:

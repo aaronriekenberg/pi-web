@@ -26,6 +26,7 @@ type CommandInfo struct {
 }
 
 type Configuration struct {
+	ListenAddress  string        `yaml:"listenAddress"`
 	RefreshSeconds int           `yaml:"refreshSeconds"`
 	Commands       []CommandInfo `yaml:"commands"`
 }
@@ -127,5 +128,7 @@ func main() {
 		http.Handle(commandInfo.HttpPath, handler)
 	}
 
-	http.ListenAndServe(":8080", nil)
+	logger.Fatal(
+		http.ListenAndServe(
+			configuration.ListenAddress, nil))
 }
