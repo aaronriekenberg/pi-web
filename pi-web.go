@@ -83,12 +83,7 @@ func commandRunnerHandlerFunc(configuration *Configuration, commandInfo *Command
 	}
 }
 
-func main() {
-	if len(os.Args) < 2 {
-		logger.Fatalf("Usage: %v <config yml file>", os.Args[0])
-	}
-
-	configFile := os.Args[1]
+func readConfiguration(configFile string) *Configuration {
 	logger.Printf("reading %v", configFile)
 
 	source, err := ioutil.ReadFile(configFile)
@@ -102,15 +97,27 @@ func main() {
 		logger.Fatalf("error parsing %v: %v", configFile, err)
 	}
 
+	return &configuration
+}
+
+func main() {
+	if len(os.Args) < 2 {
+		logger.Fatalf("Usage: %v <config yml file>", os.Args[0])
+	}
+
+	configFile := os.Args[1]
+
+	configuration := readConfiguration(configFile)
+
 	logger.Printf("configuration = %+v", configuration)
 
-	http.HandleFunc("/", mainPageHandlerFunc(&configuration))
+	http.HandleFunc("/", mainPageHandlerFunc(configuration))
 
 	for i := range configuration.Commands {
 		commandInfo := &(configuration.Commands[i])
 		http.HandleFunc(
 			commandInfo.HttpPath,
-			commandRunnerHandlerFunc(&configuration, commandInfo))
+			commandRunnerHandlerFunc(configuration, commandInfo))
 	}
 
 	logger.Fatal(
