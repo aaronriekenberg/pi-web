@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"html"
-	"io"
+	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -26,29 +26,18 @@ type CommandInfo struct {
 }
 
 type Configuration struct {
-	ListenAddress  string        `yaml:"listenAddress"`
-	RefreshSeconds int           `yaml:"refreshSeconds"`
-	Commands       []CommandInfo `yaml:"commands"`
+	ListenAddress string        `yaml:"listenAddress"`
+	Commands      []CommandInfo `yaml:"commands"`
 }
 
-func buildMainPageString(configuration *Configuration) string {
-	var buffer bytes.Buffer
-	buffer.WriteString("<html><head><title>Aaron's Raspberry Pi</title></head>")
-	buffer.WriteString("<body><ul>")
-	for i := range configuration.Commands {
-		commandInfo := &(configuration.Commands[i])
-		buffer.WriteString(
-			fmt.Sprintf("<li><a href=\"%v\">%v</a></li>",
-				commandInfo.HttpPath, commandInfo.Description))
-	}
-	buffer.WriteString("</ul></body>")
-	return buffer.String()
-}
+var templates = template.Must(template.ParseFiles("main.html", "command.html"))
 
 func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
-	mainPageString := buildMainPageString(configuration)
 	return func(w http.ResponseWriter, r *http.Request) {
-		io.WriteString(w, mainPageString)
+		err := templates.ExecuteTemplate(w, "main.html", configuration)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	}
 }
 
@@ -76,10 +65,11 @@ func commandRunnerHandlerFunc(configuration *Configuration, commandInfo *Command
 
 			outputString = buffer.String()
 		}
-		fmt.Fprintf(w,
-			"<html><head><meta http-equiv=\"refresh\" content=\"%d\"></head>"+
-				"<body><pre>%s</pre></body></html>",
-			configuration.RefreshSeconds, outputString)
+
+		err = templates.ExecuteTemplate(w, "command.html", outputString)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	}
 }
 
