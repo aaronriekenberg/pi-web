@@ -34,7 +34,7 @@ func buildMainPageString(configuration *Configuration) string {
 	var buffer bytes.Buffer
 	buffer.WriteString("<html><head><title>Aaron's Raspberry Pi</title></head>")
 	buffer.WriteString("<body><ul>")
-	for i, _ := range configuration.Commands {
+	for i := range configuration.Commands {
 		commandInfo := &(configuration.Commands[i])
 		buffer.WriteString(
 			fmt.Sprintf("<li><a href=\"%v\">%v</a></li>",
@@ -121,7 +121,7 @@ func main() {
 
 	http.Handle("/", newMainPageHandler(&configuration))
 
-	for i, _ := range configuration.Commands {
+	for i := range configuration.Commands {
 		commandInfo := &(configuration.Commands[i])
 		handler := newCommandRunnerHandler(configuration.RefreshSeconds, commandInfo)
 		http.Handle(commandInfo.HttpPath, handler)
