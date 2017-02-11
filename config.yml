@@ -17,7 +17,6 @@ commands:
 - httpPath: /pitemp
   description: pitemp
   command: pitemp.sh
-  args: []
 
 - httpPath: /top
   description: top
@@ -27,9 +26,7 @@ commands:
 - httpPath: /uptime
   description: uptime
   command: uptime
-  args: []
 
 - httpPath: /vmstat
   description: vmstat
   command: vmstat
-  args: []
