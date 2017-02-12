@@ -31,11 +31,11 @@ type Configuration struct {
 }
 
 const (
-	comandTemplateFile = "command.html"
-	mainTemplateFile   = "main.html"
+	commandTemplateFile = "command.html"
+	mainTemplateFile    = "main.html"
 )
 
-var templates = template.Must(template.ParseFiles(comandTemplateFile, mainTemplateFile))
+var templates = template.Must(template.ParseFiles(commandTemplateFile, mainTemplateFile))
 
 func buildMainPageString(configuration *Configuration) string {
 	var buffer bytes.Buffer
@@ -79,7 +79,7 @@ func commandRunnerHandlerFunc(commandInfo *CommandInfo) http.HandlerFunc {
 			outputString = buffer.String()
 		}
 
-		err = templates.ExecuteTemplate(w, comandTemplateFile, outputString)
+		err = templates.ExecuteTemplate(w, commandTemplateFile, outputString)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
