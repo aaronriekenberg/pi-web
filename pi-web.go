@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -29,14 +30,22 @@ type Configuration struct {
 	Commands      []CommandInfo `yaml:"commands"`
 }
 
-var templates = template.Must(template.ParseFiles("main.html", "command.html"))
+var templates = template.Must(template.ParseFiles("command.html", "main.html"))
+
+func buildMainPageString(configuration *Configuration) string {
+	var buffer bytes.Buffer
+	err := templates.ExecuteTemplate(&buffer, "main.html", configuration)
+	if err != nil {
+		log.Fatalf("error executing main page template %v", err.Error())
+	}
+	return buffer.String()
+}
 
 func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
+	mainPageString := buildMainPageString(configuration)
+
 	return func(w http.ResponseWriter, r *http.Request) {
-		err := templates.ExecuteTemplate(w, "main.html", configuration)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
+		io.WriteString(w, mainPageString)
 	}
 }
 
