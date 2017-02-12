@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"html"
 	"html/template"
 	"io/ioutil"
 	"log"
@@ -61,7 +60,7 @@ func commandRunnerHandlerFunc(commandInfo *CommandInfo) http.HandlerFunc {
 			}
 			buffer.WriteString("\n\n")
 
-			buffer.WriteString(html.EscapeString(string(commandOutput)))
+			buffer.Write(commandOutput)
 
 			outputString = buffer.String()
 		}
