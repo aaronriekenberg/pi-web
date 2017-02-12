@@ -54,32 +54,34 @@ func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 	}
 }
 
+type CommandRunData struct {
+	TimeString     string
+	CommandAndArgs string
+	CommandOutput  string
+}
+
 func commandRunnerHandlerFunc(commandInfo *CommandInfo) http.HandlerFunc {
+	commandAndArgs := commandInfo.Command
+	if len(commandInfo.Args) > 0 {
+		commandAndArgs += " "
+		commandAndArgs += strings.Join(commandInfo.Args, " ")
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
-		var outputString string
 		commandOutput, err := exec.Command(commandInfo.Command, commandInfo.Args...).Output()
-		if err != nil {
-			outputString = fmt.Sprintf("cmd err %v", err.Error())
-		} else {
-			var buffer bytes.Buffer
 
-			buffer.WriteString(time.Now().Local().String())
-			buffer.WriteString("\n\n")
-
-			buffer.WriteString("$ ")
-			buffer.WriteString(commandInfo.Command)
-			if len(commandInfo.Args) > 0 {
-				buffer.WriteString(" ")
-				buffer.WriteString(strings.Join(commandInfo.Args, " "))
-			}
-			buffer.WriteString("\n\n")
-
-			buffer.Write(commandOutput)
-
-			outputString = buffer.String()
+		commandRunData := &CommandRunData{
+			TimeString:     time.Now().Local().String(),
+			CommandAndArgs: commandAndArgs,
 		}
 
-		err = templates.ExecuteTemplate(w, commandTemplateFile, outputString)
+		if err != nil {
+			commandRunData.CommandOutput = fmt.Sprintf("cmd err %v", err.Error())
+		} else {
+			commandRunData.CommandOutput = string(commandOutput)
+		}
+
+		err = templates.ExecuteTemplate(w, commandTemplateFile, commandRunData)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
