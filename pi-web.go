@@ -45,7 +45,7 @@ func commandRunnerHandlerFunc(commandInfo *CommandInfo) http.HandlerFunc {
 		var outputString string
 		commandOutput, err := exec.Command(commandInfo.Command, commandInfo.Args...).Output()
 		if err != nil {
-			outputString = fmt.Sprintf("cmd err %v", err)
+			outputString = fmt.Sprintf("cmd err %v", err.Error())
 		} else {
 			var buffer bytes.Buffer
 
@@ -77,13 +77,13 @@ func readConfiguration(configFile string) *Configuration {
 
 	source, err := ioutil.ReadFile(configFile)
 	if err != nil {
-		logger.Fatalf("error reading %v: %v", configFile, err)
+		logger.Fatalf("error reading %v: %v", configFile, err.Error())
 	}
 
 	var configuration Configuration
 	err = yaml.Unmarshal(source, &configuration)
 	if err != nil {
-		logger.Fatalf("error parsing %v: %v", configFile, err)
+		logger.Fatalf("error parsing %v: %v", configFile, err.Error())
 	}
 
 	return &configuration
