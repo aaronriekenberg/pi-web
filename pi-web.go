@@ -30,11 +30,16 @@ type Configuration struct {
 	Commands      []CommandInfo `yaml:"commands"`
 }
 
-var templates = template.Must(template.ParseFiles("command.html", "main.html"))
+const (
+	comandTemplateFile = "command.html"
+	mainTemplateFile   = "main.html"
+)
+
+var templates = template.Must(template.ParseFiles(comandTemplateFile, mainTemplateFile))
 
 func buildMainPageString(configuration *Configuration) string {
 	var buffer bytes.Buffer
-	err := templates.ExecuteTemplate(&buffer, "main.html", configuration)
+	err := templates.ExecuteTemplate(&buffer, mainTemplateFile, configuration)
 	if err != nil {
 		log.Fatalf("error executing main page template %v", err.Error())
 	}
@@ -74,7 +79,7 @@ func commandRunnerHandlerFunc(commandInfo *CommandInfo) http.HandlerFunc {
 			outputString = buffer.String()
 		}
 
-		err = templates.ExecuteTemplate(w, "command.html", outputString)
+		err = templates.ExecuteTemplate(w, comandTemplateFile, outputString)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
