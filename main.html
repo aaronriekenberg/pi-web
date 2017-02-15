@@ -2,10 +2,8 @@
 <head><title>Aaron's Raspberry Pi</title></head>
 <body>
 <h2>Aaron's Raspberry Pi</h2>
-<ul>
-{{range .Commands}}
-  <li><a href="{{.HttpPath}}">{{.Description}}</a></li>
-{{end}}
+<ul>{{range .Commands}}
+  <li><a href="{{.HttpPath}}">{{.Description}}</a></li>{{end}}
 </ul>
 </body>
 </html>
