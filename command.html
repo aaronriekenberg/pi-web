@@ -4,7 +4,7 @@
 <pre>
 {{.TimeString}}
 
-$ {{.CommandAndArgs}}
+$ {{.Command}}{{range .Args}} {{.}}{{end}}
 
 {{.CommandOutput}}
 </pre>

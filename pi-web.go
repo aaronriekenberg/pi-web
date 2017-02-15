@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"strings"
 	"time"
 
 	"gopkg.in/yaml.v2"
@@ -55,24 +54,20 @@ func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 }
 
 type CommandRunData struct {
-	TimeString     string
-	CommandAndArgs string
-	CommandOutput  string
+	TimeString    string
+	Command       string
+	Args          []string
+	CommandOutput string
 }
 
 func commandRunnerHandlerFunc(commandInfo *CommandInfo) http.HandlerFunc {
-	commandAndArgs := commandInfo.Command
-	if len(commandInfo.Args) > 0 {
-		commandAndArgs += " "
-		commandAndArgs += strings.Join(commandInfo.Args, " ")
-	}
-
 	return func(w http.ResponseWriter, r *http.Request) {
 		commandOutput, err := exec.Command(commandInfo.Command, commandInfo.Args...).Output()
 
 		commandRunData := &CommandRunData{
-			TimeString:     time.Now().Local().String(),
-			CommandAndArgs: commandAndArgs,
+			TimeString: time.Now().Local().String(),
+			Command:    commandInfo.Command,
+			Args:       commandInfo.Args,
 		}
 
 		if err != nil {
