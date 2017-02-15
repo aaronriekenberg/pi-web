@@ -34,7 +34,7 @@ const (
 	mainTemplateFile    = "main.html"
 )
 
-var templates = template.Must(template.ParseFiles(commandTemplateFile, mainTemplateFile))
+var templates = template.Must(template.New("pi-web").ParseFiles(commandTemplateFile, mainTemplateFile))
 
 func buildMainPageString(configuration *Configuration) string {
 	var buffer bytes.Buffer
