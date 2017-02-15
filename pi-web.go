@@ -30,11 +30,11 @@ type Configuration struct {
 }
 
 const (
-	commandTemplateFile = "command.html"
 	mainTemplateFile    = "main.html"
+	commandTemplateFile = "command.html"
 )
 
-var templates = template.Must(template.New("pi-web").ParseFiles(commandTemplateFile, mainTemplateFile))
+var templates = template.Must(template.ParseFiles(mainTemplateFile, commandTemplateFile))
 
 func buildMainPageString(configuration *Configuration) string {
 	var buffer bytes.Buffer
