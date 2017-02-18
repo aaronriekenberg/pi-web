@@ -1,5 +1,7 @@
 listenAddress: :8080
 
+favIconFile: favicon.ico
+
 commands:
 
 - httpPath: /netstat

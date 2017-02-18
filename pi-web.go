@@ -26,6 +26,7 @@ type CommandInfo struct {
 
 type Configuration struct {
 	ListenAddress string        `yaml:"listenAddress"`
+	FavIconFile   string        `yaml:"favIconFile"`
 	Commands      []CommandInfo `yaml:"commands"`
 }
 
@@ -54,6 +55,12 @@ func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 		} else {
 			io.WriteString(w, mainPageString)
 		}
+	}
+}
+
+func favIconHandlerFunc(configuration *Configuration) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, configuration.FavIconFile)
 	}
 }
 
@@ -116,6 +123,8 @@ func main() {
 	logger.Printf("configuration = %+v", configuration)
 
 	http.HandleFunc("/", mainPageHandlerFunc(configuration))
+
+	http.HandleFunc("/favicon.ico", favIconHandlerFunc(configuration))
 
 	for i := range configuration.Commands {
 		commandInfo := &(configuration.Commands[i])
