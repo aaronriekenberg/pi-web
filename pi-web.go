@@ -105,7 +105,7 @@ func readConfiguration(configFile string) *Configuration {
 }
 
 func main() {
-	if len(os.Args) < 2 {
+	if len(os.Args) != 2 {
 		logger.Fatalf("Usage: %v <config yml file>", os.Args[0])
 	}
 
