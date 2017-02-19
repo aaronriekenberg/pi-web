@@ -8,6 +8,10 @@ commands:
   description: ifconfig
   command: ifconfig
 
+- httpPath: /iwconfig
+  description: iwconfig
+  command: iwconfig
+
 - httpPath: /netstat
   description: netstat
   command: netstat
