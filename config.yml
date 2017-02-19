@@ -34,3 +34,7 @@ commands:
 - httpPath: /vmstat
   description: vmstat
   command: vmstat
+
+- httpPath: /w
+  description: w
+  command: w
