@@ -4,6 +4,10 @@ favIconFile: favicon.ico
 
 commands:
 
+- httpPath: /ifconfig
+  description: ifconfig
+  command: ifconfig
+
 - httpPath: /netstat
   description: netstat
   command: netstat
