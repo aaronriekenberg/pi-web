@@ -13,6 +13,7 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/gorilla/handlers"
 	"gopkg.in/yaml.v2"
 )
 
@@ -112,13 +113,6 @@ func readConfiguration(configFile string) *Configuration {
 	return &configuration
 }
 
-func loggingHandler(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		h.ServeHTTP(w, r)
-		logger.Printf("%v %v %v %v %v", r.Method, r.URL, r.Proto, r.RemoteAddr, r.Header)
-	})
-}
-
 func main() {
 	if len(os.Args) != 2 {
 		logger.Fatalf("Usage: %v <config yml file>", os.Args[0])
@@ -148,5 +142,5 @@ func main() {
 	logger.Fatal(
 		http.ListenAndServe(
 			configuration.ListenAddress,
-			loggingHandler(serveMux)))
+			handlers.CombinedLoggingHandler(os.Stdout, serveMux)))
 }
