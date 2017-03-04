@@ -28,9 +28,10 @@ type CommandInfo struct {
 }
 
 type Configuration struct {
-	ListenAddress string        `yaml:"listenAddress"`
-	FavIconFile   string        `yaml:"favIconFile"`
-	Commands      []CommandInfo `yaml:"commands"`
+	ListenAddress string            `yaml:"listenAddress"`
+	FavIconFile   string            `yaml:"favIconFile"`
+	RequestLogger lumberjack.Logger `yaml:"requestLogger"`
+	Commands      []CommandInfo     `yaml:"commands"`
 }
 
 const (
@@ -140,14 +141,11 @@ func main() {
 			commandRunnerHandlerFunc(commandInfo))
 	}
 
-	requestLogger := &lumberjack.Logger{
-		Filename:   "request.log",
-		MaxSize:    1,
-		MaxBackups: 10,
-		LocalTime:  true,
-	}
+	serveHandler := handlers.CombinedLoggingHandler(
+		&configuration.RequestLogger,
+		serveMux)
 
-	serveHandler := handlers.CombinedLoggingHandler(requestLogger, serveMux)
-
-	logger.Fatal(http.ListenAndServe(configuration.ListenAddress, serveHandler))
+	logger.Fatal(http.ListenAndServe(
+		configuration.ListenAddress,
+		serveHandler))
 }

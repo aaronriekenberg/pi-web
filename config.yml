@@ -2,6 +2,11 @@ listenAddress: :8080
 
 favIconFile: favicon.ico
 
+requestLogger:
+  filename: request.log
+  maxsize: 1
+  localtime: true
+
 commands:
 
 - httpPath: /ifconfig
