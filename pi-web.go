@@ -140,14 +140,14 @@ func main() {
 			commandRunnerHandlerFunc(commandInfo))
 	}
 
-	requestLogWriter := &lumberjack.Logger{
+	requestLogger := &lumberjack.Logger{
 		Filename:   "request.log",
 		MaxSize:    1,
 		MaxBackups: 10,
 		LocalTime:  true,
 	}
 
-	serveHandler := handlers.CombinedLoggingHandler(requestLogWriter, serveMux)
+	serveHandler := handlers.CombinedLoggingHandler(requestLogger, serveMux)
 
 	logger.Fatal(http.ListenAndServe(configuration.ListenAddress, serveHandler))
 }
