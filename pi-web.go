@@ -130,13 +130,13 @@ func main() {
 
 	serveMux := http.NewServeMux()
 
-	serveMux.HandleFunc("/", mainPageHandlerFunc(configuration))
+	serveMux.Handle("/", mainPageHandlerFunc(configuration))
 
-	serveMux.HandleFunc("/favicon.ico", favIconHandlerFunc(configuration))
+	serveMux.Handle("/favicon.ico", favIconHandlerFunc(configuration))
 
 	for i := range configuration.Commands {
 		commandInfo := &(configuration.Commands[i])
-		serveMux.HandleFunc(
+		serveMux.Handle(
 			commandInfo.HttpPath,
 			commandRunnerHandlerFunc(commandInfo))
 	}
