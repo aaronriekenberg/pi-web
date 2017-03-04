@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"runtime"
 	"time"
 
 	"gopkg.in/yaml.v2"
@@ -115,6 +116,8 @@ func main() {
 	if len(os.Args) != 2 {
 		logger.Fatalf("Usage: %v <config yml file>", os.Args[0])
 	}
+
+	logger.Printf("GOMAXPROCS = %v", runtime.GOMAXPROCS(0))
 
 	configFile := os.Args[1]
 
