@@ -112,6 +112,13 @@ func readConfiguration(configFile string) *Configuration {
 	return &configuration
 }
 
+func loggingHandler(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		h.ServeHTTP(w, r)
+		logger.Printf("%v %v %v %v %v", r.Method, r.URL, r.Proto, r.RemoteAddr, r.Header)
+	})
+}
+
 func main() {
 	if len(os.Args) != 2 {
 		logger.Fatalf("Usage: %v <config yml file>", os.Args[0])
@@ -125,18 +132,21 @@ func main() {
 
 	logger.Printf("configuration = %+v", configuration)
 
-	http.HandleFunc("/", mainPageHandlerFunc(configuration))
+	serveMux := http.NewServeMux()
 
-	http.HandleFunc("/favicon.ico", favIconHandlerFunc(configuration))
+	serveMux.HandleFunc("/", mainPageHandlerFunc(configuration))
+
+	serveMux.HandleFunc("/favicon.ico", favIconHandlerFunc(configuration))
 
 	for i := range configuration.Commands {
 		commandInfo := &(configuration.Commands[i])
-		http.HandleFunc(
+		serveMux.HandleFunc(
 			commandInfo.HttpPath,
 			commandRunnerHandlerFunc(commandInfo))
 	}
 
 	logger.Fatal(
 		http.ListenAndServe(
-			configuration.ListenAddress, nil))
+			configuration.ListenAddress,
+			loggingHandler(serveMux)))
 }
