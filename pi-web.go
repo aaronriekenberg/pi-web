@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/gorilla/handlers"
+	"gopkg.in/natefinch/lumberjack.v2"
 	"gopkg.in/yaml.v2"
 )
 
@@ -126,6 +127,13 @@ func main() {
 
 	logger.Printf("configuration = %+v", configuration)
 
+	requestLogWriter := &lumberjack.Logger{
+		Filename:   "request.log",
+		MaxSize:    1,
+		MaxBackups: 10,
+		LocalTime:  true,
+	}
+
 	serveMux := http.NewServeMux()
 
 	serveMux.HandleFunc("/", mainPageHandlerFunc(configuration))
@@ -142,5 +150,5 @@ func main() {
 	logger.Fatal(
 		http.ListenAndServe(
 			configuration.ListenAddress,
-			handlers.CombinedLoggingHandler(os.Stdout, serveMux)))
+			handlers.CombinedLoggingHandler(requestLogWriter, serveMux)))
 }
