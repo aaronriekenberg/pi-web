@@ -147,8 +147,7 @@ func main() {
 			commandRunnerHandlerFunc(commandInfo))
 	}
 
-	logger.Fatal(
-		http.ListenAndServe(
-			configuration.ListenAddress,
-			handlers.CombinedLoggingHandler(requestLogWriter, serveMux)))
+	serveHandler := handlers.CombinedLoggingHandler(requestLogWriter, serveMux)
+
+	logger.Fatal(http.ListenAndServe(configuration.ListenAddress, serveHandler))
 }
