@@ -127,13 +127,6 @@ func main() {
 
 	logger.Printf("configuration = %+v", configuration)
 
-	requestLogWriter := &lumberjack.Logger{
-		Filename:   "request.log",
-		MaxSize:    1,
-		MaxBackups: 10,
-		LocalTime:  true,
-	}
-
 	serveMux := http.NewServeMux()
 
 	serveMux.HandleFunc("/", mainPageHandlerFunc(configuration))
@@ -145,6 +138,13 @@ func main() {
 		serveMux.HandleFunc(
 			commandInfo.HttpPath,
 			commandRunnerHandlerFunc(commandInfo))
+	}
+
+	requestLogWriter := &lumberjack.Logger{
+		Filename:   "request.log",
+		MaxSize:    1,
+		MaxBackups: 10,
+		LocalTime:  true,
 	}
 
 	serveHandler := handlers.CombinedLoggingHandler(requestLogWriter, serveMux)
