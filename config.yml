@@ -5,6 +5,7 @@ favIconFile: favicon.ico
 requestLogger:
   filename: request.log
   maxsize: 1
+  maxbackups: 10
   localtime: true
 
 commands:
