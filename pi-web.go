@@ -143,7 +143,8 @@ func main() {
 		&configuration.RequestLogger,
 		serveMux)
 
-	logger.Fatal(http.ListenAndServe(
-		configuration.ListenAddress,
-		serveHandler))
+	logger.Fatal(
+		http.ListenAndServe(
+			configuration.ListenAddress,
+			serveHandler))
 }
