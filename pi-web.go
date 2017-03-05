@@ -80,7 +80,7 @@ func commandRunnerHandlerFunc(commandInfo *CommandInfo) http.HandlerFunc {
 
 		commandRunData := &CommandRunData{
 			CommandInfo: commandInfo,
-			TimeString:  time.Now().Local().String(),
+			TimeString:  time.Now().String(),
 		}
 
 		if err != nil {
