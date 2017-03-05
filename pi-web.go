@@ -76,7 +76,8 @@ type CommandRunData struct {
 
 func commandRunnerHandlerFunc(commandInfo *CommandInfo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		commandOutput, err := exec.Command(commandInfo.Command, commandInfo.Args...).Output()
+		commandOutput, err := exec.Command(
+			commandInfo.Command, commandInfo.Args...).CombinedOutput()
 
 		commandRunData := &CommandRunData{
 			CommandInfo: commandInfo,
