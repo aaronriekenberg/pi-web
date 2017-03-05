@@ -69,9 +69,8 @@ func favIconHandlerFunc(configuration *Configuration) http.HandlerFunc {
 }
 
 type CommandRunData struct {
+	*CommandInfo
 	TimeString    string
-	Command       string
-	Args          []string
 	CommandOutput string
 }
 
@@ -80,9 +79,8 @@ func commandRunnerHandlerFunc(commandInfo *CommandInfo) http.HandlerFunc {
 		commandOutput, err := exec.Command(commandInfo.Command, commandInfo.Args...).Output()
 
 		commandRunData := &CommandRunData{
-			TimeString: time.Now().Local().String(),
-			Command:    commandInfo.Command,
-			Args:       commandInfo.Args,
+			CommandInfo: commandInfo,
+			TimeString:  time.Now().Local().String(),
 		}
 
 		if err != nil {
