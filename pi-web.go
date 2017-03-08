@@ -54,9 +54,10 @@ func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 	mainPageString := buildMainPageString(configuration)
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/" {
+		switch {
+		case r.URL.Path != "/":
 			http.NotFound(w, r)
-		} else {
+		default:
 			io.WriteString(w, mainPageString)
 		}
 	}
