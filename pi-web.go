@@ -45,7 +45,7 @@ func buildMainPageString(configuration *Configuration) string {
 	var buffer bytes.Buffer
 	err := templates.ExecuteTemplate(&buffer, mainTemplateFile, configuration)
 	if err != nil {
-		log.Fatalf("error executing main page template %v", err.Error())
+		logger.Fatalf("error executing main page template %v", err.Error())
 	}
 	return buffer.String()
 }
