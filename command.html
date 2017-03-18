@@ -2,7 +2,9 @@
 <head><meta http-equiv="refresh" content="5"></head>
 <body>
 <pre>
-{{.TimeString}}
+Now: {{.Now}}
+
+Command Duration: {{.CommandDuration}}
 
 $ {{.Command}}{{range .Args}} {{.}}{{end}}
 

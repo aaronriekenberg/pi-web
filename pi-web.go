@@ -70,24 +70,33 @@ func favIconHandlerFunc(configuration *Configuration) http.HandlerFunc {
 
 type CommandRunData struct {
 	*CommandInfo
-	TimeString    string
-	CommandOutput string
+	Now             string
+	CommandDuration string
+	CommandOutput   string
 }
 
 func commandRunnerHandlerFunc(commandInfo *CommandInfo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		commandOutput, err := exec.Command(
+		commandStartTime := time.Now()
+		rawCommandOutput, err := exec.Command(
 			commandInfo.Command, commandInfo.Args...).CombinedOutput()
+		commandEndTime := time.Now()
 
-		commandRunData := &CommandRunData{
-			CommandInfo: commandInfo,
-			TimeString:  time.Now().String(),
+		var commandOutput string
+		if err != nil {
+			commandOutput = fmt.Sprintf("command error %v", err.Error())
+		} else {
+			commandOutput = string(rawCommandOutput)
 		}
 
-		if err != nil {
-			commandRunData.CommandOutput = fmt.Sprintf("cmd err %v", err.Error())
-		} else {
-			commandRunData.CommandOutput = string(commandOutput)
+		commandDuration := fmt.Sprintf("%.9f",
+			commandEndTime.Sub(commandStartTime).Seconds()) + " sec"
+
+		commandRunData := &CommandRunData{
+			CommandInfo:     commandInfo,
+			Now:             commandEndTime.String(),
+			CommandDuration: commandDuration,
+			CommandOutput:   commandOutput,
 		}
 
 		err = templates.ExecuteTemplate(w, commandTemplateFile, commandRunData)
