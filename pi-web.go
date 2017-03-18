@@ -141,7 +141,7 @@ func main() {
 	}
 
 	serveHandler := handlers.CombinedLoggingHandler(
-		&configuration.RequestLogger,
+		&(configuration.RequestLogger),
 		serveMux)
 
 	logger.Fatal(
