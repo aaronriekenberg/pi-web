@@ -13,7 +13,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/gorilla/handlers"
+	gorillaHandlers "github.com/gorilla/handlers"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"gopkg.in/yaml.v2"
 )
@@ -149,7 +149,7 @@ func main() {
 			commandRunnerHandlerFunc(commandInfo))
 	}
 
-	serveHandler := handlers.CombinedLoggingHandler(
+	serveHandler := gorillaHandlers.CombinedLoggingHandler(
 		&(configuration.RequestLogger),
 		serveMux)
 
