@@ -37,6 +37,11 @@ commands:
   command: top
   args: [-b, -n1]
 
+- httpPath: /unbound
+  description: unbound
+  command: sudo
+  args: [unbound-control, stats_noreset]
+
 - httpPath: /uptime
   description: uptime
   command: uptime
