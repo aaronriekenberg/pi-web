@@ -69,13 +69,13 @@ func staticFileHandlerFunc(fileName string) http.HandlerFunc {
 }
 
 type CommandRunData struct {
-	*CommandInfo
+	CommandInfo
 	Now             string
 	CommandDuration string
 	CommandOutput   string
 }
 
-func commandRunnerHandlerFunc(commandInfo *CommandInfo) http.HandlerFunc {
+func commandRunnerHandlerFunc(commandInfo CommandInfo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		commandStartTime := time.Now()
 		rawCommandOutput, err := exec.Command(
@@ -145,8 +145,7 @@ func main() {
 		serveMux.Handle(httpPath, staticFileHandlerFunc(staticFile))
 	}
 
-	for i := range configuration.Commands {
-		commandInfo := &(configuration.Commands[i])
+	for _, commandInfo := range configuration.Commands {
 		serveMux.Handle(
 			commandInfo.HttpPath,
 			commandRunnerHandlerFunc(commandInfo))
