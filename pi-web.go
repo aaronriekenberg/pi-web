@@ -18,8 +18,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-var logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lmicroseconds)
-
 type CommandInfo struct {
 	HttpPath    string   `yaml:"httpPath"`
 	Description string   `yaml:"description"`
@@ -40,6 +38,8 @@ const (
 )
 
 var templates = template.Must(template.ParseFiles(mainTemplateFile, commandTemplateFile))
+
+var logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lmicroseconds)
 
 func buildMainPageString(configuration *Configuration) string {
 	var buffer bytes.Buffer
