@@ -29,8 +29,8 @@ type CommandInfo struct {
 
 type Configuration struct {
 	ListenAddress string            `yaml:"listenAddress"`
-	FavIconFile   string            `yaml:"favIconFile"`
 	RequestLogger lumberjack.Logger `yaml:"requestLogger"`
+	StaticFiles   []string          `yaml:"staticFiles"`
 	Commands      []CommandInfo     `yaml:"commands"`
 }
 
@@ -62,9 +62,9 @@ func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 	}
 }
 
-func favIconHandlerFunc(configuration *Configuration) http.HandlerFunc {
+func staticFileHandlerFunc(fileName string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, configuration.FavIconFile)
+		http.ServeFile(w, r, fileName)
 	}
 }
 
@@ -140,7 +140,10 @@ func main() {
 
 	serveMux.Handle("/", mainPageHandlerFunc(configuration))
 
-	serveMux.Handle("/favicon.ico", favIconHandlerFunc(configuration))
+	for _, staticFile := range configuration.StaticFiles {
+		httpPath := "/" + staticFile
+		serveMux.Handle(httpPath, staticFileHandlerFunc(staticFile))
+	}
 
 	for i := range configuration.Commands {
 		commandInfo := &(configuration.Commands[i])

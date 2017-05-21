@@ -1,12 +1,14 @@
 listenAddress: :8080
 
-favIconFile: favicon.ico
-
 requestLogger:
   filename: request.log
   maxsize: 1
   maxbackups: 10
   localtime: true
+
+staticFiles:
+- style.css
+- favicon.ico
 
 commands:
 
@@ -37,8 +39,13 @@ commands:
   command: top
   args: [-b, -n1]
 
-- httpPath: /unbound
-  description: unbound
+- httpPath: /unbound_dump_infra
+  description: unbound dump_infra
+  command: sudo
+  args: [unbound-control, dump_infra]
+
+- httpPath: /unbound_stats_noreset
+  description: unbound stats_noreset
   command: sudo
   args: [unbound-control, stats_noreset]
 
