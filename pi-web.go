@@ -89,8 +89,8 @@ func commandRunnerHandlerFunc(commandInfo CommandInfo) http.HandlerFunc {
 			commandOutput = string(rawCommandOutput)
 		}
 
-		commandDuration := fmt.Sprintf("%.9f",
-			commandEndTime.Sub(commandStartTime).Seconds()) + " sec"
+		commandDuration := fmt.Sprintf("%.9f sec",
+			commandEndTime.Sub(commandStartTime).Seconds())
 
 		commandRunData := &CommandRunData{
 			CommandInfo:     &commandInfo,
