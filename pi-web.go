@@ -41,7 +41,7 @@ const (
 
 var templates = template.Must(template.ParseFiles(mainTemplateFile, commandTemplateFile))
 
-func buildMainPageString(configuration *Configuration) string {
+func buildMainPageString(configuration Configuration) string {
 	var buffer bytes.Buffer
 	err := templates.ExecuteTemplate(&buffer, mainTemplateFile, configuration)
 	if err != nil {
@@ -50,7 +50,7 @@ func buildMainPageString(configuration *Configuration) string {
 	return buffer.String()
 }
 
-func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
+func mainPageHandlerFunc(configuration Configuration) http.HandlerFunc {
 	mainPageString := buildMainPageString(configuration)
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -138,7 +138,7 @@ func main() {
 
 	serveMux := http.NewServeMux()
 
-	serveMux.Handle("/", mainPageHandlerFunc(configuration))
+	serveMux.Handle("/", mainPageHandlerFunc(*configuration))
 
 	for _, staticFile := range configuration.StaticFiles {
 		httpPath := "/" + staticFile
