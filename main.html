@@ -1,11 +1,11 @@
 <html>
 <head>
-<title>Aaron's Raspberry Pi</title>
+<title>{{.MainPageTitle}}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-<h2>Aaron's Raspberry Pi</h2>
+<h2>{{.MainPageTitle}}</h2>
 <ul>{{range .Commands}}
   <li><a href="{{.HttpPath}}">{{.Description}}</a></li>{{end}}
 </ul>

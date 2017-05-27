@@ -10,7 +10,7 @@ staticFiles:
 - style.css
 - favicon.ico
 
-mainPageTitle: Aaron's Raspberry Pi
+mainPageTitle: Aaron's OpenBSD Box
 
 commands:
 
@@ -18,28 +18,30 @@ commands:
   description: ifconfig
   command: ifconfig
 
-- httpPath: /iwconfig
-  description: iwconfig
-  command: iwconfig
-
 - httpPath: /netstat
   description: netstat
   command: netstat
   args: [-a, -n]
 
-- httpPath: /ntpq
-  description: ntpq
-  command: ntpq
-  args: [-p]
-
-- httpPath: /pitemp
-  description: pitemp
-  command: pitemp.sh
+- httpPath: /ntpctl
+  description: ntpctl
+  command: ntpctl
+  args: [-sa]
 
 - httpPath: /top
   description: top
   command: top
   args: [-b, -n1]
+
+- httpPath: /unbound_dump_infra
+  description: unbound dump_infra
+  command: doas
+  args: [/usr/sbin/unbound-control, dump_infra]
+
+- httpPath: /unbound_stats_noreset
+  description: unbound stats_noreset
+  command: doas
+  args: [/usr/sbin/unbound-control, stats_noreset]
 
 - httpPath: /uptime
   description: uptime

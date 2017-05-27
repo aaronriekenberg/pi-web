@@ -29,6 +29,7 @@ type Configuration struct {
 	ListenAddress string            `yaml:"listenAddress"`
 	RequestLogger lumberjack.Logger `yaml:"requestLogger"`
 	StaticFiles   []string          `yaml:"staticFiles"`
+	MainPageTitle string            `yaml:"mainPageTitle"`
 	Commands      []CommandInfo     `yaml:"commands"`
 }
 
