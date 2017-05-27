@@ -25,11 +25,16 @@ type CommandInfo struct {
 	Args        []string `yaml:"args"`
 }
 
+type StaticFileInfo struct {
+	HttpPath string `yaml:"httpPath"`
+	FilePath string `yaml:"filePath"`
+}
+
 type Configuration struct {
 	ListenAddress string            `yaml:"listenAddress"`
 	RequestLogger lumberjack.Logger `yaml:"requestLogger"`
-	StaticFiles   []string          `yaml:"staticFiles"`
 	MainPageTitle string            `yaml:"mainPageTitle"`
+	StaticFiles   []StaticFileInfo  `yaml:"staticFiles"`
 	Commands      []CommandInfo     `yaml:"commands"`
 }
 
@@ -141,9 +146,10 @@ func main() {
 
 	serveMux.Handle("/", mainPageHandlerFunc(configuration))
 
-	for _, staticFile := range configuration.StaticFiles {
-		httpPath := "/" + staticFile
-		serveMux.Handle(httpPath, staticFileHandlerFunc(staticFile))
+	for _, staticFileInfo := range configuration.StaticFiles {
+		serveMux.Handle(
+			staticFileInfo.HttpPath,
+			staticFileHandlerFunc(staticFileInfo.FilePath))
 	}
 
 	for _, commandInfo := range configuration.Commands {

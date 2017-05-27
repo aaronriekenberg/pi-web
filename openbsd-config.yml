@@ -6,11 +6,15 @@ requestLogger:
   maxbackups: 10
   localtime: true
 
-staticFiles:
-- style.css
-- favicon.ico
-
 mainPageTitle: Aaron's OpenBSD Box
+
+staticFiles:
+
+- httpPath: /style.css
+  filePath: ./style.css
+
+- httpPath: /favicon.ico
+  filePath: ./openbsd-favicon.ico
 
 commands:
 
