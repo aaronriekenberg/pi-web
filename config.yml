@@ -14,7 +14,7 @@ staticFiles:
   filePath: ./style.css
 
 - httpPath: /favicon.ico
-  filePath: ./openbsd-favicon.ico
+  filePath: ./favicon.ico
 
 commands:
 
