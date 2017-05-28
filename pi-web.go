@@ -30,12 +30,18 @@ type StaticFileInfo struct {
 	FilePath string `yaml:"filePath"`
 }
 
+type StaticDirectoryInfo struct {
+	HttpPath      string `yaml:"httpPath"`
+	DirectoryPath string `yaml:"directoryPath"`
+}
+
 type Configuration struct {
-	ListenAddress string            `yaml:"listenAddress"`
-	RequestLogger lumberjack.Logger `yaml:"requestLogger"`
-	MainPageTitle string            `yaml:"mainPageTitle"`
-	StaticFiles   []StaticFileInfo  `yaml:"staticFiles"`
-	Commands      []CommandInfo     `yaml:"commands"`
+	ListenAddress     string                `yaml:"listenAddress"`
+	RequestLogger     lumberjack.Logger     `yaml:"requestLogger"`
+	MainPageTitle     string                `yaml:"mainPageTitle"`
+	StaticFiles       []StaticFileInfo      `yaml:"staticFiles"`
+	StaticDirectories []StaticDirectoryInfo `yaml:"staticDirectories"`
+	Commands          []CommandInfo         `yaml:"commands"`
 }
 
 const (
@@ -150,6 +156,13 @@ func main() {
 		serveMux.Handle(
 			staticFileInfo.HttpPath,
 			staticFileHandlerFunc(staticFileInfo.FilePath))
+	}
+
+	for _, staticDirectoryInfo := range configuration.StaticDirectories {
+		serveMux.Handle(
+			staticDirectoryInfo.HttpPath,
+			http.StripPrefix(staticDirectoryInfo.HttpPath,
+				http.FileServer(http.Dir(staticDirectoryInfo.DirectoryPath))))
 	}
 
 	for _, commandInfo := range configuration.Commands {

@@ -16,6 +16,11 @@ staticFiles:
 - httpPath: /favicon.ico
   filePath: ./openbsd-favicon.ico
 
+staticDirectories:
+
+- httpPath: /pfstat/
+  directoryPath: /var/www/htdocs/pfstat/
+
 commands:
 
 - httpPath: /ifconfig

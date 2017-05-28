@@ -5,9 +5,20 @@
 <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
+
 <h2>{{.MainPageTitle}}</h2>
+
+<h3>Commands:</h3>
 <ul>{{range .Commands}}
   <li><a href="{{.HttpPath}}">{{.Description}}</a></li>{{end}}
 </ul>
+
+{{ if .StaticDirectories }}
+  <h3>Directories:</h3>
+  <ul>{{range .StaticDirectories}}
+    <li><a href="{{.HttpPath}}">{{.DirectoryPath}}</a></li>{{end}}
+  </ul>
+{{ end }}
+
 </body>
 </html>
