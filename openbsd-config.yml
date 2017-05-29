@@ -27,10 +27,15 @@ commands:
   description: ifconfig
   command: ifconfig
 
-- httpPath: /netstat
-  description: netstat
+- httpPath: /netstat_an
+  description: netstat -an
   command: netstat
-  args: [-a, -n]
+  args: [-an]
+
+- httpPath: /netstat_binh
+  description: netstat -binh
+  command: netstat
+  args: [-binh]
 
 - httpPath: /ntpctl
   description: ntpctl
