@@ -1,4 +1,4 @@
-listenAddress: :8080
+listenAddress: 10.0.0.1:8080
 
 requestLogger:
   filename: request.log
