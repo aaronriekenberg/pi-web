@@ -45,7 +45,7 @@ commands:
 - httpPath: /top
   description: top
   command: top
-  args: [-b, -n1]
+  args: [-b, -n]
 
 - httpPath: /unbound_dump_infra
   description: unbound dump_infra
