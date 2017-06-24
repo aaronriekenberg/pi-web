@@ -80,6 +80,12 @@ func staticFileHandlerFunc(fileName string) http.HandlerFunc {
 	}
 }
 
+func staticDirectoryHandler(staticDirectoryInfo StaticDirectoryInfo) http.Handler {
+	return http.StripPrefix(
+		staticDirectoryInfo.HttpPath,
+		http.FileServer(http.Dir(staticDirectoryInfo.DirectoryPath)))
+}
+
 type CommandRunData struct {
 	*CommandInfo
 	Now             string
@@ -161,8 +167,7 @@ func main() {
 	for _, staticDirectoryInfo := range configuration.StaticDirectories {
 		serveMux.Handle(
 			staticDirectoryInfo.HttpPath,
-			http.StripPrefix(staticDirectoryInfo.HttpPath,
-				http.FileServer(http.Dir(staticDirectoryInfo.DirectoryPath))))
+			staticDirectoryHandler(staticDirectoryInfo))
 	}
 
 	for _, commandInfo := range configuration.Commands {
