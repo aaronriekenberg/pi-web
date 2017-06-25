@@ -10,6 +10,6 @@ fi
 
 $KILL_CMD pi-web
 
-rm -f nohup.out
+rm -f pi-web.out
 
-nohup ./pi-web $CONFIG_FILE &
+nohup ./pi-web $CONFIG_FILE > pi-web.out 2>&1 &
