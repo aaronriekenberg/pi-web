@@ -1,7 +1,7 @@
 listenAddress: 127.0.0.1:8080
 
 requestLogger:
-  filename: request.log
+  filename: logs/request.log
   maxsize: 1
   maxbackups: 10
   localtime: true
