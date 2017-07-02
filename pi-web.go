@@ -18,13 +18,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type CommandInfo struct {
-	HttpPath    string   `yaml:"httpPath"`
-	Description string   `yaml:"description"`
-	Command     string   `yaml:"command"`
-	Args        []string `yaml:"args"`
-}
-
 type StaticFileInfo struct {
 	HttpPath string `yaml:"httpPath"`
 	FilePath string `yaml:"filePath"`
@@ -33,6 +26,13 @@ type StaticFileInfo struct {
 type StaticDirectoryInfo struct {
 	HttpPath      string `yaml:"httpPath"`
 	DirectoryPath string `yaml:"directoryPath"`
+}
+
+type CommandInfo struct {
+	HttpPath    string   `yaml:"httpPath"`
+	Description string   `yaml:"description"`
+	Command     string   `yaml:"command"`
+	Args        []string `yaml:"args"`
 }
 
 type Configuration struct {
