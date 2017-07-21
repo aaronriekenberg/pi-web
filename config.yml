@@ -1,7 +1,7 @@
-listenAddress: :8080
+listenAddress: :8081
 
 requestLogger:
-  filename: request.log
+  filename: logs/request.log
   maxsize: 1
   maxbackups: 10
   localtime: true
@@ -20,11 +20,11 @@ commands:
 
 - httpPath: /ifconfig
   description: ifconfig
-  command: ifconfig
+  command: /sbin/ifconfig
 
 - httpPath: /iwconfig
   description: iwconfig
-  command: iwconfig
+  command: /sbin/iwconfig
 
 - httpPath: /netstat
   description: netstat
@@ -38,7 +38,7 @@ commands:
 
 - httpPath: /pitemp
   description: pitemp
-  command: pitemp.sh
+  command: /home/pi/bin/pitemp.sh
 
 - httpPath: /top
   description: top
