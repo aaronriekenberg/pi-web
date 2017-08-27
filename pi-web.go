@@ -44,6 +44,11 @@ type Configuration struct {
 	Commands          []CommandInfo         `yaml:"commands"`
 }
 
+type MainPageInfo struct {
+	*Configuration
+	LastModified string
+}
+
 const (
 	mainTemplateFile    = "main.html"
 	commandTemplateFile = "command.html"
@@ -53,9 +58,17 @@ var templates = template.Must(template.ParseFiles(mainTemplateFile, commandTempl
 
 var logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lmicroseconds)
 
+func formatTime(t time.Time) string {
+	return t.Format("Mon Jan 2 15:04:05.999999999 -0700 MST 2006")
+}
+
 func buildMainPageString(configuration *Configuration) string {
 	var buffer bytes.Buffer
-	err := templates.ExecuteTemplate(&buffer, mainTemplateFile, configuration)
+	mainPageInfo := &MainPageInfo{
+		Configuration: configuration,
+		LastModified:  formatTime(time.Now()),
+	}
+	err := templates.ExecuteTemplate(&buffer, mainTemplateFile, mainPageInfo)
 	if err != nil {
 		logger.Fatalf("error executing main page template %v", err.Error())
 	}
@@ -112,7 +125,7 @@ func commandRunnerHandlerFunc(commandInfo CommandInfo) http.HandlerFunc {
 
 		commandRunData := &CommandRunData{
 			CommandInfo:     &commandInfo,
-			Now:             commandEndTime.String(),
+			Now:             formatTime(commandEndTime),
 			CommandDuration: commandDuration,
 			CommandOutput:   commandOutput,
 		}
