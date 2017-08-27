@@ -44,11 +44,6 @@ type Configuration struct {
 	Commands          []CommandInfo         `yaml:"commands"`
 }
 
-type MainPageInfo struct {
-	*Configuration
-	LastModified string
-}
-
 const (
 	mainTemplateFile    = "main.html"
 	commandTemplateFile = "command.html"
@@ -60,6 +55,11 @@ var logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lmicroseconds)
 
 func formatTime(t time.Time) string {
 	return t.Format("Mon Jan 2 15:04:05.999999999 -0700 MST 2006")
+}
+
+type MainPageInfo struct {
+	*Configuration
+	LastModified string
 }
 
 func buildMainPageString(configuration *Configuration) string {
