@@ -45,6 +45,11 @@ commands:
   command: top
   args: [-b, -n1]
 
+- httpPath: /tail_request_log
+  description: tail log
+  command: tail
+  args: [-n, 20, logs/request.log]
+
 - httpPath: /uptime
   description: uptime
   command: uptime
