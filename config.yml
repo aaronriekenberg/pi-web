@@ -30,6 +30,11 @@ commands:
   description: iwconfig
   command: /sbin/iwconfig
 
+- httpPath: /ncal
+  description: ncal
+  command: ncal
+  args: [-h, -y]
+
 - httpPath: /netstat
   description: netstat
   command: netstat
@@ -53,6 +58,16 @@ commands:
   description: tail request log
   command: tail
   args: [-n, 20, logs/request.log]
+
+- httpPath: /unbound_infra
+  description: unbound infra
+  command: sudo
+  args: [unbound-control, dump_infra]
+
+- httpPath: /unbound_stats
+  description: unbound stats
+  command: sudo
+  args: [unbound-control, stats_noreset]
 
 - httpPath: /uptime
   description: uptime
