@@ -68,11 +68,11 @@ type MainPageMetadata struct {
 	LastModified string
 }
 
-func buildMainPageString(configuration *Configuration) string {
+func buildMainPageString(configuration *Configuration, creationTime time.Time) string {
 	var buffer bytes.Buffer
 	mainPageMetadata := &MainPageMetadata{
 		Configuration: configuration,
-		LastModified:  formatTime(time.Now()),
+		LastModified:  formatTime(creationTime),
 	}
 	err := templates.ExecuteTemplate(&buffer, mainTemplateFile, mainPageMetadata)
 	if err != nil {
@@ -82,9 +82,9 @@ func buildMainPageString(configuration *Configuration) string {
 }
 
 func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
-	mainPageString := buildMainPageString(configuration)
-	cacheControlValue := configuration.MainPageInfo.CacheControlValue
 	creationTime := time.Now()
+	mainPageString := buildMainPageString(configuration, creationTime)
+	cacheControlValue := configuration.MainPageInfo.CacheControlValue
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
