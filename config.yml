@@ -12,8 +12,6 @@ mainPageInfo:
 
 pprofInfo:
   enabled: true
-  listenAddress: :8082
-  linkURL: http://raspberrypi:8082/debug/pprof
 
 staticFiles:
 

@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	_ "net/http/pprof"
+	"net/http/pprof"
 	"os"
 	"os/exec"
 	"runtime"
@@ -26,9 +26,7 @@ type MainPageInfo struct {
 }
 
 type PprofInfo struct {
-	Enabled       bool   `yaml:"enabled"`
-	ListenAddress string `yaml:"listenAddress"`
-	LinkURL       string `yaml:"linkURL"`
+	Enabled bool `yaml:"enabled"`
 }
 
 type StaticFileInfo struct {
@@ -106,35 +104,6 @@ func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 	}
 }
 
-func requestInfoHandlerFunc() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		var buffer bytes.Buffer
-
-		buffer.WriteString("Method: " + r.Method + "\n")
-		buffer.WriteString("Protocol: " + r.Proto + "\n")
-		buffer.WriteString("Host: " + r.Host + "\n")
-		buffer.WriteString("RemoteAddr: " + r.RemoteAddr + "\n")
-		buffer.WriteString("RequestURI: " + r.RequestURI + "\n")
-		buffer.WriteString("URL: " + fmt.Sprintf("%#v", r.URL) + "\n")
-		buffer.WriteString("Body.ContentLength: " + fmt.Sprintf("%v", r.ContentLength) + "\n")
-		buffer.WriteString("Close: " + fmt.Sprintf("%#v", r.Close) + "\n")
-		buffer.WriteString("TLS: " + fmt.Sprintf("%#v", r.TLS) + "\n")
-
-		buffer.WriteString("\nHeaders:\n")
-		var keys []string
-		for key := range r.Header {
-			keys = append(keys, key)
-		}
-		sort.Strings(keys)
-		for _, key := range keys {
-			buffer.WriteString(key + ": " + fmt.Sprintf("%v", r.Header[key]) + "\n")
-		}
-
-		w.Header().Add("Content-Type", "text/plain")
-		io.Copy(w, &buffer)
-	}
-}
-
 func staticFileHandlerFunc(staticFileInfo StaticFileInfo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add(cacheControlHeaderKey, staticFileInfo.CacheControlValue)
@@ -187,6 +156,35 @@ func commandRunnerHandlerFunc(commandInfo CommandInfo) http.HandlerFunc {
 	}
 }
 
+func requestInfoHandlerFunc() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var buffer bytes.Buffer
+
+		buffer.WriteString("Method: " + r.Method + "\n")
+		buffer.WriteString("Protocol: " + r.Proto + "\n")
+		buffer.WriteString("Host: " + r.Host + "\n")
+		buffer.WriteString("RemoteAddr: " + r.RemoteAddr + "\n")
+		buffer.WriteString("RequestURI: " + r.RequestURI + "\n")
+		buffer.WriteString("URL: " + fmt.Sprintf("%#v", r.URL) + "\n")
+		buffer.WriteString("Body.ContentLength: " + fmt.Sprintf("%v", r.ContentLength) + "\n")
+		buffer.WriteString("Close: " + fmt.Sprintf("%#v", r.Close) + "\n")
+		buffer.WriteString("TLS: " + fmt.Sprintf("%#v", r.TLS) + "\n")
+
+		buffer.WriteString("\nHeaders:\n")
+		var keys []string
+		for key := range r.Header {
+			keys = append(keys, key)
+		}
+		sort.Strings(keys)
+		for _, key := range keys {
+			buffer.WriteString(key + ": " + fmt.Sprintf("%v", r.Header[key]) + "\n")
+		}
+
+		w.Header().Add("Content-Type", "text/plain")
+		io.Copy(w, &buffer)
+	}
+}
+
 func readConfiguration(configFile string) *Configuration {
 	logger.Printf("reading %v", configFile)
 
@@ -217,17 +215,9 @@ func main() {
 
 	logger.Printf("configuration = %+v", configuration)
 
-	if configuration.PprofInfo.Enabled {
-		go func() {
-			logger.Fatal(http.ListenAndServe(configuration.PprofInfo.ListenAddress, nil))
-		}()
-	}
-
 	serveMux := http.NewServeMux()
 
 	serveMux.Handle("/", mainPageHandlerFunc(configuration))
-
-	serveMux.Handle("/reqinfo", requestInfoHandlerFunc())
 
 	for _, staticFileInfo := range configuration.StaticFiles {
 		serveMux.Handle(
@@ -245,6 +235,16 @@ func main() {
 		serveMux.Handle(
 			commandInfo.HttpPath,
 			commandRunnerHandlerFunc(commandInfo))
+	}
+
+	serveMux.Handle("/reqinfo", requestInfoHandlerFunc())
+
+	if configuration.PprofInfo.Enabled {
+		serveMux.Handle("/debug/pprof/", http.HandlerFunc(pprof.Index))
+		serveMux.Handle("/debug/pprof/cmdline", http.HandlerFunc(pprof.Cmdline))
+		serveMux.Handle("/debug/pprof/profile", http.HandlerFunc(pprof.Profile))
+		serveMux.Handle("/debug/pprof/symbol", http.HandlerFunc(pprof.Symbol))
+		serveMux.Handle("/debug/pprof/trace", http.HandlerFunc(pprof.Trace))
 	}
 
 	serveHandler := gorillaHandlers.CombinedLoggingHandler(
