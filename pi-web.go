@@ -18,9 +18,15 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type MainPageInfo struct {
+	Title             string `yaml:"title"`
+	CacheControlValue string `yaml:"cacheControlValue"`
+}
+
 type StaticFileInfo struct {
-	HttpPath string `yaml:"httpPath"`
-	FilePath string `yaml:"filePath"`
+	HttpPath          string `yaml:"httpPath"`
+	FilePath          string `yaml:"filePath"`
+	CacheControlValue string `yaml:"cacheControlValue"`
 }
 
 type StaticDirectoryInfo struct {
@@ -38,7 +44,7 @@ type CommandInfo struct {
 type Configuration struct {
 	ListenAddress     string                `yaml:"listenAddress"`
 	RequestLogger     lumberjack.Logger     `yaml:"requestLogger"`
-	MainPageTitle     string                `yaml:"mainPageTitle"`
+	MainPageInfo      MainPageInfo          `yaml:"mainPageInfo"`
 	StaticFiles       []StaticFileInfo      `yaml:"staticFiles"`
 	StaticDirectories []StaticDirectoryInfo `yaml:"staticDirectories"`
 	Commands          []CommandInfo         `yaml:"commands"`
@@ -57,18 +63,18 @@ func formatTime(t time.Time) string {
 	return t.Format("Mon Jan 2 15:04:05.999999999 -0700 MST 2006")
 }
 
-type MainPageInfo struct {
+type MainPageMetadata struct {
 	*Configuration
 	LastModified string
 }
 
 func buildMainPageString(configuration *Configuration) string {
 	var buffer bytes.Buffer
-	mainPageInfo := &MainPageInfo{
+	mainPageMetadata := &MainPageMetadata{
 		Configuration: configuration,
 		LastModified:  formatTime(time.Now()),
 	}
-	err := templates.ExecuteTemplate(&buffer, mainTemplateFile, mainPageInfo)
+	err := templates.ExecuteTemplate(&buffer, mainTemplateFile, mainPageMetadata)
 	if err != nil {
 		logger.Fatalf("error executing main page template %v", err.Error())
 	}
@@ -77,19 +83,22 @@ func buildMainPageString(configuration *Configuration) string {
 
 func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 	mainPageString := buildMainPageString(configuration)
+	cacheControlValue := configuration.MainPageInfo.CacheControlValue
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
 			http.NotFound(w, r)
 			return
 		}
+		w.Header().Add("Cache-Control", cacheControlValue)
 		io.WriteString(w, mainPageString)
 	}
 }
 
-func staticFileHandlerFunc(fileName string) http.HandlerFunc {
+func staticFileHandlerFunc(staticFileInfo StaticFileInfo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, fileName)
+		w.Header().Add("Cache-Control", staticFileInfo.CacheControlValue)
+		http.ServeFile(w, r, staticFileInfo.FilePath)
 	}
 }
 
@@ -130,6 +139,7 @@ func commandRunnerHandlerFunc(commandInfo CommandInfo) http.HandlerFunc {
 			CommandOutput:   commandOutput,
 		}
 
+		w.Header().Add("Cache-Control", "max-age=0")
 		err = templates.ExecuteTemplate(w, commandTemplateFile, commandRunData)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -174,7 +184,7 @@ func main() {
 	for _, staticFileInfo := range configuration.StaticFiles {
 		serveMux.Handle(
 			staticFileInfo.HttpPath,
-			staticFileHandlerFunc(staticFileInfo.FilePath))
+			staticFileHandlerFunc(staticFileInfo))
 	}
 
 	for _, staticDirectoryInfo := range configuration.StaticDirectories {

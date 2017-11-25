@@ -6,15 +6,19 @@ requestLogger:
   maxbackups: 10
   localtime: true
 
-mainPageTitle: Aaron's Raspberry Pi
+mainPageInfo:
+  title: Aaron's Raspberry Pi
+  cacheControlValue: max-age=3600
 
 staticFiles:
 
 - httpPath: /style.css
   filePath: ./style.css
+  cacheControlValue: max-age=3600
 
 - httpPath: /favicon.ico
   filePath: ./favicon.ico
+  cacheControlValue: max-age=3600
 
 commands:
 
