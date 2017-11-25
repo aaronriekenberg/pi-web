@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -85,6 +84,7 @@ func buildMainPageString(configuration *Configuration) string {
 func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 	mainPageString := buildMainPageString(configuration)
 	cacheControlValue := configuration.MainPageInfo.CacheControlValue
+	creationTime := time.Now()
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
@@ -92,7 +92,7 @@ func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 			return
 		}
 		w.Header().Add(cacheControlHeaderKey, cacheControlValue)
-		io.WriteString(w, mainPageString)
+		http.ServeContent(w, r, "", creationTime, bytes.NewReader([]byte(mainPageString)))
 	}
 }
 
