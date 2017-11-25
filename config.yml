@@ -10,6 +10,11 @@ mainPageInfo:
   title: Aaron's Raspberry Pi
   cacheControlValue: public, max-age=60
 
+pprofInfo:
+  enabled: true
+  listenAddress: :8082
+  linkURL: http://raspberrypi:8082/debug/pprof
+
 staticFiles:
 
 - httpPath: /style.css

@@ -20,6 +20,14 @@
   </ul>
 {{ end }}
 
+<h3>Tests:</h3>
+<ul>
+  <li><a href="reqinfo">Request Info</a>
+  {{ if .PprofInfo.Enabled }}
+  <li><a href="{{ .PprofInfo.LinkURL }}">pprof</a>
+  {{ end }}
+</ul>
+
 <hr>
 
 <small>Last Modified: {{.LastModified}}</small>

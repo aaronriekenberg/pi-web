@@ -4,12 +4,15 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"os/exec"
 	"runtime"
+	"sort"
 	"time"
 
 	gorillaHandlers "github.com/gorilla/handlers"
@@ -20,6 +23,12 @@ import (
 type MainPageInfo struct {
 	Title             string `yaml:"title"`
 	CacheControlValue string `yaml:"cacheControlValue"`
+}
+
+type PprofInfo struct {
+	Enabled       bool   `yaml:"enabled"`
+	ListenAddress string `yaml:"listenAddress"`
+	LinkURL       string `yaml:"linkURL"`
 }
 
 type StaticFileInfo struct {
@@ -44,6 +53,7 @@ type Configuration struct {
 	ListenAddress     string                `yaml:"listenAddress"`
 	RequestLogger     lumberjack.Logger     `yaml:"requestLogger"`
 	MainPageInfo      MainPageInfo          `yaml:"mainPageInfo"`
+	PprofInfo         PprofInfo             `yaml:"pprofInfo"`
 	StaticFiles       []StaticFileInfo      `yaml:"staticFiles"`
 	StaticDirectories []StaticDirectoryInfo `yaml:"staticDirectories"`
 	Commands          []CommandInfo         `yaml:"commands"`
@@ -93,6 +103,35 @@ func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 		}
 		w.Header().Add(cacheControlHeaderKey, cacheControlValue)
 		http.ServeContent(w, r, "", creationTime, bytes.NewReader([]byte(mainPageString)))
+	}
+}
+
+func requestInfoHandlerFunc() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var buffer bytes.Buffer
+
+		buffer.WriteString("Method: " + r.Method + "\n")
+		buffer.WriteString("Protocol: " + r.Proto + "\n")
+		buffer.WriteString("Host: " + r.Host + "\n")
+		buffer.WriteString("RemoteAddr: " + r.RemoteAddr + "\n")
+		buffer.WriteString("RequestURI: " + r.RequestURI + "\n")
+		buffer.WriteString("URL: " + fmt.Sprintf("%#v", r.URL) + "\n")
+		buffer.WriteString("Body.ContentLength: " + fmt.Sprintf("%v", r.ContentLength) + "\n")
+		buffer.WriteString("Close: " + fmt.Sprintf("%#v", r.Close) + "\n")
+		buffer.WriteString("TLS: " + fmt.Sprintf("%#v", r.TLS) + "\n")
+
+		buffer.WriteString("\nHeaders:\n")
+		var keys []string
+		for key := range r.Header {
+			keys = append(keys, key)
+		}
+		sort.Strings(keys)
+		for _, key := range keys {
+			buffer.WriteString(key + ": " + fmt.Sprintf("%v", r.Header[key]) + "\n")
+		}
+
+		w.Header().Add("Content-Type", "text/plain")
+		io.Copy(w, &buffer)
 	}
 }
 
@@ -178,9 +217,17 @@ func main() {
 
 	logger.Printf("configuration = %+v", configuration)
 
+	if configuration.PprofInfo.Enabled {
+		go func() {
+			logger.Fatal(http.ListenAndServe(configuration.PprofInfo.ListenAddress, nil))
+		}()
+	}
+
 	serveMux := http.NewServeMux()
 
 	serveMux.Handle("/", mainPageHandlerFunc(configuration))
+
+	serveMux.Handle("/reqinfo", requestInfoHandlerFunc())
 
 	for _, staticFileInfo := range configuration.StaticFiles {
 		serveMux.Handle(
