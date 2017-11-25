@@ -8,17 +8,17 @@ requestLogger:
 
 mainPageInfo:
   title: Aaron's Raspberry Pi
-  cacheControlValue: max-age=60
+  cacheControlValue: public, max-age=60
 
 staticFiles:
 
 - httpPath: /style.css
   filePath: ./style.css
-  cacheControlValue: max-age=60
+  cacheControlValue: public, max-age=60
 
 - httpPath: /favicon.ico
   filePath: ./favicon.ico
-  cacheControlValue: max-age=60
+  cacheControlValue: public, max-age=60
 
 commands:
 
