@@ -51,8 +51,9 @@ type Configuration struct {
 }
 
 const (
-	mainTemplateFile    = "main.html"
-	commandTemplateFile = "command.html"
+	mainTemplateFile      = "main.html"
+	commandTemplateFile   = "command.html"
+	cacheControlHeaderKey = "Cache-Control"
 )
 
 var templates = template.Must(template.ParseFiles(mainTemplateFile, commandTemplateFile))
@@ -90,14 +91,14 @@ func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 			http.NotFound(w, r)
 			return
 		}
-		w.Header().Add("Cache-Control", cacheControlValue)
+		w.Header().Add(cacheControlHeaderKey, cacheControlValue)
 		io.WriteString(w, mainPageString)
 	}
 }
 
 func staticFileHandlerFunc(staticFileInfo StaticFileInfo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Cache-Control", staticFileInfo.CacheControlValue)
+		w.Header().Add(cacheControlHeaderKey, staticFileInfo.CacheControlValue)
 		http.ServeFile(w, r, staticFileInfo.FilePath)
 	}
 }
@@ -139,7 +140,7 @@ func commandRunnerHandlerFunc(commandInfo CommandInfo) http.HandlerFunc {
 			CommandOutput:   commandOutput,
 		}
 
-		w.Header().Add("Cache-Control", "max-age=0")
+		w.Header().Add(cacheControlHeaderKey, "max-age=0")
 		err = templates.ExecuteTemplate(w, commandTemplateFile, commandRunData)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
