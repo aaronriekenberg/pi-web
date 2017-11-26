@@ -91,7 +91,7 @@ func buildMainPageString(configuration *Configuration, creationTime time.Time) s
 
 func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 	creationTime := time.Now()
-	mainPageString := buildMainPageString(configuration, creationTime)
+	mainPageBytes := []byte(buildMainPageString(configuration, creationTime))
 	cacheControlValue := configuration.MainPageInfo.CacheControlValue
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -100,7 +100,7 @@ func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 			return
 		}
 		w.Header().Add(cacheControlHeaderKey, cacheControlValue)
-		http.ServeContent(w, r, "", creationTime, bytes.NewReader([]byte(mainPageString)))
+		http.ServeContent(w, r, "", creationTime, bytes.NewReader(mainPageBytes))
 	}
 }
 
