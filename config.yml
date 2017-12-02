@@ -30,6 +30,10 @@ staticFiles:
 
 commands:
 
+- httpPath: /dmesg
+  description: dmesg
+  command: dmesg
+
 - httpPath: /ifconfig
   description: ifconfig
   command: /sbin/ifconfig
