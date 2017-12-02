@@ -156,7 +156,7 @@ func commandRunnerHandlerFunc(commandInfo CommandInfo) http.HandlerFunc {
 		}
 
 		w.Header().Add(cacheControlHeaderKey, "max-age=0")
-		http.ServeContent(w, r, commandTemplateFile, commandEndTime, bytes.NewReader(buffer.Bytes()))
+		http.ServeContent(w, r, commandTemplateFile, time.Time{}, bytes.NewReader(buffer.Bytes()))
 	}
 }
 
