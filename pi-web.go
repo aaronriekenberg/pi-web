@@ -160,6 +160,7 @@ func commandRunnerHandlerFunc(commandInfo CommandInfo) http.HandlerFunc {
 		err = templates.ExecuteTemplate(&buffer, commandTemplateFile, commandRunData)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 
 		w.Header().Add(cacheControlHeaderKey, "max-age=0")
