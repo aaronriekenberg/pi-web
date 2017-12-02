@@ -100,7 +100,7 @@ func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 			return
 		}
 		w.Header().Add(cacheControlHeaderKey, cacheControlValue)
-		http.ServeContent(w, r, "", creationTime, bytes.NewReader(mainPageBytes))
+		http.ServeContent(w, r, mainTemplateFile, creationTime, bytes.NewReader(mainPageBytes))
 	}
 }
 
@@ -148,11 +148,14 @@ func commandRunnerHandlerFunc(commandInfo CommandInfo) http.HandlerFunc {
 			CommandOutput:   commandOutput,
 		}
 
-		w.Header().Add(cacheControlHeaderKey, "max-age=0")
-		err = templates.ExecuteTemplate(w, commandTemplateFile, commandRunData)
+		var buffer bytes.Buffer
+		err = templates.ExecuteTemplate(&buffer, commandTemplateFile, commandRunData)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
+
+		w.Header().Add(cacheControlHeaderKey, "max-age=0")
+		http.ServeContent(w, r, commandTemplateFile, commandEndTime, bytes.NewReader(buffer.Bytes()))
 	}
 }
 
@@ -171,7 +174,7 @@ func requestInfoHandlerFunc() http.HandlerFunc {
 		buffer.WriteString("TLS: " + fmt.Sprintf("%#v", r.TLS) + "\n")
 
 		buffer.WriteString("\nHeaders:\n")
-		var keys []string
+		keys := make([]string, 0, len(r.Header))
 		for key := range r.Header {
 			keys = append(keys, key)
 		}
