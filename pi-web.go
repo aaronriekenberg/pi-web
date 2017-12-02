@@ -61,6 +61,7 @@ const (
 	mainTemplateFile      = "main.html"
 	commandTemplateFile   = "command.html"
 	cacheControlHeaderKey = "Cache-Control"
+	contentTypeHaderKey   = "Content-Type"
 )
 
 var templates = template.Must(template.ParseFiles(mainTemplateFile, commandTemplateFile))
@@ -183,7 +184,7 @@ func requestInfoHandlerFunc() http.HandlerFunc {
 			buffer.WriteString(key + ": " + fmt.Sprintf("%v", r.Header[key]) + "\n")
 		}
 
-		w.Header().Add("Content-Type", "text/plain")
+		w.Header().Add(contentTypeHaderKey, "text/plain")
 		io.Copy(w, &buffer)
 	}
 }
