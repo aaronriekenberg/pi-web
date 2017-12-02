@@ -20,6 +20,12 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type TLSInfo struct {
+	Enabled  bool   `yaml:"enabled"`
+	CertFile string `yaml:"certFile"`
+	KeyFile  string `yaml:"keyFile"`
+}
+
 type MainPageInfo struct {
 	Title             string `yaml:"title"`
 	CacheControlValue string `yaml:"cacheControlValue"`
@@ -50,6 +56,7 @@ type CommandInfo struct {
 type Configuration struct {
 	ListenAddress     string                `yaml:"listenAddress"`
 	RequestLogger     lumberjack.Logger     `yaml:"requestLogger"`
+	TLSInfo           TLSInfo               `yaml:"tlsInfo"`
 	MainPageInfo      MainPageInfo          `yaml:"mainPageInfo"`
 	PprofInfo         PprofInfo             `yaml:"pprofInfo"`
 	StaticFiles       []StaticFileInfo      `yaml:"staticFiles"`
@@ -255,8 +262,17 @@ func main() {
 		&(configuration.RequestLogger),
 		serveMux)
 
-	logger.Fatal(
-		http.ListenAndServe(
-			configuration.ListenAddress,
-			serveHandler))
+	if configuration.TLSInfo.Enabled {
+		logger.Fatal(
+			http.ListenAndServeTLS(
+				configuration.ListenAddress,
+				configuration.TLSInfo.CertFile,
+				configuration.TLSInfo.KeyFile,
+				serveHandler))
+	} else {
+		logger.Fatal(
+			http.ListenAndServe(
+				configuration.ListenAddress,
+				serveHandler))
+	}
 }
