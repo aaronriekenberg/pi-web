@@ -31,6 +31,10 @@ type MainPageInfo struct {
 	CacheControlValue string `yaml:"cacheControlValue"`
 }
 
+type PushInfo struct {
+	Targets []string `yaml:"targets"`
+}
+
 type PprofInfo struct {
 	Enabled bool `yaml:"enabled"`
 }
@@ -58,6 +62,7 @@ type Configuration struct {
 	RequestLogger     lumberjack.Logger     `yaml:"requestLogger"`
 	TLSInfo           TLSInfo               `yaml:"tlsInfo"`
 	MainPageInfo      MainPageInfo          `yaml:"mainPageInfo"`
+	PushInfo          PushInfo              `yaml:"pushInfo"`
 	PprofInfo         PprofInfo             `yaml:"pprofInfo"`
 	StaticFiles       []StaticFileInfo      `yaml:"staticFiles"`
 	StaticDirectories []StaticDirectoryInfo `yaml:"staticDirectories"`
@@ -77,6 +82,19 @@ var logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lmicroseconds)
 
 func formatTime(t time.Time) string {
 	return t.Format("Mon Jan 2 15:04:05.999999999 -0700 MST 2006")
+}
+
+func handlePushFiles(w http.ResponseWriter, pushConfiguration *PushInfo) {
+	if len(pushConfiguration.Targets) == 0 {
+		return
+	}
+	if pusher, ok := w.(http.Pusher); ok {
+		for _, target := range pushConfiguration.Targets {
+			if err := pusher.Push(target, nil); err != nil {
+				log.Printf("Failed to push %v: %v", target, err)
+			}
+		}
+	}
 }
 
 type MainPageMetadata struct {
@@ -107,6 +125,9 @@ func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 			http.NotFound(w, r)
 			return
 		}
+
+		handlePushFiles(w, &configuration.PushInfo)
+
 		w.Header().Add(cacheControlHeaderKey, cacheControlValue)
 		http.ServeContent(w, r, mainTemplateFile, creationTime, bytes.NewReader(mainPageBytes))
 	}
@@ -132,7 +153,7 @@ type CommandRunData struct {
 	CommandOutput   string
 }
 
-func commandRunnerHandlerFunc(commandInfo CommandInfo) http.HandlerFunc {
+func commandRunnerHandlerFunc(configuration *Configuration, commandInfo CommandInfo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		commandStartTime := time.Now()
 		rawCommandOutput, err := exec.Command(
@@ -162,6 +183,8 @@ func commandRunnerHandlerFunc(commandInfo CommandInfo) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
+		handlePushFiles(w, &configuration.PushInfo)
 
 		w.Header().Add(cacheControlHeaderKey, "max-age=0")
 		http.ServeContent(w, r, commandTemplateFile, time.Time{}, bytes.NewReader(buffer.Bytes()))
@@ -246,7 +269,7 @@ func main() {
 	for _, commandInfo := range configuration.Commands {
 		serveMux.Handle(
 			commandInfo.HttpPath,
-			commandRunnerHandlerFunc(commandInfo))
+			commandRunnerHandlerFunc(configuration, commandInfo))
 	}
 
 	serveMux.Handle("/reqinfo", requestInfoHandlerFunc())

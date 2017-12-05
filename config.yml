@@ -15,6 +15,9 @@ mainPageInfo:
   title: Aaron's Raspberry Pi
   cacheControlValue: public, max-age=60
 
+pushInfo:
+  targets: [/style.css]
+
 pprofInfo:
   enabled: true
 
