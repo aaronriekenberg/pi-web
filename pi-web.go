@@ -27,8 +27,7 @@ type TLSInfo struct {
 }
 
 type MainPageInfo struct {
-	Title             string `yaml:"title"`
-	CacheControlValue string `yaml:"cacheControlValue"`
+	Title string `yaml:"title"`
 }
 
 type PushInfo struct {
@@ -40,9 +39,8 @@ type PprofInfo struct {
 }
 
 type StaticFileInfo struct {
-	HttpPath          string `yaml:"httpPath"`
-	FilePath          string `yaml:"filePath"`
-	CacheControlValue string `yaml:"cacheControlValue"`
+	HttpPath string `yaml:"httpPath"`
+	FilePath string `yaml:"filePath"`
 }
 
 type StaticDirectoryInfo struct {
@@ -70,10 +68,9 @@ type Configuration struct {
 }
 
 const (
-	mainTemplateFile      = "main.html"
-	commandTemplateFile   = "command.html"
-	cacheControlHeaderKey = "Cache-Control"
-	contentTypeHaderKey   = "Content-Type"
+	mainTemplateFile    = "main.html"
+	commandTemplateFile = "command.html"
+	contentTypeHaderKey = "Content-Type"
 )
 
 var templates = template.Must(template.ParseFiles(mainTemplateFile, commandTemplateFile))
@@ -118,7 +115,6 @@ func buildMainPageString(configuration *Configuration, creationTime time.Time) s
 func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 	creationTime := time.Now()
 	mainPageBytes := []byte(buildMainPageString(configuration, creationTime))
-	cacheControlValue := configuration.MainPageInfo.CacheControlValue
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
@@ -128,14 +124,12 @@ func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 
 		handlePushFiles(w, &configuration.PushInfo)
 
-		w.Header().Add(cacheControlHeaderKey, cacheControlValue)
 		http.ServeContent(w, r, mainTemplateFile, creationTime, bytes.NewReader(mainPageBytes))
 	}
 }
 
 func staticFileHandlerFunc(staticFileInfo StaticFileInfo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add(cacheControlHeaderKey, staticFileInfo.CacheControlValue)
 		http.ServeFile(w, r, staticFileInfo.FilePath)
 	}
 }
@@ -186,7 +180,6 @@ func commandRunnerHandlerFunc(configuration *Configuration, commandInfo CommandI
 
 		handlePushFiles(w, &configuration.PushInfo)
 
-		w.Header().Add(cacheControlHeaderKey, "max-age=0")
 		http.ServeContent(w, r, commandTemplateFile, time.Time{}, bytes.NewReader(buffer.Bytes()))
 	}
 }
