@@ -13,6 +13,7 @@ tlsInfo:
 
 mainPageInfo:
   title: Aaron's Raspberry Pi
+  cacheControlValue: public, max-age=60
 
 pushInfo:
   targets: [/style.css]
@@ -24,9 +25,11 @@ staticFiles:
 
 - httpPath: /style.css
   filePath: ./style.css
+  cacheControlValue: public, max-age=60
 
 - httpPath: /favicon.ico
   filePath: ./favicon.ico
+  cacheControlValue: public, max-age=60
 
 commands:
 
