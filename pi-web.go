@@ -84,12 +84,12 @@ func formatTime(t time.Time) string {
 	return t.Format("Mon Jan 2 15:04:05.999999999 -0700 MST 2006")
 }
 
-func handlePushFiles(w http.ResponseWriter, pushConfiguration *PushInfo) {
-	if len(pushConfiguration.Targets) == 0 {
+func handlePushFiles(w http.ResponseWriter, pushInfo *PushInfo) {
+	if len(pushInfo.Targets) == 0 {
 		return
 	}
 	if pusher, ok := w.(http.Pusher); ok {
-		for _, target := range pushConfiguration.Targets {
+		for _, target := range pushInfo.Targets {
 			if err := pusher.Push(target, nil); err != nil {
 				log.Printf("Failed to push %v: %v", target, err)
 			}
