@@ -45,6 +45,10 @@ commands:
   description: iwconfig
   command: /sbin/iwconfig
 
+- httpPath: /lscpu
+  description: lscpu
+  command: lscpu
+
 - httpPath: /ncal
   description: ncal
   command: ncal
