@@ -220,6 +220,16 @@ func requestInfoHandlerFunc() http.HandlerFunc {
 	}
 }
 
+func installPprofHandlers(pprofInfo PprofInfo, serveMux *http.ServeMux) {
+	if pprofInfo.Enabled {
+		serveMux.Handle("/debug/pprof/", http.HandlerFunc(pprof.Index))
+		serveMux.Handle("/debug/pprof/cmdline", http.HandlerFunc(pprof.Cmdline))
+		serveMux.Handle("/debug/pprof/profile", http.HandlerFunc(pprof.Profile))
+		serveMux.Handle("/debug/pprof/symbol", http.HandlerFunc(pprof.Symbol))
+		serveMux.Handle("/debug/pprof/trace", http.HandlerFunc(pprof.Trace))
+	}
+}
+
 func readConfiguration(configFile string) *Configuration {
 	logger.Printf("reading %v", configFile)
 
@@ -274,16 +284,10 @@ func main() {
 
 	serveMux.Handle("/reqinfo", requestInfoHandlerFunc())
 
-	if configuration.PprofInfo.Enabled {
-		serveMux.Handle("/debug/pprof/", http.HandlerFunc(pprof.Index))
-		serveMux.Handle("/debug/pprof/cmdline", http.HandlerFunc(pprof.Cmdline))
-		serveMux.Handle("/debug/pprof/profile", http.HandlerFunc(pprof.Profile))
-		serveMux.Handle("/debug/pprof/symbol", http.HandlerFunc(pprof.Symbol))
-		serveMux.Handle("/debug/pprof/trace", http.HandlerFunc(pprof.Trace))
-	}
+	installPprofHandlers(configuration.PprofInfo, serveMux)
 
 	serveHandler := gorillaHandlers.CombinedLoggingHandler(
-		&(configuration.RequestLogger),
+		&configuration.RequestLogger,
 		serveMux)
 
 	if configuration.TLSInfo.Enabled {
