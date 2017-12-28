@@ -248,6 +248,8 @@ func requestInfoHandlerFunc() http.HandlerFunc {
 		}
 
 		w.Header().Add(contentTypeHeaderKey, "text/plain")
+		w.Header().Add(cacheControlHeaderKey, "max-age=0")
+
 		io.Copy(w, &buffer)
 	}
 }
