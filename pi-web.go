@@ -197,24 +197,54 @@ func requestInfoHandlerFunc() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var buffer bytes.Buffer
 
-		buffer.WriteString("Method: " + r.Method + "\n")
-		buffer.WriteString("Protocol: " + r.Proto + "\n")
-		buffer.WriteString("Host: " + r.Host + "\n")
-		buffer.WriteString("RemoteAddr: " + r.RemoteAddr + "\n")
-		buffer.WriteString("RequestURI: " + r.RequestURI + "\n")
-		buffer.WriteString("URL: " + fmt.Sprintf("%#v", r.URL) + "\n")
-		buffer.WriteString("Body.ContentLength: " + fmt.Sprintf("%v", r.ContentLength) + "\n")
-		buffer.WriteString("Close: " + fmt.Sprintf("%#v", r.Close) + "\n")
-		buffer.WriteString("TLS: " + fmt.Sprintf("%#v", r.TLS) + "\n")
+		buffer.WriteString("Method: ")
+		buffer.WriteString(r.Method)
+		buffer.WriteRune('\n')
 
-		buffer.WriteString("\nHeaders:\n")
+		buffer.WriteString("Protocol: ")
+		buffer.WriteString(r.Proto)
+		buffer.WriteRune('\n')
+
+		buffer.WriteString("Host: ")
+		buffer.WriteString(r.Host)
+		buffer.WriteRune('\n')
+
+		buffer.WriteString("RemoteAddr: ")
+		buffer.WriteString(r.RemoteAddr)
+		buffer.WriteRune('\n')
+
+		buffer.WriteString("RequestURI: ")
+		buffer.WriteString(r.RequestURI)
+		buffer.WriteRune('\n')
+
+		buffer.WriteString("URL: ")
+		buffer.WriteString(fmt.Sprintf("%#v", r.URL))
+		buffer.WriteRune('\n')
+
+		buffer.WriteString("Body.ContentLength: ")
+		buffer.WriteString(fmt.Sprintf("%v", r.ContentLength))
+		buffer.WriteRune('\n')
+
+		buffer.WriteString("Close: ")
+		buffer.WriteString(fmt.Sprintf("%v", r.Close))
+		buffer.WriteRune('\n')
+
+		buffer.WriteString("TLS: ")
+		buffer.WriteString(fmt.Sprintf("%#v", r.TLS))
+		buffer.WriteString("\n\n")
+
+		buffer.WriteString("Headers:")
+		buffer.WriteRune('\n')
 		keys := make([]string, 0, len(r.Header))
 		for key := range r.Header {
 			keys = append(keys, key)
 		}
 		sort.Strings(keys)
 		for _, key := range keys {
-			buffer.WriteString(key + ": " + fmt.Sprintf("%v", r.Header[key]) + "\n")
+			buffer.WriteString(key)
+			buffer.WriteString(": ")
+			buffer.WriteString(fmt.Sprintf("%v", r.Header[key]))
+			buffer.WriteRune('\n')
 		}
 
 		w.Header().Add(contentTypeHeaderKey, "text/plain")
