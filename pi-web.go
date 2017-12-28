@@ -233,8 +233,8 @@ func requestInfoHandlerFunc() http.HandlerFunc {
 		buffer.WriteString(fmt.Sprintf("%#v", r.TLS))
 		buffer.WriteString("\n\n")
 
-		buffer.WriteString("Headers:")
-		buffer.WriteRune('\n')
+		buffer.WriteString("Headers:\n")
+
 		keys := make([]string, 0, len(r.Header))
 		for key := range r.Header {
 			keys = append(keys, key)
