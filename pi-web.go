@@ -119,6 +119,7 @@ func buildMainPageString(configuration *Configuration, creationTime time.Time) s
 func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 	creationTime := time.Now()
 	mainPageBytes := []byte(buildMainPageString(configuration, creationTime))
+	pushInfo := configuration.MainPageInfo.PushInfo
 	cacheControlValue := configuration.MainPageInfo.CacheControlValue
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -127,7 +128,7 @@ func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 			return
 		}
 
-		handlePushFiles(w, &configuration.MainPageInfo.PushInfo)
+		handlePushFiles(w, &pushInfo)
 
 		w.Header().Add(cacheControlHeaderKey, cacheControlValue)
 		http.ServeContent(w, r, mainTemplateFile, creationTime, bytes.NewReader(mainPageBytes))
