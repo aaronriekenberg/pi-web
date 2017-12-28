@@ -26,13 +26,14 @@ type TLSInfo struct {
 	KeyFile  string `yaml:"keyFile"`
 }
 
-type MainPageInfo struct {
-	Title             string `yaml:"title"`
-	CacheControlValue string `yaml:"cacheControlValue"`
-}
-
 type PushInfo struct {
 	Targets []string `yaml:"targets"`
+}
+
+type MainPageInfo struct {
+	Title             string   `yaml:"title"`
+	CacheControlValue string   `yaml:"cacheControlValue"`
+	PushInfo          PushInfo `yaml:"pushInfo"`
 }
 
 type PprofInfo struct {
@@ -62,10 +63,10 @@ type Configuration struct {
 	RequestLogger     lumberjack.Logger     `yaml:"requestLogger"`
 	TLSInfo           TLSInfo               `yaml:"tlsInfo"`
 	MainPageInfo      MainPageInfo          `yaml:"mainPageInfo"`
-	PushInfo          PushInfo              `yaml:"pushInfo"`
 	PprofInfo         PprofInfo             `yaml:"pprofInfo"`
 	StaticFiles       []StaticFileInfo      `yaml:"staticFiles"`
 	StaticDirectories []StaticDirectoryInfo `yaml:"staticDirectories"`
+	CommandPushInfo   PushInfo              `yaml:"commandPushInfo"`
 	Commands          []CommandInfo         `yaml:"commands"`
 }
 
@@ -73,7 +74,7 @@ const (
 	mainTemplateFile      = "main.html"
 	commandTemplateFile   = "command.html"
 	cacheControlHeaderKey = "Cache-Control"
-	contentTypeHaderKey   = "Content-Type"
+	contentTypeHeaderKey  = "Content-Type"
 )
 
 var templates = template.Must(template.ParseFiles(mainTemplateFile, commandTemplateFile))
@@ -126,7 +127,7 @@ func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 			return
 		}
 
-		handlePushFiles(w, &configuration.PushInfo)
+		handlePushFiles(w, &configuration.MainPageInfo.PushInfo)
 
 		w.Header().Add(cacheControlHeaderKey, cacheControlValue)
 		http.ServeContent(w, r, mainTemplateFile, creationTime, bytes.NewReader(mainPageBytes))
@@ -184,7 +185,7 @@ func commandRunnerHandlerFunc(configuration *Configuration, commandInfo CommandI
 			return
 		}
 
-		handlePushFiles(w, &configuration.PushInfo)
+		handlePushFiles(w, &configuration.CommandPushInfo)
 
 		w.Header().Add(cacheControlHeaderKey, "max-age=0")
 		http.ServeContent(w, r, commandTemplateFile, time.Time{}, bytes.NewReader(buffer.Bytes()))
@@ -215,7 +216,7 @@ func requestInfoHandlerFunc() http.HandlerFunc {
 			buffer.WriteString(key + ": " + fmt.Sprintf("%v", r.Header[key]) + "\n")
 		}
 
-		w.Header().Add(contentTypeHaderKey, "text/plain")
+		w.Header().Add(contentTypeHeaderKey, "text/plain")
 		io.Copy(w, &buffer)
 	}
 }
