@@ -1,4 +1,4 @@
-listenAddress: :10443
+listenAddress: :8443
 
 requestLogger:
   filename: logs/request.log
@@ -12,7 +12,7 @@ tlsInfo:
   keyFile: key.pem
 
 mainPageInfo:
-  title: Server
+  title: Server Info
   cacheControlValue: public, max-age=60
   pushInfo:
     targets: [/style.css]
@@ -27,7 +27,7 @@ staticFiles:
   cacheControlValue: public, max-age=60
 
 - httpPath: /favicon.ico
-  filePath: ./favicon.ico
+  filePath: ./openbsd-favicon.ico
   cacheControlValue: public, max-age=60
 
 staticDirectories:
