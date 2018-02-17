@@ -65,7 +65,7 @@ commands:
 - httpPath: /top
   description: top
   command: top
-  args: [-b, -n1]
+  args: [-b, -d1]
 
 - httpPath: /tail_request_log
   description: tail request log
