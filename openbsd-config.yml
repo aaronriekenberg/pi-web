@@ -52,8 +52,13 @@ commands:
   description: ifconfig
   command: /sbin/ifconfig
 
-- httpPath: /netstat
-  description: netstat
+- httpPath: /netstat_an
+  description: netstat -an
+  command: netstat
+  args: [-an]
+
+- httpPath: /netstat_binh
+  description: netstat -binh
   command: netstat
   args: [-binh]
 
