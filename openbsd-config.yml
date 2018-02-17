@@ -75,7 +75,7 @@ commands:
 - httpPath: /tail_request_log
   description: tail request log
   command: tail
-  args: [-n, 20, logs/request.log]
+  args: [-n, 30, logs/request.log]
 
 - httpPath: /unbound_infra
   description: unbound infra
