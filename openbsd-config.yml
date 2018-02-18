@@ -40,6 +40,10 @@ commandPushInfo:
 
 commands:
 
+- httpPath: /arp
+  description: arp
+  command: /usr/sbin/arp
+
 - httpPath: /dhcp-lease-list
   description: dhcp lease list
   command: /home/aaron/rust-dhcp-leases/run_openbsd.sh
@@ -94,6 +98,11 @@ commands:
 - httpPath: /vmstat
   description: vmstat
   command: vmstat
+
+- httpPath: /vmstat_i
+  description: vmstat -i
+  command: vmstat
+  args: [-i]
 
 - httpPath: /w
   description: w
