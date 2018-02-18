@@ -43,6 +43,7 @@ commands:
 - httpPath: /arp
   description: arp
   command: /usr/sbin/arp
+  args: [-an]
 
 - httpPath: /dhcp-lease-list
   description: dhcp lease list
