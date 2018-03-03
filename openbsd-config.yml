@@ -47,7 +47,7 @@ commands:
 
 - httpPath: /dhcp-lease-list
   description: dhcp lease list
-  command: /home/aaron/rust-dhcp-leases/run_openbsd.sh
+  command: /home/aaron/dhcp-leases/dhcp-leases
 
 - httpPath: /dmesg
   description: dmesg
