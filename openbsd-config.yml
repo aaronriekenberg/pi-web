@@ -47,7 +47,7 @@ commands:
 
 - httpPath: /dhcp-lease-list
   description: dhcp lease list
-  command: /home/aaron/dhcp-leases/dhcp-leases
+  command: /home/aaron/dhcp-leases/show-leases.sh
 
 - httpPath: /dmesg
   description: dmesg
