@@ -67,6 +67,11 @@ commands:
   command: netstat
   args: [-binh]
 
+- httpPath: /netstat_s
+  description: netstat -s
+  command: netstat
+  args: [-s]
+
 - httpPath: /ntpctl
   description: ntpctl
   command: ntpctl
