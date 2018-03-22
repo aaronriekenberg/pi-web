@@ -179,7 +179,7 @@ func commandRunnerHandlerFunc(configuration *Configuration, commandInfo CommandI
 		}
 
 		var buffer bytes.Buffer
-		if err = templates.ExecuteTemplate(&buffer, commandTemplateFile, commandRunData); err != nil {
+		if err := templates.ExecuteTemplate(&buffer, commandTemplateFile, commandRunData); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -271,7 +271,7 @@ func readConfiguration(configFile string) *Configuration {
 	}
 
 	var configuration Configuration
-	if err = yaml.Unmarshal(source, &configuration); err != nil {
+	if err := yaml.Unmarshal(source, &configuration); err != nil {
 		logger.Fatalf("error parsing %v: %v", configFile, err.Error())
 	}
 
