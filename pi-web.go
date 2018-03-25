@@ -86,9 +86,6 @@ func formatTime(t time.Time) string {
 }
 
 func handlePushFiles(w http.ResponseWriter, pushInfo *PushInfo) {
-	if len(pushInfo.Targets) == 0 {
-		return
-	}
 	if pusher, ok := w.(http.Pusher); ok {
 		for _, target := range pushInfo.Targets {
 			if err := pusher.Push(target, nil); err != nil {
