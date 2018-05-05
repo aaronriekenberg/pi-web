@@ -77,6 +77,11 @@ commands:
   command: ntpctl
   args: [-sa]
 
+- httpPath: /sysctl_hw
+  description: sysctl hw
+  command: sysctl
+  args: [hw]
+
 - httpPath: /top
   description: top
   command: top
