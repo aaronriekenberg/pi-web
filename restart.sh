@@ -1,12 +1,7 @@
 #!/bin/sh -x
 
-KILL_CMD=killall
-CONFIG_FILE=config.yml
-
-if [ $(uname) = 'OpenBSD' ]; then
-  KILL_CMD=pkill
-  CONFIG_FILE=openbsd-config.yml
-fi
+KILL_CMD=pkill
+CONFIG_FILE=$(hostname)-config.yml
 
 $KILL_CMD pi-web
 

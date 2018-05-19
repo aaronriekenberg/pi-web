@@ -12,7 +12,7 @@ tlsInfo:
   keyFile: key.pem
 
 mainPageInfo:
-  title: Server Info
+  title: Aaron's APU2
   cacheControlValue: public, max-age=60
   pushInfo:
     targets: [/style.css]
@@ -26,14 +26,9 @@ staticFiles:
   filePath: ./style.css
   cacheControlValue: public, max-age=60
 
-- httpPath: /favicon.ico
-  filePath: ./openbsd-favicon.ico
-  cacheControlValue: public, max-age=60
-
 staticDirectories:
-
-- httpPath: /pfstat/
-  directoryPath: /var/www/htdocs/pfstat
+- httpPath: /vnstat/
+  directoryPath: /home/aaron/vnstat
 
 commandPushInfo:
   targets: [/style.css]
@@ -47,45 +42,49 @@ commands:
 
 - httpPath: /dhcp-lease-list
   description: dhcp lease list
-  command: /home/aaron/dhcp-leases/show-leases.sh
+  command: /home/aaron/rust-dhcp-leases/target/release/rust-dhcp-leases
 
 - httpPath: /dmesg
   description: dmesg
-  command: dmesg
+  command: sudo
+  args: [dmesg]
 
 - httpPath: /ifconfig
   description: ifconfig
   command: /sbin/ifconfig
 
+- httpPath: /lscpu
+  description: lscpu
+  command: lscpu
+
+- httpPath: /ncal
+  description: ncal
+  command: ncal
+  args: [-h, -y]
+
 - httpPath: /netstat_an
   description: netstat -an
   command: netstat
-  args: [-an]
-
-- httpPath: /netstat_binh
-  description: netstat -binh
-  command: netstat
-  args: [-binh]
+  args: [-a, -n]
 
 - httpPath: /netstat_s
   description: netstat -s
   command: netstat
   args: [-s]
 
-- httpPath: /ntpctl
-  description: ntpctl
-  command: ntpctl
-  args: [-sa]
+- httpPath: /ntpq
+  description: ntpq
+  command: ntpq
+  args: [-p]
 
-- httpPath: /sysctl_hw
-  description: sysctl hw
-  command: sysctl
-  args: [hw]
+- httpPath: /sensors
+  description: sensors
+  command: sensors
 
 - httpPath: /top
   description: top
   command: top
-  args: [-b, -d1]
+  args: [-b, -n1]
 
 - httpPath: /tail_request_log
   description: tail request log
@@ -94,13 +93,13 @@ commands:
 
 - httpPath: /unbound_infra
   description: unbound infra
-  command: doas
-  args: [/usr/sbin/unbound-control, dump_infra]
+  command: sudo
+  args: [unbound-control, dump_infra]
 
 - httpPath: /unbound_stats
   description: unbound stats
-  command: doas
-  args: [/usr/sbin/unbound-control, stats_noreset]
+  command: sudo
+  args: [unbound-control, stats_noreset]
 
 - httpPath: /uptime
   description: uptime
@@ -109,11 +108,6 @@ commands:
 - httpPath: /vmstat
   description: vmstat
   command: vmstat
-
-- httpPath: /vmstat_i
-  description: vmstat -i
-  command: vmstat
-  args: [-i]
 
 - httpPath: /w
   description: w
