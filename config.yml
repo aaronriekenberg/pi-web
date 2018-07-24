@@ -1,0 +1,62 @@
+listenAddress: :8000
+
+requestLogger:
+  filename: logs/request.log
+  maxsize: 1
+  maxbackups: 10
+  localtime: true
+
+tlsInfo:
+  enabled: true
+  certFile: cert.pem
+  keyFile: key.pem
+
+mainPageInfo:
+  title: Go Server
+  cacheControlValue: public, max-age=60
+  pushInfo:
+    targets: [/style.css]
+
+pprofInfo:
+  enabled: true
+
+staticFiles:
+
+- httpPath: /style.css
+  filePath: ./style.css
+  cacheControlValue: public, max-age=60
+
+commandPushInfo:
+  targets: [/style.css]
+
+commands:
+
+- httpPath: /dmesg
+  description: dmesg
+  command: dmesg
+
+- httpPath: /ifconfig
+  description: ifconfig
+  command: /sbin/ifconfig
+
+- httpPath: /netstat
+  description: netstat
+  command: netstat
+  args: [-a, -n]
+
+- httpPath: /tail_request_log
+  description: tail request log
+  command: tail
+  args: [-n, 30, logs/request.log]
+
+- httpPath: /uptime
+  description: uptime
+  command: uptime
+
+- httpPath: /vmstat
+  description: vmstat
+  command: vmstat
+
+- httpPath: /w
+  description: w
+  command: w
