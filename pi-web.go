@@ -16,7 +16,6 @@ import (
 	"time"
 
 	gorillaHandlers "github.com/gorilla/handlers"
-	"gopkg.in/natefinch/lumberjack.v2"
 	"gopkg.in/yaml.v2"
 )
 
@@ -60,7 +59,6 @@ type CommandInfo struct {
 
 type Configuration struct {
 	ListenAddress     string                `yaml:"listenAddress"`
-	RequestLogger     lumberjack.Logger     `yaml:"requestLogger"`
 	TLSInfo           TLSInfo               `yaml:"tlsInfo"`
 	MainPageInfo      MainPageInfo          `yaml:"mainPageInfo"`
 	PprofInfo         PprofInfo             `yaml:"pprofInfo"`
@@ -314,9 +312,7 @@ func main() {
 
 	installPprofHandlers(configuration.PprofInfo, serveMux)
 
-	serveHandler := gorillaHandlers.CombinedLoggingHandler(
-		&configuration.RequestLogger,
-		serveMux)
+	serveHandler := gorillaHandlers.CombinedLoggingHandler(os.Stdout, serveMux)
 
 	if configuration.TLSInfo.Enabled {
 		logger.Fatal(

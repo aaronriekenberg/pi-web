@@ -1,11 +1,5 @@
 listenAddress: :8000
 
-requestLogger:
-  filename: logs/request.log
-  maxsize: 1
-  maxbackups: 10
-  localtime: true
-
 tlsInfo:
   enabled: true
   certFile: cert.pem
