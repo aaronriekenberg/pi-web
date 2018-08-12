@@ -1,4 +1,4 @@
-listenAddress: :10443
+listenAddress: :8000
 
 tlsInfo:
   enabled: true
@@ -41,6 +41,16 @@ commands:
   description: iwconfig
   command: /sbin/iwconfig
 
+- httpPath: /log_ls
+  description: log ls
+  command: ls
+  args: [-latrh, logs]
+
+- httpPath: /log_tail
+  description: log tail
+  command: tail
+  args: [-n30, logs/current]
+
 - httpPath: /lscpu
   description: lscpu
   command: lscpu
@@ -68,11 +78,6 @@ commands:
   description: top
   command: top
   args: [-b, -n1]
-
-- httpPath: /tail_request_log
-  description: tail request log
-  command: tail
-  args: [-n, 20, logs/request.log]
 
 - httpPath: /unbound_infra
   description: unbound infra
