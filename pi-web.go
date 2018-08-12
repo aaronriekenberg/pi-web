@@ -71,8 +71,8 @@ type Configuration struct {
 const (
 	mainTemplateFile      = "main.html"
 	commandTemplateFile   = "command.html"
-	cacheControlHeaderKey = "Cache-Control"
-	contentTypeHeaderKey  = "Content-Type"
+	cacheControlHeaderKey = "cache-control"
+	contentTypeHeaderKey  = "content-type"
 )
 
 var templates = template.Must(template.ParseFiles(mainTemplateFile, commandTemplateFile))

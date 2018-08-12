@@ -8,8 +8,6 @@ tlsInfo:
 mainPageInfo:
   title: Go Server
   cacheControlValue: public, max-age=60
-  pushInfo:
-    targets: [/style.css]
 
 pprofInfo:
   enabled: true
@@ -19,9 +17,6 @@ staticFiles:
 - httpPath: /style.css
   filePath: ./style.css
   cacheControlValue: public, max-age=60
-
-commandPushInfo:
-  targets: [/style.css]
 
 commands:
 
