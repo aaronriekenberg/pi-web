@@ -70,10 +70,15 @@ commands:
   command: ncal
   args: [-h, -y]
 
-- httpPath: /netstat
-  description: netstat
+- httpPath: /netstat_an
+  description: netstat -an
   command: netstat
   args: [-a, -n]
+
+- httpPath: /netstat_s
+  description: netstat -s
+  command: netstat
+  args: [-s]
 
 - httpPath: /ntpq
   description: ntpq
