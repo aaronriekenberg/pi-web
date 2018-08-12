@@ -8,8 +8,6 @@ tlsInfo:
 mainPageInfo:
   title: Aaron's APU2
   cacheControlValue: public, max-age=60
-  pushInfo:
-    targets: [/style.css]
 
 pprofInfo:
   enabled: true
@@ -23,9 +21,6 @@ staticFiles:
 staticDirectories:
 - httpPath: /vnstat/
   directoryPath: /home/aaron/vnstat
-
-commandPushInfo:
-  targets: [/style.css]
 
 commands:
 
