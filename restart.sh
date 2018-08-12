@@ -7,4 +7,4 @@ $KILL_CMD pi-web
 
 sleep 2
 
-nohup ./pi-web $CONFIG_FILE | svlogd logs 2>&1 &
+nohup ./pi-web $CONFIG_FILE 2>&1 | svlogd logs &
