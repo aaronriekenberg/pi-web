@@ -1,4 +1,4 @@
-listenAddress: 192.168.1.1:8443
+listenAddress: 192.168.1.1:8000
 
 tlsInfo:
   enabled: true
@@ -34,6 +34,11 @@ commands:
   command: /usr/sbin/arp
   args: [-an]
 
+- httpPath: /df
+  description: df
+  command: df
+  args: [-h]
+
 - httpPath: /dhcp-lease-list
   description: dhcp lease list
   command: /home/aaron/rust-dhcp-leases/target/release/rust-dhcp-leases
@@ -50,6 +55,16 @@ commands:
 - httpPath: /lscpu
   description: lscpu
   command: lscpu
+
+- httpPath: /log_ls
+  description: log ls
+  command: ls
+  args: [-latrh, logs]
+
+- httpPath: /log_tail
+  description: log tail
+  command: tail
+  args: [-n30, logs/current]
 
 - httpPath: /ncal
   description: ncal
@@ -79,11 +94,6 @@ commands:
   description: top
   command: top
   args: [-b, -n1]
-
-- httpPath: /tail_request_log
-  description: tail request log
-  command: tail
-  args: [-n, 30, logs/request.log]
 
 - httpPath: /unbound_infra
   description: unbound infra
