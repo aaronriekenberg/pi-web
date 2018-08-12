@@ -29,6 +29,16 @@ commandPushInfo:
 
 commands:
 
+- httpPath: /arp
+  description: arp
+  command: /usr/sbin/arp
+  args: [-an]
+
+- httpPath: /df
+  description: df
+  command: df
+  args: [-h]
+
 - httpPath: /dmesg
   description: dmesg
   command: dmesg
