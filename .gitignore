@@ -2,3 +2,9 @@
 *.log
 *.pem
 pi-web
+logs/lock
+logs/config
+logs/state
+logs/*.s
+logs/*.u
+logs/current
