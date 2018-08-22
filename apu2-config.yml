@@ -29,6 +29,11 @@ commands:
   command: /usr/sbin/arp
   args: [-an]
 
+- httpPath: /cpu_vulnerabilities
+  description: cpu vulnerabilities
+  command: /bin/sh
+  args: [-c, grep . /sys/devices/system/cpu/vulnerabilities/*]
+
 - httpPath: /df
   description: df
   command: df
