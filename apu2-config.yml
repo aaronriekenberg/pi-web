@@ -29,6 +29,11 @@ commands:
   command: /usr/sbin/arp
   args: [-an]
 
+- httpPath: /coredns_log_tail
+  description: coredns log tail
+  command: tail
+  args: [-n30, /home/aaron/coredns/logs/current]
+
 - httpPath: /cpu_vulnerabilities
   description: cpu vulnerabilities
   command: /bin/sh
@@ -94,16 +99,6 @@ commands:
   description: top
   command: top
   args: [-b, -n1]
-
-- httpPath: /unbound_infra
-  description: unbound infra
-  command: sudo
-  args: [unbound-control, dump_infra]
-
-- httpPath: /unbound_stats
-  description: unbound stats
-  command: sudo
-  args: [unbound-control, stats_noreset]
 
 - httpPath: /uptime
   description: uptime
