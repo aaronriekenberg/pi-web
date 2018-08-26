@@ -15,6 +15,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/kr/pretty"
 	gorillaHandlers "github.com/gorilla/handlers"
 	"gopkg.in/yaml.v2"
 )
@@ -286,7 +287,7 @@ func main() {
 
 	configuration := readConfiguration(configFile)
 
-	logger.Printf("configuration = %+v", configuration)
+	logger.Printf("configuration =\n%# v", pretty.Formatter(configuration))
 
 	serveMux := http.NewServeMux()
 
