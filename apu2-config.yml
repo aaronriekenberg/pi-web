@@ -32,7 +32,7 @@ commands:
 - httpPath: /coredns_log_tail
   description: coredns log tail
   command: tail
-  args: [-n30, /home/aaron/coredns/logs/current]
+  args: [-n30, /home/aaron/coredns-run/logs/current]
 
 - httpPath: /cpu_vulnerabilities
   description: cpu vulnerabilities
