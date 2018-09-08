@@ -34,6 +34,11 @@ commands:
   command: tail
   args: [-n30, /home/aaron/coredns-run/logs/current]
 
+- httpPath: /coredns_metrics
+  description: coredns metrics
+  command: /usr/bin/curl
+  args: [-s, http://localhost:9153/metrics]
+
 - httpPath: /cpu_vulnerabilities
   description: cpu vulnerabilities
   command: /bin/sh
