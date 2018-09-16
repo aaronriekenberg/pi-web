@@ -92,6 +92,24 @@ func formatTime(t time.Time) string {
 	return t.Format("Mon Jan 2 15:04:05.999999999 -0700 MST 2006")
 }
 
+func httpHeaderToString(header http.Header) string {
+	var buffer bytes.Buffer
+	keys := make([]string, 0, len(header))
+	for key := range header {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	for i, key := range keys {
+		if i != 0 {
+			buffer.WriteRune('\n')
+		}
+		buffer.WriteString(key)
+		buffer.WriteString(": ")
+		buffer.WriteString(fmt.Sprintf("%v", header[key]))
+	}
+	return buffer.String()
+}
+
 type MainPageMetadata struct {
 	*Configuration
 	LastModified string
@@ -182,9 +200,11 @@ func commandRunnerHandlerFunc(configuration *Configuration, commandInfo CommandI
 
 type ProxyData struct {
 	*ProxyInfo
-	Now           string
-	ProxyDuration string
-	ProxyOutput   string
+	Now              string
+	ProxyDuration    string
+	ProxyStatus      string
+	ProxyRespHeaders string
+	ProxyOutput      string
 }
 
 func proxyHandlerFunc(configuration *Configuration, proxyInfo ProxyInfo) http.HandlerFunc {
@@ -209,10 +229,12 @@ func proxyHandlerFunc(configuration *Configuration, proxyInfo ProxyInfo) http.Ha
 			proxyEndTime.Sub(proxyStartTime).Seconds())
 
 		proxyData := &ProxyData{
-			ProxyInfo:     &proxyInfo,
-			Now:           formatTime(proxyEndTime),
-			ProxyDuration: proxyDuration,
-			ProxyOutput:   proxyOutput,
+			ProxyInfo:        &proxyInfo,
+			Now:              formatTime(proxyEndTime),
+			ProxyDuration:    proxyDuration,
+			ProxyStatus:      proxyResponse.Status,
+			ProxyRespHeaders: httpHeaderToString(proxyResponse.Header),
+			ProxyOutput:      proxyOutput,
 		}
 
 		var buffer bytes.Buffer
@@ -267,18 +289,7 @@ func requestInfoHandlerFunc() http.HandlerFunc {
 		buffer.WriteString("\n\n")
 
 		buffer.WriteString("Headers:\n")
-
-		keys := make([]string, 0, len(r.Header))
-		for key := range r.Header {
-			keys = append(keys, key)
-		}
-		sort.Strings(keys)
-		for _, key := range keys {
-			buffer.WriteString(key)
-			buffer.WriteString(": ")
-			buffer.WriteString(fmt.Sprintf("%v", r.Header[key]))
-			buffer.WriteRune('\n')
-		}
+		buffer.WriteString(httpHeaderToString(r.Header))
 
 		w.Header().Add(contentTypeHeaderKey, "text/plain")
 		w.Header().Add(cacheControlHeaderKey, "max-age=0")
