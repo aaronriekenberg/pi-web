@@ -86,6 +86,7 @@ var httpClient = &http.Client{
 	Transport: &http.Transport{
 		IdleConnTimeout: 10 * time.Second,
 	},
+	Timeout: 5 * time.Second,
 }
 
 func formatTime(t time.Time) string {
