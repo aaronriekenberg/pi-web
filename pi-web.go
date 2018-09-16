@@ -210,19 +210,24 @@ type ProxyData struct {
 func proxyHandlerFunc(configuration *Configuration, proxyInfo ProxyInfo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		proxyStartTime := time.Now()
-
 		proxyResponse, err := httpClient.Get(proxyInfo.Url)
-		defer proxyResponse.Body.Close()
-
 		proxyEndTime := time.Now()
 
 		var proxyOutput string
+		var proxyStatus string
+		var proxyRespHeaders string
 		if err != nil {
 			proxyOutput = fmt.Sprintf("proxy error %v", err.Error())
-		} else if body, err := ioutil.ReadAll(proxyResponse.Body); err != nil {
-			proxyOutput = fmt.Sprintf("proxy read body error %v", err.Error())
 		} else {
-			proxyOutput = string(body)
+			defer proxyResponse.Body.Close()
+			proxyRespHeaders = httpHeaderToString(proxyResponse.Header)
+			proxyStatus = proxyResponse.Status
+
+			if body, err := ioutil.ReadAll(proxyResponse.Body); err != nil {
+				proxyOutput = fmt.Sprintf("proxy read body error %v", err.Error())
+			} else {
+				proxyOutput = string(body)
+			}
 		}
 
 		proxyDuration := fmt.Sprintf("%.9f sec",
@@ -232,8 +237,8 @@ func proxyHandlerFunc(configuration *Configuration, proxyInfo ProxyInfo) http.Ha
 			ProxyInfo:        &proxyInfo,
 			Now:              formatTime(proxyEndTime),
 			ProxyDuration:    proxyDuration,
-			ProxyStatus:      proxyResponse.Status,
-			ProxyRespHeaders: httpHeaderToString(proxyResponse.Header),
+			ProxyStatus:      proxyStatus,
+			ProxyRespHeaders: proxyRespHeaders,
 			ProxyOutput:      proxyOutput,
 		}
 
