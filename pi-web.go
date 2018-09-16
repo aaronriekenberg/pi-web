@@ -220,8 +220,8 @@ func proxyHandlerFunc(configuration *Configuration, proxyInfo ProxyInfo) http.Ha
 			proxyOutput = fmt.Sprintf("proxy error %v", err.Error())
 		} else {
 			defer proxyResponse.Body.Close()
-			proxyRespHeaders = httpHeaderToString(proxyResponse.Header)
 			proxyStatus = proxyResponse.Status
+			proxyRespHeaders = httpHeaderToString(proxyResponse.Header)
 
 			if body, err := ioutil.ReadAll(proxyResponse.Body); err != nil {
 				proxyOutput = fmt.Sprintf("proxy read body error %v", err.Error())
