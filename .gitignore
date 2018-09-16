@@ -1,6 +1,7 @@
 *.out
 *.log
 *.pem
+*.swp
 pi-web
 logs/lock
 logs/config
