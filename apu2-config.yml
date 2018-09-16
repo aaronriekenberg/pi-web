@@ -116,3 +116,9 @@ commands:
 - httpPath: /w
   description: w
   command: w
+
+proxies:
+
+- httpPath: /coredns_metrics
+  description: coredns metrics
+  url: http://localhost:9153/metrics

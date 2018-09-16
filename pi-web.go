@@ -15,8 +15,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/kr/pretty"
 	gorillaHandlers "github.com/gorilla/handlers"
+	"github.com/kr/pretty"
 	"gopkg.in/yaml.v2"
 )
 
@@ -26,14 +26,9 @@ type TLSInfo struct {
 	KeyFile  string `yaml:"keyFile"`
 }
 
-type PushInfo struct {
-	Targets []string `yaml:"targets"`
-}
-
 type MainPageInfo struct {
-	Title             string   `yaml:"title"`
-	CacheControlValue string   `yaml:"cacheControlValue"`
-	PushInfo          PushInfo `yaml:"pushInfo"`
+	Title             string `yaml:"title"`
+	CacheControlValue string `yaml:"cacheControlValue"`
 }
 
 type PprofInfo struct {
@@ -58,6 +53,12 @@ type CommandInfo struct {
 	Args        []string `yaml:"args"`
 }
 
+type ProxyInfo struct {
+	HttpPath    string `yaml:"httpPath"`
+	Description string `yaml:"description"`
+	Url         string `yaml:"url"`
+}
+
 type Configuration struct {
 	ListenAddress     string                `yaml:"listenAddress"`
 	TLSInfo           TLSInfo               `yaml:"tlsInfo"`
@@ -65,35 +66,30 @@ type Configuration struct {
 	PprofInfo         PprofInfo             `yaml:"pprofInfo"`
 	StaticFiles       []StaticFileInfo      `yaml:"staticFiles"`
 	StaticDirectories []StaticDirectoryInfo `yaml:"staticDirectories"`
-	CommandPushInfo   PushInfo              `yaml:"commandPushInfo"`
 	Commands          []CommandInfo         `yaml:"commands"`
+	Proxies           []ProxyInfo           `yaml:"proxies"`
 }
 
 const (
 	mainTemplateFile      = "main.html"
 	commandTemplateFile   = "command.html"
+	proxyTemplateFile     = "proxy.html"
 	cacheControlHeaderKey = "cache-control"
 	contentTypeHeaderKey  = "content-type"
 )
 
-var templates = template.Must(template.ParseFiles(mainTemplateFile, commandTemplateFile))
+var templates = template.Must(template.ParseFiles(mainTemplateFile, commandTemplateFile, proxyTemplateFile))
 
 var logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lmicroseconds)
 
-func formatTime(t time.Time) string {
-	return t.Format("Mon Jan 2 15:04:05.999999999 -0700 MST 2006")
+var httpClient = &http.Client{
+	Transport: &http.Transport{
+		IdleConnTimeout: 10 * time.Second,
+	},
 }
 
-func handlePushFiles(w http.ResponseWriter, pushInfo *PushInfo) {
-	if len(pushInfo.Targets) > 0 {
-		if pusher, ok := w.(http.Pusher); ok {
-			for _, target := range pushInfo.Targets {
-				if err := pusher.Push(target, nil); err != nil {
-					log.Printf("Failed to push %v: %v", target, err)
-				}
-			}
-		}
-	}
+func formatTime(t time.Time) string {
+	return t.Format("Mon Jan 2 15:04:05.999999999 -0700 MST 2006")
 }
 
 type MainPageMetadata struct {
@@ -116,7 +112,6 @@ func buildMainPageString(configuration *Configuration, creationTime time.Time) s
 func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 	creationTime := time.Now()
 	mainPageBytes := []byte(buildMainPageString(configuration, creationTime))
-	pushInfo := configuration.MainPageInfo.PushInfo
 	cacheControlValue := configuration.MainPageInfo.CacheControlValue
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -124,8 +119,6 @@ func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 			http.NotFound(w, r)
 			return
 		}
-
-		handlePushFiles(w, &pushInfo)
 
 		w.Header().Add(cacheControlHeaderKey, cacheControlValue)
 		http.ServeContent(w, r, mainTemplateFile, creationTime, bytes.NewReader(mainPageBytes))
@@ -182,7 +175,51 @@ func commandRunnerHandlerFunc(configuration *Configuration, commandInfo CommandI
 			return
 		}
 
-		handlePushFiles(w, &configuration.CommandPushInfo)
+		w.Header().Add(cacheControlHeaderKey, "max-age=0")
+		http.ServeContent(w, r, commandTemplateFile, time.Time{}, bytes.NewReader(buffer.Bytes()))
+	}
+}
+
+type ProxyData struct {
+	*ProxyInfo
+	Now           string
+	ProxyDuration string
+	ProxyOutput   string
+}
+
+func proxyHandlerFunc(configuration *Configuration, proxyInfo ProxyInfo) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		proxyStartTime := time.Now()
+
+		proxyResponse, err := httpClient.Get(proxyInfo.Url)
+		defer proxyResponse.Body.Close()
+
+		proxyEndTime := time.Now()
+
+		var proxyOutput string
+		if err != nil {
+			proxyOutput = fmt.Sprintf("proxy error %v", err.Error())
+		} else if body, err := ioutil.ReadAll(proxyResponse.Body); err != nil {
+			proxyOutput = fmt.Sprintf("proxy read body error %v", err.Error())
+		} else {
+			proxyOutput = string(body)
+		}
+
+		proxyDuration := fmt.Sprintf("%.9f sec",
+			proxyEndTime.Sub(proxyStartTime).Seconds())
+
+		proxyData := &ProxyData{
+			ProxyInfo:     &proxyInfo,
+			Now:           formatTime(proxyEndTime),
+			ProxyDuration: proxyDuration,
+			ProxyOutput:   proxyOutput,
+		}
+
+		var buffer bytes.Buffer
+		if err := templates.ExecuteTemplate(&buffer, proxyTemplateFile, proxyData); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
 		w.Header().Add(cacheControlHeaderKey, "max-age=0")
 		http.ServeContent(w, r, commandTemplateFile, time.Time{}, bytes.NewReader(buffer.Bytes()))
@@ -309,6 +346,12 @@ func main() {
 		serveMux.Handle(
 			commandInfo.HttpPath,
 			commandRunnerHandlerFunc(configuration, commandInfo))
+	}
+
+	for _, proxyInfo := range configuration.Proxies {
+		serveMux.Handle(
+			proxyInfo.HttpPath,
+			proxyHandlerFunc(configuration, proxyInfo))
 	}
 
 	serveMux.Handle("/reqinfo", requestInfoHandlerFunc())

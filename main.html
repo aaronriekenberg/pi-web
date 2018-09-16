@@ -14,6 +14,13 @@
   <li><a href="{{.HttpPath}}">{{.Description}}</a></li>{{end}}
 </ul>
 
+{{ if .Proxies }}
+  <h3>Proxies:</h3>
+  <ul>{{range .Proxies}}
+    <li><a href="{{.HttpPath}}">{{.Description}}</a></li>{{end}}
+  </ul>
+{{ end }}
+
 {{ if .StaticDirectories }}
   <h3>Directories:</h3>
   <ul>{{range .StaticDirectories}}

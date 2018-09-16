@@ -49,3 +49,9 @@ commands:
 - httpPath: /w
   description: w
   command: w
+
+proxies:
+
+- httpPath: /test_proxy
+  description: test proxy
+  url: http://www.google.com
