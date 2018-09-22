@@ -91,7 +91,8 @@ commands:
 
 - httpPath: /unifi_log
   description: unifi log
-  command: sudo tail -n30 /var/log/unifi/server.log
+  command: /usr/bin/sudo
+  args: [tail, -n30, /var/log/unifi/server.log]
 
 - httpPath: /uptime
   description: uptime
