@@ -89,15 +89,9 @@ commands:
   command: top
   args: [-b, -n1]
 
-- httpPath: /unbound_infra
-  description: unbound infra
-  command: sudo
-  args: [unbound-control, dump_infra]
-
-- httpPath: /unbound_stats
-  description: unbound stats
-  command: sudo
-  args: [unbound-control, stats_noreset]
+- httpPath: /unifi_log
+  description: unifi log
+  command: sudo tail -n30 /var/log/unifi/server.log
 
 - httpPath: /uptime
   description: uptime
