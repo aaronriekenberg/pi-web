@@ -11,13 +11,13 @@
 
 <h3>Commands:</h3>
 <ul>{{range .Commands}}
-  <li><a href="{{.HttpPath}}">{{.Description}}</a></li>{{end}}
+  <li><a href="/commands/{{.ID}}.html">{{.Description}}</a></li>{{end}}
 </ul>
 
 {{ if .Proxies }}
   <h3>Proxies:</h3>
   <ul>{{range .Proxies}}
-    <li><a href="{{.HttpPath}}">{{.Description}}</a></li>{{end}}
+    <li><a href="/proxies/{{.ID}}.html">{{.Description}}</a></li>{{end}}
   </ul>
 {{ end }}
 

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>{{.Description}}</title>
+  <meta name="viewport" content="width=device, initial-scale=1" />
+  <link rel="stylesheet" type="text/css" href="/style.css" />
+  <script src="/proxy.js"></script>
+</head>
+
+<body onload="onload('GET {{.URL}}', '/api/proxies/{{.ID}}')">
+
+<div>
+  <a href="..">..</a>
+  &nbsp;
+  <input type="checkbox" id="autoRefresh">
+  <label for="autoRefresh">Auto Refresh</label>
+</div>
+
+<pre></pre>
+
+</body>
+
+</html>

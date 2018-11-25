@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
@@ -11,66 +12,67 @@ import (
 	"net/http/pprof"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"sort"
 	"time"
 
 	gorillaHandlers "github.com/gorilla/handlers"
 	"github.com/kr/pretty"
-	"gopkg.in/yaml.v2"
 )
 
 type TLSInfo struct {
-	Enabled  bool   `yaml:"enabled"`
-	CertFile string `yaml:"certFile"`
-	KeyFile  string `yaml:"keyFile"`
+	Enabled  bool   `json:"enabled"`
+	CertFile string `json:"certFile"`
+	KeyFile  string `json:"keyFile"`
 }
 
 type MainPageInfo struct {
-	Title             string `yaml:"title"`
-	CacheControlValue string `yaml:"cacheControlValue"`
+	Title             string `json:"title"`
+	CacheControlValue string `json:"cacheControlValue"`
 }
 
 type PprofInfo struct {
-	Enabled bool `yaml:"enabled"`
+	Enabled bool `json:"enabled"`
 }
 
 type StaticFileInfo struct {
-	HttpPath          string `yaml:"httpPath"`
-	FilePath          string `yaml:"filePath"`
-	CacheControlValue string `yaml:"cacheControlValue"`
+	HttpPath          string `json:"httpPath"`
+	FilePath          string `json:"filePath"`
+	CacheControlValue string `json:"cacheControlValue"`
 }
 
 type StaticDirectoryInfo struct {
-	HttpPath      string `yaml:"httpPath"`
-	DirectoryPath string `yaml:"directoryPath"`
+	HttpPath      string `json:"httpPath"`
+	DirectoryPath string `json:"directoryPath"`
 }
 
 type CommandInfo struct {
-	HttpPath    string   `yaml:"httpPath"`
-	Description string   `yaml:"description"`
-	Command     string   `yaml:"command"`
-	Args        []string `yaml:"args"`
+	ID          string   `json:"id"`
+	Description string   `json:"description"`
+	Command     string   `json:"command"`
+	Args        []string `json:"args"`
 }
 
 type ProxyInfo struct {
-	HttpPath    string `yaml:"httpPath"`
-	Description string `yaml:"description"`
-	Url         string `yaml:"url"`
+	ID          string `json:"id"`
+	Description string `json:"description"`
+	URL         string `json:"url"`
 }
 
 type Configuration struct {
-	ListenAddress     string                `yaml:"listenAddress"`
-	TLSInfo           TLSInfo               `yaml:"tlsInfo"`
-	MainPageInfo      MainPageInfo          `yaml:"mainPageInfo"`
-	PprofInfo         PprofInfo             `yaml:"pprofInfo"`
-	StaticFiles       []StaticFileInfo      `yaml:"staticFiles"`
-	StaticDirectories []StaticDirectoryInfo `yaml:"staticDirectories"`
-	Commands          []CommandInfo         `yaml:"commands"`
-	Proxies           []ProxyInfo           `yaml:"proxies"`
+	ListenAddress     string                `json:"listenAddress"`
+	TLSInfo           TLSInfo               `json:"tlsInfo"`
+	MainPageInfo      MainPageInfo          `json:"mainPageInfo"`
+	PprofInfo         PprofInfo             `json:"pprofInfo"`
+	StaticFiles       []StaticFileInfo      `json:"staticFiles"`
+	StaticDirectories []StaticDirectoryInfo `json:"staticDirectories"`
+	Commands          []CommandInfo         `json:"commands"`
+	Proxies           []ProxyInfo           `json:"proxies"`
 }
 
 const (
+	templatesDirectory    = "templates"
 	mainTemplateFile      = "main.html"
 	commandTemplateFile   = "command.html"
 	proxyTemplateFile     = "proxy.html"
@@ -78,7 +80,11 @@ const (
 	contentTypeHeaderKey  = "content-type"
 )
 
-var templates = template.Must(template.ParseFiles(mainTemplateFile, commandTemplateFile, proxyTemplateFile))
+var templates = template.Must(
+	template.ParseFiles(
+		filepath.Join(templatesDirectory, mainTemplateFile),
+		filepath.Join(templatesDirectory, commandTemplateFile),
+		filepath.Join(templatesDirectory, proxyTemplateFile)))
 
 var logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lmicroseconds)
 
@@ -157,14 +163,37 @@ func staticDirectoryHandler(staticDirectoryInfo StaticDirectoryInfo) http.Handle
 		http.FileServer(http.Dir(staticDirectoryInfo.DirectoryPath)))
 }
 
-type CommandRunData struct {
+type CommandHTMLData struct {
 	*CommandInfo
-	Now             string
-	CommandDuration string
-	CommandOutput   string
 }
 
-func commandRunnerHandlerFunc(configuration *Configuration, commandInfo CommandInfo) http.HandlerFunc {
+func commandRunnerHTMLHandlerFunc(
+	configuration *Configuration, commandInfo CommandInfo) http.HandlerFunc {
+
+	commandHTMLData := &CommandHTMLData{
+		CommandInfo: &commandInfo,
+	}
+
+	var buffer bytes.Buffer
+	if err := templates.ExecuteTemplate(&buffer, commandTemplateFile, commandHTMLData); err != nil {
+		logger.Fatalf("Error executing command template ID %v: %v", commandInfo.ID, err.Error())
+	}
+
+	lastModified := time.Now()
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		http.ServeContent(w, r, commandTemplateFile, lastModified, bytes.NewReader(buffer.Bytes()))
+	}
+}
+
+type CommandAPIResponse struct {
+	*CommandInfo
+	Now             string `json:"now"`
+	CommandDuration string `json:"commandDuration"`
+	CommandOutput   string `json:"commandOutput"`
+}
+
+func commandAPIHandlerFunc(configuration *Configuration, commandInfo CommandInfo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		commandStartTime := time.Now()
 		rawCommandOutput, err := exec.Command(
@@ -181,50 +210,75 @@ func commandRunnerHandlerFunc(configuration *Configuration, commandInfo CommandI
 		commandDuration := fmt.Sprintf("%.9f sec",
 			commandEndTime.Sub(commandStartTime).Seconds())
 
-		commandRunData := &CommandRunData{
+		commandAPIResponse := &CommandAPIResponse{
 			CommandInfo:     &commandInfo,
 			Now:             formatTime(commandEndTime),
 			CommandDuration: commandDuration,
 			CommandOutput:   commandOutput,
 		}
 
-		var buffer bytes.Buffer
-		if err := templates.ExecuteTemplate(&buffer, commandTemplateFile, commandRunData); err != nil {
+		var jsonText []byte
+		if jsonText, err = json.Marshal(commandAPIResponse); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
+		w.Header().Add(contentTypeHeaderKey, "application/json")
 		w.Header().Add(cacheControlHeaderKey, "max-age=0")
-		http.ServeContent(w, r, commandTemplateFile, time.Time{}, bytes.NewReader(buffer.Bytes()))
+		http.ServeContent(w, r, "", time.Time{}, bytes.NewReader(jsonText))
 	}
 }
 
-type ProxyData struct {
+type ProxyHTMLData struct {
 	*ProxyInfo
-	Now              string
-	ProxyDuration    string
-	ProxyStatus      string
-	ProxyRespHeaders string
-	ProxyOutput      string
 }
 
-func proxyHandlerFunc(configuration *Configuration, proxyInfo ProxyInfo) http.HandlerFunc {
+func proxyHTMLHandlerFunc(
+	configuration *Configuration, proxyInfo ProxyInfo) http.HandlerFunc {
+
+	proxyHTMLData := &ProxyHTMLData{
+		ProxyInfo: &proxyInfo,
+	}
+
+	var buffer bytes.Buffer
+	if err := templates.ExecuteTemplate(&buffer, proxyTemplateFile, proxyHTMLData); err != nil {
+		logger.Fatalf("Error executing proxy template ID %v: %v", proxyInfo.ID, err.Error())
+	}
+
+	lastModified := time.Now()
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		http.ServeContent(w, r, proxyTemplateFile, lastModified, bytes.NewReader(buffer.Bytes()))
+	}
+}
+
+type ProxyAPIResponse struct {
+	*ProxyInfo
+	Now              string      `json:"now"`
+	ProxyDuration    string      `json:"proxyDuration"`
+	ProxyStatus      string      `json:"proxyStatus"`
+	ProxyRespHeaders http.Header `json:"proxyRespHeaders"`
+	ProxyOutput      string      `json:"proxyOutput"`
+}
+
+func proxyAPIHandlerFunc(configuration *Configuration, proxyInfo ProxyInfo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		proxyStartTime := time.Now()
-		proxyResponse, err := httpClient.Get(proxyInfo.Url)
+		proxyResponse, err := httpClient.Get(proxyInfo.URL)
 		proxyEndTime := time.Now()
 
 		var proxyOutput string
 		var proxyStatus string
-		var proxyRespHeaders string
+		var proxyRespHeaders http.Header
 		if err != nil {
 			proxyOutput = fmt.Sprintf("proxy error %v", err.Error())
 		} else {
 			defer proxyResponse.Body.Close()
 			proxyStatus = proxyResponse.Status
-			proxyRespHeaders = httpHeaderToString(proxyResponse.Header)
+			proxyRespHeaders = proxyResponse.Header
 
-			if body, err := ioutil.ReadAll(proxyResponse.Body); err != nil {
+			var body []byte
+			if body, err = ioutil.ReadAll(proxyResponse.Body); err != nil {
 				proxyOutput = fmt.Sprintf("proxy read body error %v", err.Error())
 			} else {
 				proxyOutput = string(body)
@@ -234,7 +288,7 @@ func proxyHandlerFunc(configuration *Configuration, proxyInfo ProxyInfo) http.Ha
 		proxyDuration := fmt.Sprintf("%.9f sec",
 			proxyEndTime.Sub(proxyStartTime).Seconds())
 
-		proxyData := &ProxyData{
+		proxyAPIResponse := &ProxyAPIResponse{
 			ProxyInfo:        &proxyInfo,
 			Now:              formatTime(proxyEndTime),
 			ProxyDuration:    proxyDuration,
@@ -243,14 +297,15 @@ func proxyHandlerFunc(configuration *Configuration, proxyInfo ProxyInfo) http.Ha
 			ProxyOutput:      proxyOutput,
 		}
 
-		var buffer bytes.Buffer
-		if err := templates.ExecuteTemplate(&buffer, proxyTemplateFile, proxyData); err != nil {
+		var jsonText []byte
+		if jsonText, err = json.Marshal(proxyAPIResponse); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
+		w.Header().Add(contentTypeHeaderKey, "application/json")
 		w.Header().Add(cacheControlHeaderKey, "max-age=0")
-		http.ServeContent(w, r, commandTemplateFile, time.Time{}, bytes.NewReader(buffer.Bytes()))
+		http.ServeContent(w, r, "", time.Time{}, bytes.NewReader(jsonText))
 	}
 }
 
@@ -315,7 +370,7 @@ func installPprofHandlers(pprofInfo PprofInfo, serveMux *http.ServeMux) {
 }
 
 func readConfiguration(configFile string) *Configuration {
-	logger.Printf("reading %v", configFile)
+	logger.Printf("reading json file %v", configFile)
 
 	source, err := ioutil.ReadFile(configFile)
 	if err != nil {
@@ -323,7 +378,7 @@ func readConfiguration(configFile string) *Configuration {
 	}
 
 	var configuration Configuration
-	if err := yaml.Unmarshal(source, &configuration); err != nil {
+	if err := json.Unmarshal(source, &configuration); err != nil {
 		logger.Fatalf("error parsing %v: %v", configFile, err.Error())
 	}
 
@@ -360,15 +415,25 @@ func main() {
 	}
 
 	for _, commandInfo := range configuration.Commands {
+		apiPath := "/api/commands/" + commandInfo.ID
+		htmlPath := "/commands/" + commandInfo.ID + ".html"
 		serveMux.Handle(
-			commandInfo.HttpPath,
-			commandRunnerHandlerFunc(configuration, commandInfo))
+			htmlPath,
+			commandRunnerHTMLHandlerFunc(configuration, commandInfo))
+		serveMux.Handle(
+			apiPath,
+			commandAPIHandlerFunc(configuration, commandInfo))
 	}
 
 	for _, proxyInfo := range configuration.Proxies {
+		apiPath := "/api/proxies/" + proxyInfo.ID
+		htmlPath := "/proxies/" + proxyInfo.ID + ".html"
 		serveMux.Handle(
-			proxyInfo.HttpPath,
-			proxyHandlerFunc(configuration, proxyInfo))
+			htmlPath,
+			proxyHTMLHandlerFunc(configuration, proxyInfo))
+		serveMux.Handle(
+			apiPath,
+			proxyAPIHandlerFunc(configuration, proxyInfo))
 	}
 
 	serveMux.Handle("/reqinfo", requestInfoHandlerFunc())
