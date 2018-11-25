@@ -21,54 +21,54 @@ import (
 	"github.com/kr/pretty"
 )
 
-type TLSInfo struct {
+type tlsInfo struct {
 	Enabled  bool   `json:"enabled"`
 	CertFile string `json:"certFile"`
 	KeyFile  string `json:"keyFile"`
 }
 
-type MainPageInfo struct {
+type mainPageInfo struct {
 	Title             string `json:"title"`
 	CacheControlValue string `json:"cacheControlValue"`
 }
 
-type PprofInfo struct {
+type pprofInfo struct {
 	Enabled bool `json:"enabled"`
 }
 
-type StaticFileInfo struct {
-	HttpPath          string `json:"httpPath"`
+type staticFileInfo struct {
+	HTTPPath          string `json:"httpPath"`
 	FilePath          string `json:"filePath"`
 	CacheControlValue string `json:"cacheControlValue"`
 }
 
-type StaticDirectoryInfo struct {
-	HttpPath      string `json:"httpPath"`
+type staticDirectoryInfo struct {
+	HTTPPath      string `json:"httpPath"`
 	DirectoryPath string `json:"directoryPath"`
 }
 
-type CommandInfo struct {
+type commandInfo struct {
 	ID          string   `json:"id"`
 	Description string   `json:"description"`
 	Command     string   `json:"command"`
 	Args        []string `json:"args"`
 }
 
-type ProxyInfo struct {
+type proxyInfo struct {
 	ID          string `json:"id"`
 	Description string `json:"description"`
 	URL         string `json:"url"`
 }
 
-type Configuration struct {
+type configuration struct {
 	ListenAddress     string                `json:"listenAddress"`
-	TLSInfo           TLSInfo               `json:"tlsInfo"`
-	MainPageInfo      MainPageInfo          `json:"mainPageInfo"`
-	PprofInfo         PprofInfo             `json:"pprofInfo"`
-	StaticFiles       []StaticFileInfo      `json:"staticFiles"`
-	StaticDirectories []StaticDirectoryInfo `json:"staticDirectories"`
-	Commands          []CommandInfo         `json:"commands"`
-	Proxies           []ProxyInfo           `json:"proxies"`
+	TLSInfo           tlsInfo               `json:"tlsInfo"`
+	MainPageInfo      mainPageInfo          `json:"mainPageInfo"`
+	PprofInfo         pprofInfo             `json:"pprofInfo"`
+	StaticFiles       []staticFileInfo      `json:"staticFiles"`
+	StaticDirectories []staticDirectoryInfo `json:"staticDirectories"`
+	Commands          []commandInfo         `json:"commands"`
+	Proxies           []proxyInfo           `json:"proxies"`
 }
 
 const (
@@ -117,15 +117,15 @@ func httpHeaderToString(header http.Header) string {
 	return buffer.String()
 }
 
-type MainPageMetadata struct {
-	*Configuration
+type mainPageMetadata struct {
+	*configuration
 	LastModified string
 }
 
-func buildMainPageString(configuration *Configuration, creationTime time.Time) string {
+func buildMainPageString(configuration *configuration, creationTime time.Time) string {
 	var buffer bytes.Buffer
-	mainPageMetadata := &MainPageMetadata{
-		Configuration: configuration,
+	mainPageMetadata := &mainPageMetadata{
+		configuration: configuration,
 		LastModified:  formatTime(creationTime),
 	}
 	if err := templates.ExecuteTemplate(&buffer, mainTemplateFile, mainPageMetadata); err != nil {
@@ -134,7 +134,7 @@ func buildMainPageString(configuration *Configuration, creationTime time.Time) s
 	return buffer.String()
 }
 
-func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
+func mainPageHandlerFunc(configuration *configuration) http.HandlerFunc {
 	creationTime := time.Now()
 	mainPageBytes := []byte(buildMainPageString(configuration, creationTime))
 	cacheControlValue := configuration.MainPageInfo.CacheControlValue
@@ -150,28 +150,28 @@ func mainPageHandlerFunc(configuration *Configuration) http.HandlerFunc {
 	}
 }
 
-func staticFileHandlerFunc(staticFileInfo StaticFileInfo) http.HandlerFunc {
+func staticFileHandlerFunc(staticFileInfo staticFileInfo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add(cacheControlHeaderKey, staticFileInfo.CacheControlValue)
 		http.ServeFile(w, r, staticFileInfo.FilePath)
 	}
 }
 
-func staticDirectoryHandler(staticDirectoryInfo StaticDirectoryInfo) http.Handler {
+func staticDirectoryHandler(staticDirectoryInfo staticDirectoryInfo) http.Handler {
 	return http.StripPrefix(
-		staticDirectoryInfo.HttpPath,
+		staticDirectoryInfo.HTTPPath,
 		http.FileServer(http.Dir(staticDirectoryInfo.DirectoryPath)))
 }
 
-type CommandHTMLData struct {
-	*CommandInfo
+type commandHTMLData struct {
+	*commandInfo
 }
 
 func commandRunnerHTMLHandlerFunc(
-	configuration *Configuration, commandInfo CommandInfo) http.HandlerFunc {
+	configuration *configuration, commandInfo commandInfo) http.HandlerFunc {
 
-	commandHTMLData := &CommandHTMLData{
-		CommandInfo: &commandInfo,
+	commandHTMLData := &commandHTMLData{
+		commandInfo: &commandInfo,
 	}
 
 	var buffer bytes.Buffer
@@ -186,14 +186,14 @@ func commandRunnerHTMLHandlerFunc(
 	}
 }
 
-type CommandAPIResponse struct {
-	*CommandInfo
+type commandAPIResponse struct {
+	*commandInfo
 	Now             string `json:"now"`
 	CommandDuration string `json:"commandDuration"`
 	CommandOutput   string `json:"commandOutput"`
 }
 
-func commandAPIHandlerFunc(configuration *Configuration, commandInfo CommandInfo) http.HandlerFunc {
+func commandAPIHandlerFunc(configuration *configuration, commandInfo commandInfo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		commandStartTime := time.Now()
 		rawCommandOutput, err := exec.Command(
@@ -210,8 +210,8 @@ func commandAPIHandlerFunc(configuration *Configuration, commandInfo CommandInfo
 		commandDuration := fmt.Sprintf("%.9f sec",
 			commandEndTime.Sub(commandStartTime).Seconds())
 
-		commandAPIResponse := &CommandAPIResponse{
-			CommandInfo:     &commandInfo,
+		commandAPIResponse := &commandAPIResponse{
+			commandInfo:     &commandInfo,
 			Now:             formatTime(commandEndTime),
 			CommandDuration: commandDuration,
 			CommandOutput:   commandOutput,
@@ -229,15 +229,15 @@ func commandAPIHandlerFunc(configuration *Configuration, commandInfo CommandInfo
 	}
 }
 
-type ProxyHTMLData struct {
-	*ProxyInfo
+type proxyHTMLData struct {
+	*proxyInfo
 }
 
 func proxyHTMLHandlerFunc(
-	configuration *Configuration, proxyInfo ProxyInfo) http.HandlerFunc {
+	configuration *configuration, proxyInfo proxyInfo) http.HandlerFunc {
 
-	proxyHTMLData := &ProxyHTMLData{
-		ProxyInfo: &proxyInfo,
+	proxyHTMLData := &proxyHTMLData{
+		proxyInfo: &proxyInfo,
 	}
 
 	var buffer bytes.Buffer
@@ -252,8 +252,8 @@ func proxyHTMLHandlerFunc(
 	}
 }
 
-type ProxyAPIResponse struct {
-	*ProxyInfo
+type proxyAPIResponse struct {
+	*proxyInfo
 	Now              string      `json:"now"`
 	ProxyDuration    string      `json:"proxyDuration"`
 	ProxyStatus      string      `json:"proxyStatus"`
@@ -261,7 +261,7 @@ type ProxyAPIResponse struct {
 	ProxyOutput      string      `json:"proxyOutput"`
 }
 
-func proxyAPIHandlerFunc(configuration *Configuration, proxyInfo ProxyInfo) http.HandlerFunc {
+func proxyAPIHandlerFunc(configuration *configuration, proxyInfo proxyInfo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		proxyStartTime := time.Now()
 		proxyResponse, err := httpClient.Get(proxyInfo.URL)
@@ -288,8 +288,8 @@ func proxyAPIHandlerFunc(configuration *Configuration, proxyInfo ProxyInfo) http
 		proxyDuration := fmt.Sprintf("%.9f sec",
 			proxyEndTime.Sub(proxyStartTime).Seconds())
 
-		proxyAPIResponse := &ProxyAPIResponse{
-			ProxyInfo:        &proxyInfo,
+		proxyAPIResponse := &proxyAPIResponse{
+			proxyInfo:        &proxyInfo,
 			Now:              formatTime(proxyEndTime),
 			ProxyDuration:    proxyDuration,
 			ProxyStatus:      proxyStatus,
@@ -359,7 +359,7 @@ func requestInfoHandlerFunc() http.HandlerFunc {
 	}
 }
 
-func installPprofHandlers(pprofInfo PprofInfo, serveMux *http.ServeMux) {
+func installPprofHandlers(pprofInfo pprofInfo, serveMux *http.ServeMux) {
 	if pprofInfo.Enabled {
 		serveMux.Handle("/debug/pprof/", http.HandlerFunc(pprof.Index))
 		serveMux.Handle("/debug/pprof/cmdline", http.HandlerFunc(pprof.Cmdline))
@@ -369,7 +369,7 @@ func installPprofHandlers(pprofInfo PprofInfo, serveMux *http.ServeMux) {
 	}
 }
 
-func readConfiguration(configFile string) *Configuration {
+func readConfiguration(configFile string) *configuration {
 	logger.Printf("reading json file %v", configFile)
 
 	source, err := ioutil.ReadFile(configFile)
@@ -377,12 +377,12 @@ func readConfiguration(configFile string) *Configuration {
 		logger.Fatalf("error reading %v: %v", configFile, err.Error())
 	}
 
-	var configuration Configuration
-	if err := json.Unmarshal(source, &configuration); err != nil {
+	var config configuration
+	if err := json.Unmarshal(source, &config); err != nil {
 		logger.Fatalf("error parsing %v: %v", configFile, err.Error())
 	}
 
-	return &configuration
+	return &config
 }
 
 func main() {
@@ -404,13 +404,13 @@ func main() {
 
 	for _, staticFileInfo := range configuration.StaticFiles {
 		serveMux.Handle(
-			staticFileInfo.HttpPath,
+			staticFileInfo.HTTPPath,
 			staticFileHandlerFunc(staticFileInfo))
 	}
 
 	for _, staticDirectoryInfo := range configuration.StaticDirectories {
 		serveMux.Handle(
-			staticDirectoryInfo.HttpPath,
+			staticDirectoryInfo.HTTPPath,
 			staticDirectoryHandler(staticDirectoryInfo))
 	}
 
