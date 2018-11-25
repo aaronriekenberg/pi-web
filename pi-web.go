@@ -237,7 +237,7 @@ func commandAPIHandlerFunc(configuration *configuration, commandInfo commandInfo
 
 		w.Header().Add(contentTypeHeaderKey, contentTypeApplicationJSON)
 		w.Header().Add(cacheControlHeaderKey, "max-age=0")
-		http.ServeContent(w, r, "", time.Time{}, bytes.NewReader(jsonText))
+		io.Copy(w, bytes.NewReader(jsonText))
 	}
 }
 
@@ -321,7 +321,7 @@ func proxyAPIHandlerFunc(configuration *configuration, proxyInfo proxyInfo) http
 
 		w.Header().Add(contentTypeHeaderKey, contentTypeApplicationJSON)
 		w.Header().Add(cacheControlHeaderKey, "max-age=0")
-		http.ServeContent(w, r, "", time.Time{}, bytes.NewReader(jsonText))
+		io.Copy(w, bytes.NewReader(jsonText))
 	}
 }
 
