@@ -38,7 +38,7 @@ const setTimer = (apiPath) => {
 };
 
 const onload = (commandText, apiPath) => {
-    let preText = `Now: ${new Date()}\n\n`;
+    let preText = `Now:\n\n`;
     preText += `$ ${commandText}`;
     updatePre(preText);
 
