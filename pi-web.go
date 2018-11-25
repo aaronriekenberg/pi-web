@@ -103,7 +103,7 @@ var httpClient = &http.Client{
 }
 
 func formatTime(t time.Time) string {
-	return t.Format("Mon Jan 2 15:04:05.999999999 -0700 MST 2006")
+	return t.Format("Mon Jan 2 15:04:05.000000000 -0700 MST 2006")
 }
 
 func httpHeaderToString(header http.Header) string {
