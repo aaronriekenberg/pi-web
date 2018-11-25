@@ -5,9 +5,11 @@
     "certFile": "cert.pem",
     "keyFile": "key.pem"
   },
-  "mainPageInfo": {
-    "title": "Go Server",
+  "templatePageInfo": {
     "cacheControlValue": "public, max-age=60"
+  },
+  "mainPageInfo": {
+    "title": "Go Server"
   },
   "pprofInfo": {
     "enabled": true
@@ -53,6 +55,11 @@
       "id": "test_proxy",
       "description": "test proxy",
       "url": "http://www.google.com"
+    },
+    {
+      "id": "test_proxy_2",
+      "description": "test proxy 2",
+      "url": "http://www.mprnews.org"
     }
   ]
 }

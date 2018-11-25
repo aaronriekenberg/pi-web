@@ -27,9 +27,12 @@ type tlsInfo struct {
 	KeyFile  string `json:"keyFile"`
 }
 
-type mainPageInfo struct {
-	Title             string `json:"title"`
+type templatePageInfo struct {
 	CacheControlValue string `json:"cacheControlValue"`
+}
+
+type mainPageInfo struct {
+	Title string `json:"title"`
 }
 
 type pprofInfo struct {
@@ -63,6 +66,7 @@ type proxyInfo struct {
 type configuration struct {
 	ListenAddress     string                `json:"listenAddress"`
 	TLSInfo           tlsInfo               `json:"tlsInfo"`
+	TemplatePageInfo  templatePageInfo      `json:"templatePageInfo"`
 	MainPageInfo      mainPageInfo          `json:"mainPageInfo"`
 	PprofInfo         pprofInfo             `json:"pprofInfo"`
 	StaticFiles       []staticFileInfo      `json:"staticFiles"`
@@ -72,12 +76,15 @@ type configuration struct {
 }
 
 const (
-	templatesDirectory    = "templates"
-	mainTemplateFile      = "main.html"
-	commandTemplateFile   = "command.html"
-	proxyTemplateFile     = "proxy.html"
-	cacheControlHeaderKey = "cache-control"
-	contentTypeHeaderKey  = "content-type"
+	templatesDirectory         = "templates"
+	mainTemplateFile           = "main.html"
+	commandTemplateFile        = "command.html"
+	proxyTemplateFile          = "proxy.html"
+	cacheControlHeaderKey      = "cache-control"
+	contentTypeHeaderKey       = "content-type"
+	contentTypeTextHTML        = "text/html"
+	contentTypeTextPlain       = "text/plain"
+	contentTypeApplicationJSON = "application/json"
 )
 
 var templates = template.Must(
@@ -137,7 +144,7 @@ func buildMainPageString(configuration *configuration, creationTime time.Time) s
 func mainPageHandlerFunc(configuration *configuration) http.HandlerFunc {
 	creationTime := time.Now()
 	mainPageBytes := []byte(buildMainPageString(configuration, creationTime))
-	cacheControlValue := configuration.MainPageInfo.CacheControlValue
+	cacheControlValue := configuration.TemplatePageInfo.CacheControlValue
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
@@ -146,6 +153,7 @@ func mainPageHandlerFunc(configuration *configuration) http.HandlerFunc {
 		}
 
 		w.Header().Add(cacheControlHeaderKey, cacheControlValue)
+		w.Header().Add(contentTypeHeaderKey, contentTypeTextHTML)
 		http.ServeContent(w, r, mainTemplateFile, creationTime, bytes.NewReader(mainPageBytes))
 	}
 }
@@ -170,6 +178,8 @@ type commandHTMLData struct {
 func commandRunnerHTMLHandlerFunc(
 	configuration *configuration, commandInfo commandInfo) http.HandlerFunc {
 
+	cacheControlValue := configuration.TemplatePageInfo.CacheControlValue
+
 	commandHTMLData := &commandHTMLData{
 		commandInfo: &commandInfo,
 	}
@@ -182,6 +192,8 @@ func commandRunnerHTMLHandlerFunc(
 	lastModified := time.Now()
 
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add(cacheControlHeaderKey, cacheControlValue)
+		w.Header().Add(contentTypeHeaderKey, contentTypeTextHTML)
 		http.ServeContent(w, r, commandTemplateFile, lastModified, bytes.NewReader(buffer.Bytes()))
 	}
 }
@@ -223,7 +235,7 @@ func commandAPIHandlerFunc(configuration *configuration, commandInfo commandInfo
 			return
 		}
 
-		w.Header().Add(contentTypeHeaderKey, "application/json")
+		w.Header().Add(contentTypeHeaderKey, contentTypeApplicationJSON)
 		w.Header().Add(cacheControlHeaderKey, "max-age=0")
 		http.ServeContent(w, r, "", time.Time{}, bytes.NewReader(jsonText))
 	}
@@ -235,6 +247,8 @@ type proxyHTMLData struct {
 
 func proxyHTMLHandlerFunc(
 	configuration *configuration, proxyInfo proxyInfo) http.HandlerFunc {
+
+	cacheControlValue := configuration.TemplatePageInfo.CacheControlValue
 
 	proxyHTMLData := &proxyHTMLData{
 		proxyInfo: &proxyInfo,
@@ -248,6 +262,8 @@ func proxyHTMLHandlerFunc(
 	lastModified := time.Now()
 
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add(cacheControlHeaderKey, cacheControlValue)
+		w.Header().Add(contentTypeHeaderKey, contentTypeTextHTML)
 		http.ServeContent(w, r, proxyTemplateFile, lastModified, bytes.NewReader(buffer.Bytes()))
 	}
 }
@@ -303,7 +319,7 @@ func proxyAPIHandlerFunc(configuration *configuration, proxyInfo proxyInfo) http
 			return
 		}
 
-		w.Header().Add(contentTypeHeaderKey, "application/json")
+		w.Header().Add(contentTypeHeaderKey, contentTypeApplicationJSON)
 		w.Header().Add(cacheControlHeaderKey, "max-age=0")
 		http.ServeContent(w, r, "", time.Time{}, bytes.NewReader(jsonText))
 	}
@@ -352,7 +368,7 @@ func requestInfoHandlerFunc() http.HandlerFunc {
 		buffer.WriteString("Headers:\n")
 		buffer.WriteString(httpHeaderToString(r.Header))
 
-		w.Header().Add(contentTypeHeaderKey, "text/plain")
+		w.Header().Add(contentTypeHeaderKey, contentTypeTextPlain)
 		w.Header().Add(cacheControlHeaderKey, "max-age=0")
 
 		io.Copy(w, &buffer)
