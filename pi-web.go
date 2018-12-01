@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"sort"
+	"strings"
 	"time"
 
 	gorillaHandlers "github.com/gorilla/handlers"
@@ -414,7 +415,7 @@ func getGitHash() string {
 		logger.Fatalf("error executing git: %v", err.Error())
 	}
 
-	return string(rawCommandOutput)
+	return strings.TrimSpace(string(rawCommandOutput))
 }
 
 func getEnvironment() *environment {
