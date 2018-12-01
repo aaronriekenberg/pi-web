@@ -95,7 +95,7 @@
       "command": "ls",
       "args": [
         "-latrh",
-        "~/node-server/logs"
+        "~/pi-web/logs"
       ],
       "description": "log ls"
     },
