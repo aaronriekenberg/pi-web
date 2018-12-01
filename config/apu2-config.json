@@ -32,7 +32,7 @@
     },
     {
       "httpPath": "/favicon.ico",
-      "filePath": "static/go-favicon.css",
+      "filePath": "static/go-favicon.ico",
       "cacheControlValue": "public, max-age=60"
     }
   ],
