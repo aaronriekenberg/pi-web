@@ -19,7 +19,6 @@ import (
 
 	gorillaHandlers "github.com/gorilla/handlers"
 	"github.com/kr/pretty"
-	"gopkg.in/src-d/go-git.v4"
 )
 
 type tlsInfo struct {
@@ -410,22 +409,12 @@ func readConfiguration(configFile string) *configuration {
 }
 
 func getGitHash() string {
-	repo, err := git.PlainOpen(".")
+	rawCommandOutput, err := exec.Command("git", "rev-parse", "HEAD").CombinedOutput()
 	if err != nil {
-		logger.Fatalf("error opening git repo: %v", err.Error())
+		logger.Fatalf("error executing git: %v", err.Error())
 	}
 
-	commitIterator, err := repo.Log(&git.LogOptions{})
-	if err != nil {
-		logger.Fatalf("error executing log: %v", err.Error())
-	}
-
-	commit, err := commitIterator.Next()
-	if err != nil {
-		logger.Fatalf("error getting commit: %v", err.Error())
-	}
-
-	return commit.Hash.String()
+	return string(rawCommandOutput)
 }
 
 func getEnvironment() *environment {
