@@ -456,7 +456,7 @@ func main() {
 
 	installPprofHandlers(configuration.PprofInfo, serveMux)
 
-	serveHandler := gorillaHandlers.CombinedLoggingHandler(os.Stdout, serveMux)
+	serveHandler := gorillaHandlers.LoggingHandler(os.Stdout, serveMux)
 
 	if configuration.TLSInfo.Enabled {
 		logger.Fatal(
