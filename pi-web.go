@@ -19,7 +19,7 @@ import (
 
 	gorillaHandlers "github.com/gorilla/handlers"
 	"github.com/kr/pretty"
-	git "gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4"
 )
 
 type tlsInfo struct {
@@ -86,6 +86,7 @@ const (
 	commandTemplateFile        = "command.html"
 	proxyTemplateFile          = "proxy.html"
 	cacheControlHeaderKey      = "cache-control"
+	maxAgeZero                 = "max-age=0"
 	contentTypeHeaderKey       = "content-type"
 	contentTypeTextHTML        = "text/html"
 	contentTypeTextPlain       = "text/plain"
@@ -243,7 +244,7 @@ func commandAPIHandlerFunc(configuration *configuration, commandInfo commandInfo
 		}
 
 		w.Header().Add(contentTypeHeaderKey, contentTypeApplicationJSON)
-		w.Header().Add(cacheControlHeaderKey, "max-age=0")
+		w.Header().Add(cacheControlHeaderKey, maxAgeZero)
 		io.Copy(w, bytes.NewReader(jsonText))
 	}
 }
@@ -286,13 +287,14 @@ type proxyAPIResponse struct {
 
 func proxyAPIHandlerFunc(configuration *configuration, proxyInfo proxyInfo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		var proxyOutput string
+		var proxyStatus string
+		var proxyRespHeaders http.Header
+
 		proxyStartTime := time.Now()
 		proxyResponse, err := httpClient.Get(proxyInfo.URL)
 		proxyEndTime := time.Now()
 
-		var proxyOutput string
-		var proxyStatus string
-		var proxyRespHeaders http.Header
 		if err != nil {
 			proxyOutput = fmt.Sprintf("proxy error %v", err.Error())
 		} else {
@@ -308,8 +310,7 @@ func proxyAPIHandlerFunc(configuration *configuration, proxyInfo proxyInfo) http
 			}
 		}
 
-		proxyDuration := fmt.Sprintf("%.9f sec",
-			proxyEndTime.Sub(proxyStartTime).Seconds())
+		proxyDuration := fmt.Sprintf("%.9f sec", proxyEndTime.Sub(proxyStartTime).Seconds())
 
 		proxyAPIResponse := &proxyAPIResponse{
 			proxyInfo:        &proxyInfo,
@@ -320,14 +321,14 @@ func proxyAPIHandlerFunc(configuration *configuration, proxyInfo proxyInfo) http
 			ProxyOutput:      proxyOutput,
 		}
 
-		var jsonText []byte
-		if jsonText, err = json.Marshal(proxyAPIResponse); err != nil {
+		jsonText, err := json.Marshal(proxyAPIResponse)
+		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		w.Header().Add(contentTypeHeaderKey, contentTypeApplicationJSON)
-		w.Header().Add(cacheControlHeaderKey, "max-age=0")
+		w.Header().Add(cacheControlHeaderKey, maxAgeZero)
 		io.Copy(w, bytes.NewReader(jsonText))
 	}
 }
@@ -376,7 +377,7 @@ func requestInfoHandlerFunc() http.HandlerFunc {
 		buffer.WriteString(httpHeaderToString(r.Header))
 
 		w.Header().Add(contentTypeHeaderKey, contentTypeTextPlain)
-		w.Header().Add(cacheControlHeaderKey, "max-age=0")
+		w.Header().Add(cacheControlHeaderKey, maxAgeZero)
 
 		io.Copy(w, &buffer)
 	}
@@ -401,7 +402,7 @@ func readConfiguration(configFile string) *configuration {
 	}
 
 	var config configuration
-	if err := json.Unmarshal(source, &config); err != nil {
+	if err = json.Unmarshal(source, &config); err != nil {
 		logger.Fatalf("error parsing %v: %v", configFile, err.Error())
 	}
 
@@ -414,7 +415,6 @@ func getGitHash() string {
 		logger.Fatalf("error opening git repo: %v", err.Error())
 	}
 
-	logger.Printf("repo = %v", repo)
 	commitIterator, err := repo.Log(&git.LogOptions{})
 	if err != nil {
 		logger.Fatalf("error executing log: %v", err.Error())
