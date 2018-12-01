@@ -213,7 +213,7 @@ type commandAPIResponse struct {
 	CommandOutput   string `json:"commandOutput"`
 }
 
-func commandAPIHandlerFunc(configuration *configuration, commandInfo commandInfo) http.HandlerFunc {
+func commandAPIHandlerFunc(commandInfo commandInfo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		commandStartTime := time.Now()
 		rawCommandOutput, err := exec.Command(
@@ -285,7 +285,7 @@ type proxyAPIResponse struct {
 	ProxyOutput      string      `json:"proxyOutput"`
 }
 
-func proxyAPIHandlerFunc(configuration *configuration, proxyInfo proxyInfo) http.HandlerFunc {
+func proxyAPIHandlerFunc(proxyInfo proxyInfo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var proxyOutput string
 		var proxyStatus string
@@ -473,7 +473,7 @@ func main() {
 			commandRunnerHTMLHandlerFunc(configuration, commandInfo))
 		serveMux.Handle(
 			apiPath,
-			commandAPIHandlerFunc(configuration, commandInfo))
+			commandAPIHandlerFunc(commandInfo))
 	}
 
 	for _, proxyInfo := range configuration.Proxies {
@@ -484,7 +484,7 @@ func main() {
 			proxyHTMLHandlerFunc(configuration, proxyInfo))
 		serveMux.Handle(
 			apiPath,
-			proxyAPIHandlerFunc(configuration, proxyInfo))
+			proxyAPIHandlerFunc(proxyInfo))
 	}
 
 	serveMux.Handle("/reqinfo", requestInfoHandlerFunc())
