@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<title>{{.MainPageInfo.Title}}</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" type="text/css" href="style.css">
+  <title>{{.MainPageInfo.Title}}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="style.css">
 </head>
+
 <body>
 
-<h2>{{.MainPageInfo.Title}}</h2>
+  <h2>{{.MainPageInfo.Title}}</h2>
 
-<h3>Commands:</h3>
-<ul>{{range .Commands}}
-  <li><a href="/commands/{{.ID}}.html">{{.Description}}</a></li>{{end}}
-</ul>
+{{ if .Commands }}
+  <h3>Commands:</h3>
+  <ul>{{range .Commands}}
+    <li><a href="/commands/{{.ID}}.html">{{.Description}}</a></li>{{end}}
+  </ul>
+{{ end }}
 
 {{ if .Proxies }}
   <h3>Proxies:</h3>
@@ -28,17 +32,17 @@
   </ul>
 {{ end }}
 
-<h3>Debugging:</h3>
-<ul>
-  {{ if .PprofInfo.Enabled }}
-  <li><a href="debug/pprof">pprof</a>
-  {{ end }}
-  <li><a href="reqinfo">reqinfo</a>
-</ul>
+  <h3>Debugging:</h3>
+  <ul>
+{{ if .PprofInfo.Enabled }}
+    <li><a href="debug/pprof">pprof</a>
+{{ end }}
+    <li><a href="reqinfo">reqinfo</a>
+  </ul>
 
-<hr>
+  <hr>
 
-<small>Last Modified: {{.LastModified}}</small>
+  <small>Last Modified: {{.LastModified}}</small>
 
 </body>
 </html>
