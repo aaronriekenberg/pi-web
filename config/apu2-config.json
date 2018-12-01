@@ -95,7 +95,7 @@
       "command": "ls",
       "args": [
         "-latrh",
-        "~/pi-web/logs"
+        "/home/aaron/pi-web/logs"
       ],
       "description": "log ls"
     },
@@ -104,7 +104,7 @@
       "command": "tail",
       "args": [
         "-n30",
-        "~/pi-web/logs/current"
+        "/home/aaron/pi-web/logs/current"
       ],
       "description": "log tail"
     },
