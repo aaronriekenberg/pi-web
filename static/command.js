@@ -9,15 +9,15 @@ const updatePre = (text) => {
 
 xRequest.onreadystatechange = function () {
     if (this.readyState == 4 && this.status == 200) {
-        const responseObject = JSON.parse(xRequest.responseText);
-        let command = responseObject.command;
-        for (const arg of (responseObject.args || [])) {
+        const jsonObject = JSON.parse(xRequest.responseText);
+        let command = jsonObject.command;
+        for (const arg of (jsonObject.args || [])) {
           command += ` ${arg}`;
         }
-        let preText = `Now: ${responseObject.now}\n\n`;
-        preText += `Command Duration: ${responseObject.commandDuration}\n\n`;
+        let preText = `Now: ${jsonObject.now}\n\n`;
+        preText += `Command Duration: ${jsonObject.commandDuration}\n\n`;
         preText += `$ ${command}\n\n`;
-        preText += responseObject.commandOutput;
+        preText += jsonObject.commandOutput;
         updatePre(preText);
     }
 };

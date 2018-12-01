@@ -14,6 +14,7 @@ xRequest.onreadystatechange = function () {
     if (this.readyState == 4 && this.status == 200) {
         const jsonObject = JSON.parse(xRequest.responseText);
         let preText = `Now: ${jsonObject.now}\n\n`;
+        preText += `Proxy Duration: ${jsonObject.proxyDuration}\n\n`;
         preText += `GET ${jsonObject.url}\n\n`;
         preText += `Response Status: ${jsonObject.proxyStatus}\n\n`;
         preText += `Response Headers:\n${stringifyPretty(jsonObject.proxyRespHeaders)}\n\n`;
@@ -40,6 +41,7 @@ const setTimer = (apiPath) => {
 
 const onload = (requestText, apiPath) => {
     let preText = `Now:\n\n`;
+    preText += `Proxy Duration:\n\n`;
     preText += `${requestText}\n\n`;
     preText += 'Response Status:\n\n';
     preText += 'Response Headers:';
