@@ -15,6 +15,7 @@ xRequest.onreadystatechange = function () {
           command += ` ${arg}`;
         }
         let preText = `Now: ${responseObject.now}\n\n`;
+        preText += `Command Duration: ${responseObject.commandDuration}\n\n`;
         preText += `$ ${command}\n\n`;
         preText += responseObject.commandOutput;
         updatePre(preText);
@@ -39,6 +40,7 @@ const setTimer = (apiPath) => {
 
 const onload = (commandText, apiPath) => {
     let preText = `Now:\n\n`;
+    preText += `Command Duration:\n\n`;
     preText += `$ ${commandText}`;
     updatePre(preText);
 
