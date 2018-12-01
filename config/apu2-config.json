@@ -132,7 +132,7 @@
     },
     {
       "id": "netstat_s",
-      "command": "netstat -s",
+      "command": "netstat",
       "args": [
         "-s"
       ],
