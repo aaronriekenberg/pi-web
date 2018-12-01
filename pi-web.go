@@ -19,6 +19,7 @@ import (
 
 	gorillaHandlers "github.com/gorilla/handlers"
 	"github.com/kr/pretty"
+	git "gopkg.in/src-d/go-git.v4"
 )
 
 type tlsInfo struct {
@@ -75,6 +76,10 @@ type configuration struct {
 	Proxies           []proxyInfo           `json:"proxies"`
 }
 
+type environment struct {
+	GitHash string
+}
+
 const (
 	templatesDirectory         = "templates"
 	mainTemplateFile           = "main.html"
@@ -126,13 +131,15 @@ func httpHeaderToString(header http.Header) string {
 
 type mainPageMetadata struct {
 	*configuration
+	*environment
 	LastModified string
 }
 
-func buildMainPageString(configuration *configuration, creationTime time.Time) string {
+func buildMainPageString(configuration *configuration, environment *environment, creationTime time.Time) string {
 	var buffer bytes.Buffer
 	mainPageMetadata := &mainPageMetadata{
 		configuration: configuration,
+		environment:   environment,
 		LastModified:  formatTime(creationTime),
 	}
 	if err := templates.ExecuteTemplate(&buffer, mainTemplateFile, mainPageMetadata); err != nil {
@@ -141,9 +148,9 @@ func buildMainPageString(configuration *configuration, creationTime time.Time) s
 	return buffer.String()
 }
 
-func mainPageHandlerFunc(configuration *configuration) http.HandlerFunc {
+func mainPageHandlerFunc(configuration *configuration, environment *environment) http.HandlerFunc {
 	creationTime := time.Now()
-	mainPageBytes := []byte(buildMainPageString(configuration, creationTime))
+	mainPageBytes := []byte(buildMainPageString(configuration, environment, creationTime))
 	cacheControlValue := configuration.TemplatePageInfo.CacheControlValue
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -401,6 +408,32 @@ func readConfiguration(configFile string) *configuration {
 	return &config
 }
 
+func getGitHash() string {
+	repo, err := git.PlainOpen(".")
+	if err != nil {
+		logger.Fatalf("error opening git repo: %v", err.Error())
+	}
+
+	logger.Printf("repo = %v", repo)
+	commitIterator, err := repo.Log(&git.LogOptions{})
+	if err != nil {
+		logger.Fatalf("error executing log: %v", err.Error())
+	}
+
+	commit, err := commitIterator.Next()
+	if err != nil {
+		logger.Fatalf("error getting commit: %v", err.Error())
+	}
+
+	return commit.Hash.String()
+}
+
+func getEnvironment() *environment {
+	return &environment{
+		GitHash: getGitHash(),
+	}
+}
+
 func main() {
 	if len(os.Args) != 2 {
 		logger.Fatalf("Usage: %v <config yml file>", os.Args[0])
@@ -411,12 +444,14 @@ func main() {
 	configFile := os.Args[1]
 
 	configuration := readConfiguration(configFile)
+	logger.Printf("configuration:\n%# v", pretty.Formatter(configuration))
 
-	logger.Printf("configuration =\n%# v", pretty.Formatter(configuration))
+	environment := getEnvironment()
+	logger.Printf("environment:\n%# v", pretty.Formatter(environment))
 
 	serveMux := http.NewServeMux()
 
-	serveMux.Handle("/", mainPageHandlerFunc(configuration))
+	serveMux.Handle("/", mainPageHandlerFunc(configuration, environment))
 
 	for _, staticFileInfo := range configuration.StaticFiles {
 		serveMux.Handle(
