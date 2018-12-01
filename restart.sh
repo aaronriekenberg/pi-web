@@ -1,7 +1,7 @@
 #!/bin/sh -x
 
 KILL_CMD=pkill
-CONFIG_FILE=$(hostname)-config.yml
+CONFIG_FILE=config/$(hostname)-config.yml
 
 $KILL_CMD pi-web
 
