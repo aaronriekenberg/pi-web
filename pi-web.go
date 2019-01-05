@@ -333,6 +333,46 @@ func proxyAPIHandlerFunc(proxyInfo proxyInfo) http.HandlerFunc {
 	}
 }
 
+func configurationHandlerFunction(configuration *configuration) http.HandlerFunc {
+	rawBytes, err := json.Marshal(configuration)
+	if err != nil {
+		logger.Fatalf("error generating configuration json")
+	}
+
+	var formattedBuffer bytes.Buffer
+	err = json.Indent(&formattedBuffer, rawBytes, "", "  ")
+	if err != nil {
+		logger.Fatalf("error indenting configuration json")
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add(contentTypeHeaderKey, contentTypeTextPlain)
+		w.Header().Add(cacheControlHeaderKey, maxAgeZero)
+
+		io.Copy(w, bytes.NewReader(formattedBuffer.Bytes()))
+	}
+}
+
+func environmentHandlerFunction(environment *environment) http.HandlerFunc {
+	rawBytes, err := json.Marshal(environment)
+	if err != nil {
+		logger.Fatalf("error generating environment json")
+	}
+
+	var formattedBuffer bytes.Buffer
+	err = json.Indent(&formattedBuffer, rawBytes, "", "  ")
+	if err != nil {
+		logger.Fatalf("error indenting environment json")
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add(contentTypeHeaderKey, contentTypeTextPlain)
+		w.Header().Add(cacheControlHeaderKey, maxAgeZero)
+
+		io.Copy(w, bytes.NewReader(formattedBuffer.Bytes()))
+	}
+}
+
 func requestInfoHandlerFunc() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var buffer bytes.Buffer
@@ -477,8 +517,9 @@ func main() {
 			proxyAPIHandlerFunc(proxyInfo))
 	}
 
+	serveMux.Handle("/configuration", configurationHandlerFunction(configuration))
+	serveMux.Handle("/environment", environmentHandlerFunction(environment))
 	serveMux.Handle("/reqinfo", requestInfoHandlerFunc())
-
 	installPprofHandlers(configuration.PprofInfo, serveMux)
 
 	serveHandler := gorillaHandlers.LoggingHandler(os.Stdout, serveMux)
