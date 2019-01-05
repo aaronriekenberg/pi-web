@@ -134,6 +134,24 @@
       "description": "top"
     },
     {
+      "id": "pfctl_si",
+      "command": "pfctl",
+      "args": [
+        "-si",
+        "-v"
+      ],
+      "description": "pfctl -si"
+    },
+    {
+      "id": "pfctl_sq",
+      "command": "pfctl",
+      "args": [
+        "-sq",
+        "-v"
+      ],
+      "description": "pfctl -sq"
+    },
+    {
       "id": "uptime",
       "command": "uptime",
       "description": "uptime"
