@@ -38,8 +38,8 @@
   ],
   "staticDirectories": [
     {
-      "httpPath": "/vnstat/",
-      "directoryPath": "/home/aaron/vnstat"
+      "httpPath": "/pfstat/",
+      "directoryPath": "/var/www/htdocs/pfstat"
     }
   ],
   "commands": [
@@ -52,24 +52,6 @@
       "description": "arp"
     },
     {
-      "id": "coredns_log_tail",
-      "command": "tail",
-      "args": [
-        "-n30",
-        "/home/aaron/coredns-run/logs/current"
-      ],
-      "description": "coredns log tail"
-    },
-    {
-      "id": "cpu_vulnerabilities",
-      "command": "/bin/sh",
-      "args": [
-        "-c",
-        "grep . /sys/devices/system/cpu/vulnerabilities/*"
-      ],
-      "description": "cpu vulnerabilities"
-    },
-    {
       "id": "df",
       "command": "df",
       "args": [
@@ -79,15 +61,12 @@
     },
     {
       "id": "dhcp-lease-list",
-      "command": "/home/aaron/rust-dhcp-leases/target/release/rust-dhcp-leases",
+      "command": "/home/aaron/dhcp-leases/show-leases.sh",
       "description": "dhcp lease list"
     },
     {
       "id": "dmesg",
-      "command": "sudo",
-      "args": [
-        "dmesg"
-      ],
+      "command": "dmesg",
       "description": "dmesg"
     },
     {
@@ -114,20 +93,6 @@
       "description": "log tail"
     },
     {
-      "id": "lscpu",
-      "command": "lscpu",
-      "description": "lscpu"
-    },
-    {
-      "id": "ncal",
-      "command": "ncal",
-      "args": [
-        "-h",
-        "-y"
-      ],
-      "description": "ncal"
-    },
-    {
       "id": "netstat_an",
       "command": "netstat",
       "args": [
@@ -144,27 +109,20 @@
       "description": "netstat -s"
     },
     {
-      "id": "ntpq",
-      "command": "ntpq",
+      "id": "ntpctl",
+      "command": "ntpctl",
       "args": [
-        "-p"
+        "-sa"
       ],
-      "description": "ntpq"
+      "description": "ntpctl"
     },
     {
-      "id": "sensors",
-      "command": "sensors",
-      "description": "sensors"
-    },
-    {
-      "id": "tc_qdisc",
-      "command": "/sbin/tc",
+      "id": "sysctl_hw",
+      "command": "sysctl",
       "args": [
-        "-s",
-        "qdisc",
-        "show"
+        "hw"
       ],
-      "description": "tc qdisc show"
+      "description": "sysctl hw"
     },
     {
       "id": "top",
@@ -186,16 +144,17 @@
       "description": "vmstat"
     },
     {
+      "id": "vmstat_i",
+      "command": "vmstat",
+      "args": [
+        "-i"
+      ],
+      "description": "vmstat -i"
+    },
+    {
       "id": "w",
       "command": "w",
       "description": "w"
-    }
-  ],
-  "proxies": [
-    {
-      "id": "coredns_metrics",
-      "description": "coredns metrics",
-      "url": "http://localhost:9153/metrics"
     }
   ]
 }
