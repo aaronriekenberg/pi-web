@@ -129,14 +129,15 @@
       "command": "top",
       "args": [
         "-b",
-        "-n1"
+        "-n"
       ],
       "description": "top"
     },
     {
       "id": "pfctl_si",
-      "command": "pfctl",
+      "command": "doas",
       "args": [
+        "/sbin/pfctl",
         "-si",
         "-v"
       ],
@@ -144,8 +145,9 @@
     },
     {
       "id": "pfctl_sq",
-      "command": "pfctl",
+      "command": "doas",
       "args": [
+        "/sbin/pfctl",
         "-sq",
         "-v"
       ],
