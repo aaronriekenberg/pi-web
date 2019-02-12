@@ -77,7 +77,7 @@ type configuration struct {
 }
 
 type environment struct {
-	GitHash string
+	GitHash string `json:"gitHash"`
 }
 
 const (
