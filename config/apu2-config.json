@@ -101,6 +101,14 @@
       "description": "netstat -an"
     },
     {
+      "id": "netstat_binh",
+      "command": "netstat",
+      "args": [
+        "-binh"
+      ],
+      "description": "netstat -binh"
+    },
+    {
       "id": "netstat_s",
       "command": "netstat",
       "args": [
