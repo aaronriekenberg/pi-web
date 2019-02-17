@@ -139,22 +139,22 @@ type mainPageMetadata struct {
 	LastModified string
 }
 
-func buildMainPageString(configuration *configuration, environment *environment, creationTime time.Time) string {
+func buildMainPageBytes(configuration *configuration, environment *environment, lastModified time.Time) []byte {
 	var buffer bytes.Buffer
 	mainPageMetadata := &mainPageMetadata{
 		configuration: configuration,
 		environment:   environment,
-		LastModified:  formatTime(creationTime),
+		LastModified:  formatTime(lastModified),
 	}
 	if err := templates.ExecuteTemplate(&buffer, mainTemplateFile, mainPageMetadata); err != nil {
 		logger.Fatalf("error executing main page template %v", err.Error())
 	}
-	return buffer.String()
+	return buffer.Bytes()
 }
 
 func mainPageHandlerFunc(configuration *configuration, environment *environment) http.HandlerFunc {
-	creationTime := time.Now()
-	mainPageBytes := []byte(buildMainPageString(configuration, environment, creationTime))
+	lastModified := time.Now()
+	mainPageBytes := buildMainPageBytes(configuration, environment, lastModified)
 	cacheControlValue := configuration.TemplatePageInfo.CacheControlValue
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -165,7 +165,7 @@ func mainPageHandlerFunc(configuration *configuration, environment *environment)
 
 		w.Header().Add(cacheControlHeaderKey, cacheControlValue)
 		w.Header().Add(contentTypeHeaderKey, contentTypeTextHTML)
-		http.ServeContent(w, r, mainTemplateFile, creationTime, bytes.NewReader(mainPageBytes))
+		http.ServeContent(w, r, mainTemplateFile, lastModified, bytes.NewReader(mainPageBytes))
 	}
 }
 
@@ -200,12 +200,13 @@ func commandRunnerHTMLHandlerFunc(
 		logger.Fatalf("Error executing command template ID %v: %v", commandInfo.ID, err.Error())
 	}
 
+	bufferBytes := buffer.Bytes()
 	lastModified := time.Now()
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add(cacheControlHeaderKey, cacheControlValue)
 		w.Header().Add(contentTypeHeaderKey, contentTypeTextHTML)
-		http.ServeContent(w, r, commandTemplateFile, lastModified, bytes.NewReader(buffer.Bytes()))
+		http.ServeContent(w, r, commandTemplateFile, lastModified, bytes.NewReader(bufferBytes))
 	}
 }
 
@@ -270,12 +271,13 @@ func proxyHTMLHandlerFunc(
 		logger.Fatalf("Error executing proxy template ID %v: %v", proxyInfo.ID, err.Error())
 	}
 
+	bufferBytes := buffer.Bytes()
 	lastModified := time.Now()
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add(cacheControlHeaderKey, cacheControlValue)
 		w.Header().Add(contentTypeHeaderKey, contentTypeTextHTML)
-		http.ServeContent(w, r, proxyTemplateFile, lastModified, bytes.NewReader(buffer.Bytes()))
+		http.ServeContent(w, r, proxyTemplateFile, lastModified, bytes.NewReader(bufferBytes))
 	}
 }
 
