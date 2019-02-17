@@ -77,8 +77,10 @@ type configuration struct {
 }
 
 type environment struct {
-	GitHash    string `json:"gitHash"`
-	GoMaxProcs int    `json:"goMaxProcs"`
+	EnvVars    []string `json:"envVars"`
+	GitHash    string   `json:"gitHash"`
+	GoMaxProcs int      `json:"goMaxProcs"`
+	GoVersion  string   `json:"goVersion"`
 }
 
 const (
@@ -461,8 +463,10 @@ func getGitHash() string {
 
 func getEnvironment() *environment {
 	return &environment{
+		EnvVars:    os.Environ(),
 		GitHash:    getGitHash(),
 		GoMaxProcs: runtime.GOMAXPROCS(0),
+		GoVersion:  runtime.Version(),
 	}
 }
 
