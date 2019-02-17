@@ -77,7 +77,8 @@ type configuration struct {
 }
 
 type environment struct {
-	GitHash string `json:"gitHash"`
+	GitHash    string `json:"gitHash"`
+	GoMaxProcs int    `json:"goMaxProcs"`
 }
 
 const (
@@ -460,7 +461,8 @@ func getGitHash() string {
 
 func getEnvironment() *environment {
 	return &environment{
-		GitHash: getGitHash(),
+		GitHash:    getGitHash(),
+		GoMaxProcs: runtime.GOMAXPROCS(0),
 	}
 }
 
@@ -468,8 +470,6 @@ func main() {
 	if len(os.Args) != 2 {
 		logger.Fatalf("Usage: %v <config yml file>", os.Args[0])
 	}
-
-	logger.Printf("GOMAXPROCS = %v", runtime.GOMAXPROCS(0))
 
 	configFile := os.Args[1]
 
