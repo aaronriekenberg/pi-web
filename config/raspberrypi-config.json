@@ -36,6 +36,9 @@
       "cacheControlValue": "public, max-age=60"
     }
   ],
+  "commandTimeoutInfo": {
+    "timeoutMilliseconds": 2000
+  },
   "commands": [
     {
       "id": "arp",

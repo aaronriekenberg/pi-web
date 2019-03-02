@@ -36,6 +36,9 @@
       "cacheControlValue": "public, max-age=60"
     }
   ],
+  "commandTimeoutInfo": {
+    "timeoutMilliseconds": 2000
+  },
   "commands": [
     {
       "id": "ifconfig",
@@ -52,6 +55,14 @@
       "args": [
         "-a",
         "-n"
+      ]
+    },
+    {
+      "id": "sleep",
+      "description": "sleep 5",
+      "command": "sleep",
+      "args": [
+        "5"
       ]
     }
   ],

@@ -42,6 +42,9 @@
       "directoryPath": "/var/www/htdocs/pfstat"
     }
   ],
+  "commandTimeoutInfo": {
+    "timeoutMilliseconds": 2000
+  },
   "commands": [
     {
       "id": "arp",

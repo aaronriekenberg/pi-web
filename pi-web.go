@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -51,6 +52,10 @@ type staticDirectoryInfo struct {
 	DirectoryPath string `json:"directoryPath"`
 }
 
+type commandTimeoutInfo struct {
+	TimeoutMilliseconds int `json:"timeoutMilliseconds"`
+}
+
 type commandInfo struct {
 	ID          string   `json:"id"`
 	Description string   `json:"description"`
@@ -65,15 +70,16 @@ type proxyInfo struct {
 }
 
 type configuration struct {
-	ListenAddress     string                `json:"listenAddress"`
-	TLSInfo           tlsInfo               `json:"tlsInfo"`
-	TemplatePageInfo  templatePageInfo      `json:"templatePageInfo"`
-	MainPageInfo      mainPageInfo          `json:"mainPageInfo"`
-	PprofInfo         pprofInfo             `json:"pprofInfo"`
-	StaticFiles       []staticFileInfo      `json:"staticFiles"`
-	StaticDirectories []staticDirectoryInfo `json:"staticDirectories"`
-	Commands          []commandInfo         `json:"commands"`
-	Proxies           []proxyInfo           `json:"proxies"`
+	ListenAddress      string                `json:"listenAddress"`
+	TLSInfo            tlsInfo               `json:"tlsInfo"`
+	TemplatePageInfo   templatePageInfo      `json:"templatePageInfo"`
+	MainPageInfo       mainPageInfo          `json:"mainPageInfo"`
+	PprofInfo          pprofInfo             `json:"pprofInfo"`
+	StaticFiles        []staticFileInfo      `json:"staticFiles"`
+	StaticDirectories  []staticDirectoryInfo `json:"staticDirectories"`
+	CommandTimeoutInfo commandTimeoutInfo    `json:"commandTimeoutInfo"`
+	Commands           []commandInfo         `json:"commands"`
+	Proxies            []proxyInfo           `json:"proxies"`
 }
 
 type environment struct {
@@ -217,11 +223,16 @@ type commandAPIResponse struct {
 	CommandOutput   string `json:"commandOutput"`
 }
 
-func commandAPIHandlerFunc(commandInfo commandInfo) http.HandlerFunc {
+func commandAPIHandlerFunc(commandInfo commandInfo, commandTimeoutInfo commandTimeoutInfo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, cancel := context.WithTimeout(
+			context.Background(),
+			time.Duration(commandTimeoutInfo.TimeoutMilliseconds)*time.Millisecond)
+		defer cancel()
+
 		commandStartTime := time.Now()
-		rawCommandOutput, err := exec.Command(
-			commandInfo.Command, commandInfo.Args...).CombinedOutput()
+		rawCommandOutput, err := exec.CommandContext(
+			ctx, commandInfo.Command, commandInfo.Args...).CombinedOutput()
 		commandEndTime := time.Now()
 
 		var commandOutput string
@@ -509,7 +520,7 @@ func main() {
 			commandRunnerHTMLHandlerFunc(configuration, commandInfo))
 		serveMux.Handle(
 			apiPath,
-			commandAPIHandlerFunc(commandInfo))
+			commandAPIHandlerFunc(commandInfo, configuration.CommandTimeoutInfo))
 	}
 
 	for _, proxyInfo := range configuration.Proxies {
