@@ -224,10 +224,10 @@ type commandAPIResponse struct {
 }
 
 func commandAPIHandlerFunc(commandInfo commandInfo, commandTimeoutInfo commandTimeoutInfo) http.HandlerFunc {
+	timeoutDuration := time.Duration(commandTimeoutInfo.TimeoutMilliseconds) * time.Millisecond
+
 	return func(w http.ResponseWriter, r *http.Request) {
-		ctx, cancel := context.WithTimeout(
-			context.Background(),
-			time.Duration(commandTimeoutInfo.TimeoutMilliseconds)*time.Millisecond)
+		ctx, cancel := context.WithTimeout(context.Background(), timeoutDuration)
 		defer cancel()
 
 		commandStartTime := time.Now()
