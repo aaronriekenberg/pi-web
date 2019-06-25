@@ -38,8 +38,8 @@
   ],
   "staticDirectories": [
     {
-      "httpPath": "/pfstat/",
-      "directoryPath": "/var/www/htdocs/pfstat"
+      "httpPath": "/vnstat/",
+      "directoryPath": "/home/aaron/vnstat"
     }
   ],
   "commandTimeoutInfo": {
@@ -55,6 +55,15 @@
       "description": "arp"
     },
     {
+      "id": "cpu_vulnerabilities",
+      "command": "/bin/bash",
+      "args": [
+        "-c",
+        "grep . /sys/devices/system/cpu/vulnerabilities/*"
+      ],
+      "description": "cpu_vulnerabilities"
+    },
+    {
       "id": "df",
       "command": "df",
       "args": [
@@ -63,14 +72,13 @@
       "description": "df"
     },
     {
-      "id": "dhcp-lease-list",
-      "command": "/home/aaron/dhcp-leases/show-leases.sh",
-      "description": "dhcp lease list"
-    },
-    {
-      "id": "dmesg",
-      "command": "dmesg",
-      "description": "dmesg"
+      "id": "go_dns_log",
+      "command": "tail",
+      "args": [
+        "-n30",
+        "/home/aaron/go-dns/logs/current"
+      ],
+      "description": "go dns log"
     },
     {
       "id": "ifconfig",
@@ -96,20 +104,17 @@
       "description": "log tail"
     },
     {
+      "id": "lscpu",
+      "command": "lscpu",
+      "description": "lscpu"
+    },
+    {
       "id": "netstat_an",
       "command": "netstat",
       "args": [
         "-an"
       ],
       "description": "netstat -an"
-    },
-    {
-      "id": "netstat_binh",
-      "command": "netstat",
-      "args": [
-        "-binh"
-      ],
-      "description": "netstat -binh"
     },
     {
       "id": "netstat_s",
@@ -120,49 +125,36 @@
       "description": "netstat -s"
     },
     {
-      "id": "ntpctl",
-      "command": "ntpctl",
+      "id": "ntpq",
+      "command": "ntpq",
       "args": [
-        "-sa"
+        "-p"
       ],
-      "description": "ntpctl"
+      "description": "ntpq"
     },
     {
-      "id": "sysctl_hw",
-      "command": "sysctl",
+      "id": "sensors",
+      "command": "sensors",
+      "description": "sensors"
+    },
+    {
+      "id": "tc_qdisc",
+      "command": "/sbin/tc",
       "args": [
-        "hw"
+        "-s",
+        "qdisc",
+        "show"
       ],
-      "description": "sysctl hw"
+      "description": "tc qdisc show"
     },
     {
       "id": "top",
       "command": "top",
       "args": [
         "-b",
-        "-n"
+        "-n1"
       ],
       "description": "top"
-    },
-    {
-      "id": "pfctl_si",
-      "command": "doas",
-      "args": [
-        "/sbin/pfctl",
-        "-si",
-        "-v"
-      ],
-      "description": "pfctl -si"
-    },
-    {
-      "id": "pfctl_sq",
-      "command": "doas",
-      "args": [
-        "/sbin/pfctl",
-        "-sq",
-        "-v"
-      ],
-      "description": "pfctl -sq"
     },
     {
       "id": "uptime",
@@ -173,14 +165,6 @@
       "id": "vmstat",
       "command": "vmstat",
       "description": "vmstat"
-    },
-    {
-      "id": "vmstat_i",
-      "command": "vmstat",
-      "args": [
-        "-i"
-      ],
-      "description": "vmstat -i"
     },
     {
       "id": "w",
