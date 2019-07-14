@@ -76,7 +76,7 @@
       "command": "tail",
       "args": [
         "-n30",
-        "/home/aaron/go-dns/logs/current"
+        "/home/aaron/go-dns/logs/output"
       ],
       "description": "go dns log"
     },
@@ -99,7 +99,7 @@
       "command": "tail",
       "args": [
         "-n30",
-        "/home/aaron/pi-web/logs/current"
+        "/home/aaron/pi-web/logs/output"
       ],
       "description": "log tail"
     },
