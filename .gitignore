@@ -3,9 +3,4 @@
 *.pem
 *.swp
 pi-web
-logs/lock
-logs/config
-logs/state
-logs/*.s
-logs/*.u
-logs/current
+logs/output*
