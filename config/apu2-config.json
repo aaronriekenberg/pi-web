@@ -125,6 +125,15 @@
       "description": "netstat -s"
     },
     {
+      "id": "node_dns_log",
+      "command": "tail",
+      "args": [
+        "-n30",
+        "/home/aaron/node-dns/logs/output"
+      ],
+      "description": "node dns log"
+    },
+    {
       "id": "ntpq",
       "command": "ntpq",
       "args": [
