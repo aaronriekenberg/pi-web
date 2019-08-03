@@ -7,4 +7,6 @@ $KILL_CMD pi-web
 
 sleep 2
 
-nohup ./pi-web $CONFIG_FILE >> logs/output 2>&1 &
+export PATH=${HOME}/bin:$PATH
+
+nohup ./pi-web $CONFIG_FILE 2>&1 | svlogd logs &

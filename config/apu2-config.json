@@ -76,7 +76,7 @@
       "command": "tail",
       "args": [
         "-n30",
-        "/home/aaron/go-dns/logs/output"
+        "/home/aaron/go-dns/logs/current"
       ],
       "description": "go dns log"
     },
@@ -99,7 +99,7 @@
       "command": "tail",
       "args": [
         "-n30",
-        "/home/aaron/pi-web/logs/output"
+        "/home/aaron/pi-web/logs/current"
       ],
       "description": "log tail"
     },
@@ -123,15 +123,6 @@
         "-s"
       ],
       "description": "netstat -s"
-    },
-    {
-      "id": "node_dns_log",
-      "command": "tail",
-      "args": [
-        "-n30",
-        "/home/aaron/node-dns/logs/output"
-      ],
-      "description": "node dns log"
     },
     {
       "id": "ntpq",
