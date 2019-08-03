@@ -94,7 +94,7 @@
       "command": "tail",
       "args": [
         "-n30",
-        "/home/pi/pi-web/logs/output"
+        "/home/pi/pi-web/logs/current"
       ],
       "description": "log tail"
     },
