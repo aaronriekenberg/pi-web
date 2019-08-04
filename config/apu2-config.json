@@ -72,6 +72,11 @@
       "description": "df"
     },
     {
+      "id": "go_dhcp_leases",
+      "command": "/home/aaron/go-dhcp-leases/go-dhcp-leases",
+      "description": "go dhcp leases"
+    },
+    {
       "id": "go_dns_log",
       "command": "tail",
       "args": [
