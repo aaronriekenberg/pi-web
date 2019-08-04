@@ -73,7 +73,7 @@
     },
     {
       "id": "go_dhcp_leases",
-      "command": "/home/aaron/go-dhcp-leases/go-dhcp-leases",
+      "command": "/home/aaron/go-dhcp-leases/run.sh",
       "description": "go dhcp leases"
     },
     {
