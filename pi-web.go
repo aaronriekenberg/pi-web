@@ -122,7 +122,7 @@ func formatTime(t time.Time) string {
 }
 
 func httpHeaderToString(header http.Header) string {
-	var buffer bytes.Buffer
+	var builder strings.Builder
 	keys := make([]string, 0, len(header))
 	for key := range header {
 		keys = append(keys, key)
@@ -130,13 +130,13 @@ func httpHeaderToString(header http.Header) string {
 	sort.Strings(keys)
 	for i, key := range keys {
 		if i != 0 {
-			buffer.WriteRune('\n')
+			builder.WriteRune('\n')
 		}
-		buffer.WriteString(key)
-		buffer.WriteString(": ")
-		buffer.WriteString(fmt.Sprintf("%v", header[key]))
+		builder.WriteString(key)
+		builder.WriteString(": ")
+		fmt.Fprintf(&builder, "%v", header[key])
 	}
-	return buffer.String()
+	return builder.String()
 }
 
 type mainPageMetadata struct {
