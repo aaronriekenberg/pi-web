@@ -155,7 +155,7 @@ func buildMainPageBytes(configuration *configuration, environment *environment, 
 		LastModified:  formatTime(lastModified),
 	}
 	if err := templates.ExecuteTemplate(&buffer, mainTemplateFile, mainPageMetadata); err != nil {
-		logger.Fatalf("error executing main page template %v", err.Error())
+		logger.Fatalf("error executing main page template %v", err)
 	}
 	return buffer.Bytes()
 }
@@ -205,7 +205,7 @@ func commandRunnerHTMLHandlerFunc(
 
 	var buffer bytes.Buffer
 	if err := templates.ExecuteTemplate(&buffer, commandTemplateFile, commandHTMLData); err != nil {
-		logger.Fatalf("Error executing command template ID %v: %v", commandInfo.ID, err.Error())
+		logger.Fatalf("Error executing command template ID %v: %v", commandInfo.ID, err)
 	}
 
 	bufferBytes := buffer.Bytes()
@@ -239,7 +239,7 @@ func commandAPIHandlerFunc(commandInfo commandInfo, commandTimeoutInfo commandTi
 
 		var commandOutput string
 		if err != nil {
-			commandOutput = fmt.Sprintf("command error %v", err.Error())
+			commandOutput = fmt.Sprintf("command error %v", err)
 		} else {
 			commandOutput = string(rawCommandOutput)
 		}
@@ -256,7 +256,7 @@ func commandAPIHandlerFunc(commandInfo commandInfo, commandTimeoutInfo commandTi
 
 		var jsonText []byte
 		if jsonText, err = json.Marshal(commandAPIResponse); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, err, http.StatusInternalServerError)
 			return
 		}
 
@@ -281,7 +281,7 @@ func proxyHTMLHandlerFunc(
 
 	var buffer bytes.Buffer
 	if err := templates.ExecuteTemplate(&buffer, proxyTemplateFile, proxyHTMLData); err != nil {
-		logger.Fatalf("Error executing proxy template ID %v: %v", proxyInfo.ID, err.Error())
+		logger.Fatalf("Error executing proxy template ID %v: %v", proxyInfo.ID, err)
 	}
 
 	bufferBytes := buffer.Bytes()
@@ -314,7 +314,7 @@ func proxyAPIHandlerFunc(proxyInfo proxyInfo) http.HandlerFunc {
 		proxyEndTime := time.Now()
 
 		if err != nil {
-			proxyOutput = fmt.Sprintf("proxy error %v", err.Error())
+			proxyOutput = fmt.Sprintf("proxy error %v", err)
 		} else {
 			defer proxyResponse.Body.Close()
 			proxyStatus = proxyResponse.Status
@@ -322,7 +322,7 @@ func proxyAPIHandlerFunc(proxyInfo proxyInfo) http.HandlerFunc {
 
 			var body []byte
 			if body, err = ioutil.ReadAll(proxyResponse.Body); err != nil {
-				proxyOutput = fmt.Sprintf("proxy read body error %v", err.Error())
+				proxyOutput = fmt.Sprintf("proxy read body error %v", err)
 			} else {
 				proxyOutput = string(body)
 			}
@@ -341,7 +341,7 @@ func proxyAPIHandlerFunc(proxyInfo proxyInfo) http.HandlerFunc {
 
 		jsonText, err := json.Marshal(proxyAPIResponse)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, err, http.StatusInternalServerError)
 			return
 		}
 
@@ -456,12 +456,12 @@ func readConfiguration(configFile string) *configuration {
 
 	source, err := ioutil.ReadFile(configFile)
 	if err != nil {
-		logger.Fatalf("error reading %v: %v", configFile, err.Error())
+		logger.Fatalf("error reading %v: %v", configFile, err)
 	}
 
 	var config configuration
 	if err = json.Unmarshal(source, &config); err != nil {
-		logger.Fatalf("error parsing %v: %v", configFile, err.Error())
+		logger.Fatalf("error parsing %v: %v", configFile, err)
 	}
 
 	return &config
@@ -470,7 +470,7 @@ func readConfiguration(configFile string) *configuration {
 func getGitHash() string {
 	rawCommandOutput, err := exec.Command("git", "rev-parse", "HEAD").CombinedOutput()
 	if err != nil {
-		logger.Fatalf("error executing git: %v", err.Error())
+		logger.Fatalf("error executing git: %v", err)
 	}
 
 	return strings.TrimSpace(string(rawCommandOutput))
@@ -489,7 +489,7 @@ func awaitShutdownSignal() {
 	sig := make(chan os.Signal)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
 	s := <-sig
-	logger.Fatalf("Signal (%v) received, stopping\n", s)
+	logger.Fatalf("Signal (%v) received, stopping", s)
 }
 
 func main() {
