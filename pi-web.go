@@ -13,10 +13,12 @@ import (
 	"net/http/pprof"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"runtime"
 	"sort"
 	"strings"
+	"syscall"
 	"time"
 
 	gorillaHandlers "github.com/gorilla/handlers"
@@ -483,6 +485,13 @@ func getEnvironment() *environment {
 	}
 }
 
+func awaitShutdownSignal() {
+	sig := make(chan os.Signal)
+	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
+	s := <-sig
+	logger.Fatalf("Signal (%v) received, stopping\n", s)
+}
+
 func main() {
 	if len(os.Args) != 2 {
 		logger.Fatalf("Usage: %v <config yml file>", os.Args[0])
@@ -540,6 +549,8 @@ func main() {
 	installPprofHandlers(configuration.PprofInfo, serveMux)
 
 	serveHandler := gorillaHandlers.LoggingHandler(os.Stdout, serveMux)
+
+	go awaitShutdownSignal()
 
 	if configuration.TLSInfo.Enabled {
 		logger.Fatal(
