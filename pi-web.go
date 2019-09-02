@@ -256,7 +256,7 @@ func commandAPIHandlerFunc(commandInfo commandInfo, commandTimeoutInfo commandTi
 
 		var jsonText []byte
 		if jsonText, err = json.Marshal(commandAPIResponse); err != nil {
-			http.Error(w, err, http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -341,7 +341,7 @@ func proxyAPIHandlerFunc(proxyInfo proxyInfo) http.HandlerFunc {
 
 		jsonText, err := json.Marshal(proxyAPIResponse)
 		if err != nil {
-			http.Error(w, err, http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
