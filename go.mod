@@ -5,3 +5,5 @@ require (
 	github.com/kr/pretty v0.1.0
 	github.com/kr/pty v1.1.8 // indirect
 )
+
+go 1.13
