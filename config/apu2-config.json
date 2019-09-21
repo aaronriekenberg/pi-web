@@ -77,13 +77,13 @@
       "description": "go dhcp leases"
     },
     {
-      "id": "go_dns_proxy_log",
+      "id": "go_doh_proxy_log",
       "command": "tail",
       "args": [
         "-n30",
-        "/home/aaron/go-dns-proxy/logs/output"
+        "/home/aaron/go-doh-proxy/logs/output"
       ],
-      "description": "go dns proxy log"
+      "description": "go doh proxy log"
     },
     {
       "id": "ifconfig",
