@@ -416,19 +416,19 @@ func requestInfoHandlerFunc() http.HandlerFunc {
 		buffer.WriteRune('\n')
 
 		buffer.WriteString("URL: ")
-		buffer.WriteString(fmt.Sprintf("%#v", r.URL))
+		fmt.Fprintf(&buffer, "%#v", r.URL)
 		buffer.WriteRune('\n')
 
 		buffer.WriteString("Body.ContentLength: ")
-		buffer.WriteString(fmt.Sprintf("%v", r.ContentLength))
+		fmt.Fprintf(&buffer, "%v", r.ContentLength)
 		buffer.WriteRune('\n')
 
 		buffer.WriteString("Close: ")
-		buffer.WriteString(fmt.Sprintf("%v", r.Close))
+		fmt.Fprintf(&buffer, "%v", r.Close)
 		buffer.WriteRune('\n')
 
 		buffer.WriteString("TLS: ")
-		buffer.WriteString(fmt.Sprintf("%#v", r.TLS))
+		fmt.Fprintf(&buffer, "%#v", r.TLS)
 		buffer.WriteString("\n\n")
 
 		buffer.WriteString("Headers:\n")
