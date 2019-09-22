@@ -110,13 +110,6 @@ var templates = template.Must(
 		filepath.Join(templatesDirectory, commandTemplateFile),
 		filepath.Join(templatesDirectory, proxyTemplateFile)))
 
-var httpClient = &http.Client{
-	Transport: &http.Transport{
-		IdleConnTimeout: 10 * time.Second,
-	},
-	Timeout: 5 * time.Second,
-}
-
 func formatTime(t time.Time) string {
 	return t.Format("Mon Jan 2 15:04:05.000000000 -0700 MST 2006")
 }
@@ -301,40 +294,52 @@ type proxyAPIResponse struct {
 	ProxyOutput      string      `json:"proxyOutput"`
 }
 
+func makeProxyRequest(ctx context.Context, proxyInfo *proxyInfo) (response *proxyAPIResponse, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(5)*time.Second)
+	defer cancel()
+
+	httpRequest, err := http.NewRequestWithContext(ctx, "GET", proxyInfo.URL, nil)
+	if err != nil {
+		return
+	}
+
+	proxyStartTime := time.Now()
+	proxyResponse, err := http.DefaultClient.Do(httpRequest)
+	proxyEndTime := time.Now()
+
+	if err != nil {
+		return
+	}
+
+	defer proxyResponse.Body.Close()
+
+	bodyBuffer, err := ioutil.ReadAll(proxyResponse.Body)
+	if err != nil {
+		return
+	}
+
+	proxyDuration := fmt.Sprintf("%.9f sec", proxyEndTime.Sub(proxyStartTime).Seconds())
+
+	response = &proxyAPIResponse{
+		proxyInfo:        proxyInfo,
+		Now:              formatTime(proxyEndTime),
+		ProxyDuration:    proxyDuration,
+		ProxyStatus:      proxyResponse.Status,
+		ProxyRespHeaders: proxyResponse.Header,
+		ProxyOutput:      string(bodyBuffer),
+	}
+	return
+}
+
 func proxyAPIHandlerFunc(proxyInfo proxyInfo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var proxyOutput string
-		var proxyStatus string
-		var proxyRespHeaders http.Header
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
 
-		proxyStartTime := time.Now()
-		proxyResponse, err := httpClient.Get(proxyInfo.URL)
-		proxyEndTime := time.Now()
-
+		proxyAPIResponse, err := makeProxyRequest(ctx, &proxyInfo)
 		if err != nil {
-			proxyOutput = fmt.Sprintf("proxy error %v", err)
-		} else {
-			defer proxyResponse.Body.Close()
-			proxyStatus = proxyResponse.Status
-			proxyRespHeaders = proxyResponse.Header
-
-			var body []byte
-			if body, err = ioutil.ReadAll(proxyResponse.Body); err != nil {
-				proxyOutput = fmt.Sprintf("proxy read body error %v", err)
-			} else {
-				proxyOutput = string(body)
-			}
-		}
-
-		proxyDuration := fmt.Sprintf("%.9f sec", proxyEndTime.Sub(proxyStartTime).Seconds())
-
-		proxyAPIResponse := &proxyAPIResponse{
-			proxyInfo:        &proxyInfo,
-			Now:              formatTime(proxyEndTime),
-			ProxyDuration:    proxyDuration,
-			ProxyStatus:      proxyStatus,
-			ProxyRespHeaders: proxyRespHeaders,
-			ProxyOutput:      proxyOutput,
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 
 		jsonText, err := json.Marshal(proxyAPIResponse)
