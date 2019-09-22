@@ -147,22 +147,22 @@ type mainPageMetadata struct {
 	LastModified string
 }
 
-func buildMainPageBytes(configuration *configuration, environment *environment, lastModified time.Time) []byte {
-	var buffer bytes.Buffer
+func buildMainPageString(configuration *configuration, environment *environment, lastModified time.Time) string {
+	var builder strings.Builder
 	mainPageMetadata := &mainPageMetadata{
 		configuration: configuration,
 		environment:   environment,
 		LastModified:  formatTime(lastModified),
 	}
-	if err := templates.ExecuteTemplate(&buffer, mainTemplateFile, mainPageMetadata); err != nil {
+	if err := templates.ExecuteTemplate(&builder, mainTemplateFile, mainPageMetadata); err != nil {
 		logger.Fatalf("error executing main page template %v", err)
 	}
-	return buffer.Bytes()
+	return builder.String()
 }
 
 func mainPageHandlerFunc(configuration *configuration, environment *environment) http.HandlerFunc {
 	lastModified := time.Now()
-	mainPageBytes := buildMainPageBytes(configuration, environment, lastModified)
+	mainPageString := buildMainPageString(configuration, environment, lastModified)
 	cacheControlValue := configuration.TemplatePageInfo.CacheControlValue
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -173,7 +173,7 @@ func mainPageHandlerFunc(configuration *configuration, environment *environment)
 
 		w.Header().Add(cacheControlHeaderKey, cacheControlValue)
 		w.Header().Add(contentTypeHeaderKey, contentTypeTextHTML)
-		http.ServeContent(w, r, mainTemplateFile, lastModified, bytes.NewReader(mainPageBytes))
+		http.ServeContent(w, r, mainTemplateFile, lastModified, strings.NewReader(mainPageString))
 	}
 }
 
@@ -203,18 +203,18 @@ func commandRunnerHTMLHandlerFunc(
 		commandInfo: &commandInfo,
 	}
 
-	var buffer bytes.Buffer
-	if err := templates.ExecuteTemplate(&buffer, commandTemplateFile, commandHTMLData); err != nil {
+	var builder strings.Builder
+	if err := templates.ExecuteTemplate(&builder, commandTemplateFile, commandHTMLData); err != nil {
 		logger.Fatalf("Error executing command template ID %v: %v", commandInfo.ID, err)
 	}
 
-	bufferBytes := buffer.Bytes()
+	htmlString := builder.String()
 	lastModified := time.Now()
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add(cacheControlHeaderKey, cacheControlValue)
 		w.Header().Add(contentTypeHeaderKey, contentTypeTextHTML)
-		http.ServeContent(w, r, commandTemplateFile, lastModified, bytes.NewReader(bufferBytes))
+		http.ServeContent(w, r, commandTemplateFile, lastModified, strings.NewReader(htmlString))
 	}
 }
 
@@ -279,18 +279,18 @@ func proxyHTMLHandlerFunc(
 		proxyInfo: &proxyInfo,
 	}
 
-	var buffer bytes.Buffer
-	if err := templates.ExecuteTemplate(&buffer, proxyTemplateFile, proxyHTMLData); err != nil {
+	var builder strings.Builder
+	if err := templates.ExecuteTemplate(&builder, proxyTemplateFile, proxyHTMLData); err != nil {
 		logger.Fatalf("Error executing proxy template ID %v: %v", proxyInfo.ID, err)
 	}
 
-	bufferBytes := buffer.Bytes()
+	htmlString := builder.String()
 	lastModified := time.Now()
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add(cacheControlHeaderKey, cacheControlValue)
 		w.Header().Add(contentTypeHeaderKey, contentTypeTextHTML)
-		http.ServeContent(w, r, proxyTemplateFile, lastModified, bytes.NewReader(bufferBytes))
+		http.ServeContent(w, r, proxyTemplateFile, lastModified, strings.NewReader(htmlString))
 	}
 }
 
@@ -362,12 +362,13 @@ func configurationHandlerFunction(configuration *configuration) http.HandlerFunc
 	if err != nil {
 		logger.Fatalf("error indenting configuration json")
 	}
+	formattedBytes := formattedBuffer.Bytes()
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add(contentTypeHeaderKey, contentTypeTextPlain)
 		w.Header().Add(cacheControlHeaderKey, maxAgeZero)
 
-		io.Copy(w, bytes.NewReader(formattedBuffer.Bytes()))
+		io.Copy(w, bytes.NewReader(formattedBytes))
 	}
 }
 
@@ -382,12 +383,13 @@ func environmentHandlerFunction(environment *environment) http.HandlerFunc {
 	if err != nil {
 		logger.Fatalf("error indenting environment json")
 	}
+	formattedBytes := formattedBuffer.Bytes()
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add(contentTypeHeaderKey, contentTypeTextPlain)
 		w.Header().Add(cacheControlHeaderKey, maxAgeZero)
 
-		io.Copy(w, bytes.NewReader(formattedBuffer.Bytes()))
+		io.Copy(w, bytes.NewReader(formattedBytes))
 	}
 }
 
