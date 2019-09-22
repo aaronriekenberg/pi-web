@@ -110,8 +110,6 @@ var templates = template.Must(
 		filepath.Join(templatesDirectory, commandTemplateFile),
 		filepath.Join(templatesDirectory, proxyTemplateFile)))
 
-var logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lmicroseconds)
-
 var httpClient = &http.Client{
 	Transport: &http.Transport{
 		IdleConnTimeout: 10 * time.Second,
@@ -155,7 +153,7 @@ func buildMainPageString(configuration *configuration, environment *environment,
 		LastModified:  formatTime(lastModified),
 	}
 	if err := templates.ExecuteTemplate(&builder, mainTemplateFile, mainPageMetadata); err != nil {
-		logger.Fatalf("error executing main page template %v", err)
+		log.Fatalf("error executing main page template %v", err)
 	}
 	return builder.String()
 }
@@ -205,7 +203,7 @@ func commandRunnerHTMLHandlerFunc(
 
 	var builder strings.Builder
 	if err := templates.ExecuteTemplate(&builder, commandTemplateFile, commandHTMLData); err != nil {
-		logger.Fatalf("Error executing command template ID %v: %v", commandInfo.ID, err)
+		log.Fatalf("Error executing command template ID %v: %v", commandInfo.ID, err)
 	}
 
 	htmlString := builder.String()
@@ -281,7 +279,7 @@ func proxyHTMLHandlerFunc(
 
 	var builder strings.Builder
 	if err := templates.ExecuteTemplate(&builder, proxyTemplateFile, proxyHTMLData); err != nil {
-		logger.Fatalf("Error executing proxy template ID %v: %v", proxyInfo.ID, err)
+		log.Fatalf("Error executing proxy template ID %v: %v", proxyInfo.ID, err)
 	}
 
 	htmlString := builder.String()
@@ -354,13 +352,13 @@ func proxyAPIHandlerFunc(proxyInfo proxyInfo) http.HandlerFunc {
 func configurationHandlerFunction(configuration *configuration) http.HandlerFunc {
 	rawBytes, err := json.Marshal(configuration)
 	if err != nil {
-		logger.Fatalf("error generating configuration json")
+		log.Fatalf("error generating configuration json")
 	}
 
 	var formattedBuffer bytes.Buffer
 	err = json.Indent(&formattedBuffer, rawBytes, "", "  ")
 	if err != nil {
-		logger.Fatalf("error indenting configuration json")
+		log.Fatalf("error indenting configuration json")
 	}
 	formattedBytes := formattedBuffer.Bytes()
 
@@ -375,13 +373,13 @@ func configurationHandlerFunction(configuration *configuration) http.HandlerFunc
 func environmentHandlerFunction(environment *environment) http.HandlerFunc {
 	rawBytes, err := json.Marshal(environment)
 	if err != nil {
-		logger.Fatalf("error generating environment json")
+		log.Fatalf("error generating environment json")
 	}
 
 	var formattedBuffer bytes.Buffer
 	err = json.Indent(&formattedBuffer, rawBytes, "", "  ")
 	if err != nil {
-		logger.Fatalf("error indenting environment json")
+		log.Fatalf("error indenting environment json")
 	}
 	formattedBytes := formattedBuffer.Bytes()
 
@@ -454,16 +452,16 @@ func installPprofHandlers(pprofInfo pprofInfo, serveMux *http.ServeMux) {
 }
 
 func readConfiguration(configFile string) *configuration {
-	logger.Printf("reading json file %v", configFile)
+	log.Printf("reading json file %v", configFile)
 
 	source, err := ioutil.ReadFile(configFile)
 	if err != nil {
-		logger.Fatalf("error reading %v: %v", configFile, err)
+		log.Fatalf("error reading %v: %v", configFile, err)
 	}
 
 	var config configuration
 	if err = json.Unmarshal(source, &config); err != nil {
-		logger.Fatalf("error parsing %v: %v", configFile, err)
+		log.Fatalf("error parsing %v: %v", configFile, err)
 	}
 
 	return &config
@@ -472,7 +470,7 @@ func readConfiguration(configFile string) *configuration {
 func getGitHash() string {
 	rawCommandOutput, err := exec.Command("git", "rev-parse", "HEAD").CombinedOutput()
 	if err != nil {
-		logger.Fatalf("error executing git: %v", err)
+		log.Fatalf("error executing git: %v", err)
 	}
 
 	return strings.TrimSpace(string(rawCommandOutput))
@@ -491,21 +489,23 @@ func awaitShutdownSignal() {
 	sig := make(chan os.Signal)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
 	s := <-sig
-	logger.Fatalf("Signal (%v) received, stopping", s)
+	log.Fatalf("Signal (%v) received, stopping", s)
 }
 
 func main() {
+	log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds)
+
 	if len(os.Args) != 2 {
-		logger.Fatalf("Usage: %v <config yml file>", os.Args[0])
+		log.Fatalf("Usage: %v <config yml file>", os.Args[0])
 	}
 
 	configFile := os.Args[1]
 
 	configuration := readConfiguration(configFile)
-	logger.Printf("configuration:\n%# v", pretty.Formatter(configuration))
+	log.Printf("configuration:\n%# v", pretty.Formatter(configuration))
 
 	environment := getEnvironment()
-	logger.Printf("environment:\n%# v", pretty.Formatter(environment))
+	log.Printf("environment:\n%# v", pretty.Formatter(environment))
 
 	serveMux := http.NewServeMux()
 
@@ -555,14 +555,14 @@ func main() {
 	go awaitShutdownSignal()
 
 	if configuration.TLSInfo.Enabled {
-		logger.Fatal(
+		log.Fatal(
 			http.ListenAndServeTLS(
 				configuration.ListenAddress,
 				configuration.TLSInfo.CertFile,
 				configuration.TLSInfo.KeyFile,
 				serveHandler))
 	} else {
-		logger.Fatal(
+		log.Fatal(
 			http.ListenAndServe(
 				configuration.ListenAddress,
 				serveHandler))
