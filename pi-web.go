@@ -25,6 +25,8 @@ import (
 	"github.com/kr/pretty"
 )
 
+var gitCommit string
+
 type tlsInfo struct {
 	Enabled  bool   `json:"enabled"`
 	CertFile string `json:"certFile"`
@@ -86,7 +88,7 @@ type configuration struct {
 
 type environment struct {
 	EnvVars    []string `json:"envVars"`
-	GitHash    string   `json:"gitHash"`
+	GitCommit  string   `json:"gitCommit"`
 	GoMaxProcs int      `json:"goMaxProcs"`
 	GoVersion  string   `json:"goVersion"`
 }
@@ -472,19 +474,10 @@ func readConfiguration(configFile string) *configuration {
 	return &config
 }
 
-func getGitHash() string {
-	rawCommandOutput, err := exec.Command("git", "rev-parse", "HEAD").CombinedOutput()
-	if err != nil {
-		log.Fatalf("error executing git: %v", err)
-	}
-
-	return strings.TrimSpace(string(rawCommandOutput))
-}
-
 func getEnvironment() *environment {
 	return &environment{
 		EnvVars:    os.Environ(),
-		GitHash:    getGitHash(),
+		GitCommit:  gitCommit,
 		GoMaxProcs: runtime.GOMAXPROCS(0),
 		GoVersion:  runtime.Version(),
 	}
