@@ -3,4 +3,5 @@
 *.pem
 *.swp
 pi-web
+pi-web-linux*
 logs/output*
