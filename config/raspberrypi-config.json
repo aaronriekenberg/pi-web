@@ -132,7 +132,7 @@
       "id": "ntpq",
       "command": "ntpq",
       "args": [
-        "-p"
+        "-pn"
       ],
       "description": "ntpq"
     },
