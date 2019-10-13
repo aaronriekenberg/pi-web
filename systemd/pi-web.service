@@ -1,0 +1,12 @@
+# ~/.config/systemd/user/pi-web.service
+
+[Unit]
+AssertPathExists=%h/pi-web/pi-web
+
+[Service]
+WorkingDirectory=%h/pi-web
+ExecStart=%h/pi-web/pi-web ./config/%H-config.json
+Restart=always
+
+[Install]
+WantedBy=default.target
