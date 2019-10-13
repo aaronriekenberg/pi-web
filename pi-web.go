@@ -74,6 +74,7 @@ type proxyInfo struct {
 }
 
 type configuration struct {
+	LogRequests        bool                  `json:"logRequests"`
 	ListenAddress      string                `json:"listenAddress"`
 	TLSInfo            tlsInfo               `json:"tlsInfo"`
 	TemplatePageInfo   templatePageInfo      `json:"templatePageInfo"`
@@ -548,7 +549,10 @@ func main() {
 	serveMux.Handle("/reqinfo", requestInfoHandlerFunc())
 	installPprofHandlers(configuration.PprofInfo, serveMux)
 
-	serveHandler := gorillaHandlers.LoggingHandler(os.Stdout, serveMux)
+	var serveHandler http.Handler = serveMux
+	if configuration.LogRequests {
+		serveHandler = gorillaHandlers.LoggingHandler(os.Stdout, serveMux)
+	}
 
 	go awaitShutdownSignal()
 

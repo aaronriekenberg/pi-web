@@ -1,4 +1,5 @@
 {
+  "logRequests": false,
   "listenAddress": ":8000",
   "tlsInfo": {
     "enabled": true,
