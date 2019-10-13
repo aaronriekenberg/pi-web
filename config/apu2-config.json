@@ -78,41 +78,9 @@
       "description": "go dhcp leases"
     },
     {
-      "id": "go_doh_proxy_log",
-      "command": "tail",
-      "args": [
-        "-n30",
-        "/home/aaron/go-doh-proxy/logs/output"
-      ],
-      "description": "go doh proxy log"
-    },
-    {
       "id": "ifconfig",
       "command": "/sbin/ifconfig",
       "description": "ifconfig"
-    },
-    {
-      "id": "log_ls",
-      "command": "ls",
-      "args": [
-        "-latrh",
-        "/home/aaron/pi-web/logs"
-      ],
-      "description": "log ls"
-    },
-    {
-      "id": "log_tail",
-      "command": "tail",
-      "args": [
-        "-n30",
-        "/home/aaron/pi-web/logs/output"
-      ],
-      "description": "log tail"
-    },
-    {
-      "id": "lscpu",
-      "command": "lscpu",
-      "description": "lscpu"
     },
     {
       "id": "netstat_an",
@@ -129,15 +97,6 @@
         "-s"
       ],
       "description": "netstat -s"
-    },
-    {
-      "id": "node_dns_log",
-      "command": "tail",
-      "args": [
-        "-n30",
-        "/home/aaron/node-dns/logs/output"
-      ],
-      "description": "node dns log"
     },
     {
       "id": "ntpq",
