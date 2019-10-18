@@ -78,6 +78,17 @@
       "description": "go dhcp leases"
     },
     {
+      "id": "go_doh_proxy_logs",
+      "command": "journalctl",
+      "args": [
+        "--user-unit",
+        "go-doh-proxy.service",
+        "-n30",
+        "--no-pager"
+      ],
+      "description": "go-doh-proxy logs"
+    },
+    {
       "id": "ifconfig",
       "command": "/sbin/ifconfig",
       "description": "ifconfig"
@@ -105,6 +116,17 @@
         "-pn"
       ],
       "description": "ntpq"
+    },
+    {
+      "id": "pi_web_logs",
+      "command": "journalctl",
+      "args": [
+        "--user-unit",
+        "pi-web.service",
+        "-n30",
+        "--no-pager"
+      ],
+      "description": "pi-web logs"
     },
     {
       "id": "sensors",

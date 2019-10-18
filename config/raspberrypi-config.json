@@ -120,6 +120,17 @@
       "description": "ntpq"
     },
     {
+      "id": "pi_web_logs",
+      "command": "journalctl",
+      "args": [
+        "--user-unit",
+        "pi-web.service",
+        "-n30",
+        "--no-pager"
+      ],
+      "description": "pi-web logs"
+    },
+    {
       "id": "pitemp",
       "command": "/home/pi/bin/pitemp.sh",
       "description": "pitemp"
