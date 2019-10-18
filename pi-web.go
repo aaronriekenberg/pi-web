@@ -492,7 +492,7 @@ func awaitShutdownSignal() {
 }
 
 func main() {
-	log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds)
+	log.SetFlags(0)
 
 	if len(os.Args) != 2 {
 		log.Fatalf("Usage: %v <config yml file>", os.Args[0])
