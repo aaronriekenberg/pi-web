@@ -94,6 +94,11 @@
       "description": "ifconfig"
     },
     {
+      "id": "lscpu",
+      "command": "lscpu",
+      "description": "lscpu"
+    },
+    {
       "id": "netstat_an",
       "command": "netstat",
       "args": [
