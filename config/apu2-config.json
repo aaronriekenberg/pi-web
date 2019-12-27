@@ -134,6 +134,17 @@
       "description": "pi-web logs"
     },
     {
+      "id": "rust_dns_logs",
+      "command": "journalctl",
+      "args": [
+        "--user-unit",
+        "rust-dns.service",
+        "-n30",
+        "--no-pager"
+      ],
+      "description": "rust-dns logs"
+    },
+    {
       "id": "sensors",
       "command": "sensors",
       "description": "sensors"
