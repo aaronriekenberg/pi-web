@@ -134,15 +134,15 @@
       "description": "pi-web logs"
     },
     {
-      "id": "rust_dns_logs",
+      "id": "rust_doh_proxy_logs",
       "command": "journalctl",
       "args": [
         "--user-unit",
-        "rust-dns.service",
+        "rust-doh-proxy.service",
         "-n30",
         "--no-pager"
       ],
-      "description": "rust-dns logs"
+      "description": "rust-doh-proxy logs"
     },
     {
       "id": "sensors",
