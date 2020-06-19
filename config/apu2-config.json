@@ -121,7 +121,8 @@
         "--user-unit",
         "node-dns.service",
         "-n30",
-        "--no-pager"
+        "--no-pager",
+        "--output=cat"
       ],
       "description": "node-dns logs"
     },
