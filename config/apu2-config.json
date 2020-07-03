@@ -84,7 +84,8 @@
         "--user-unit",
         "go-doh-proxy.service",
         "-n30",
-        "--no-pager"
+        "--no-pager",
+        "--output=cat"
       ],
       "description": "go-doh-proxy logs"
     },
