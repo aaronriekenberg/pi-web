@@ -6,3 +6,5 @@
 pi-web
 pi-web-linux*
 logs/output*
+output
+output.prev
