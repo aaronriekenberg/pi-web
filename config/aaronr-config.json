@@ -95,6 +95,16 @@
       "args": [
         "hw"
       ]
+    },
+    {
+      "id": "uptime",
+      "description": "uptime",
+      "command": "uptime"
+    },
+    {
+      "id": "w",
+      "description": "w",
+      "command": "w"
     }
   ]
 }
