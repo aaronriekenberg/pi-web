@@ -97,6 +97,14 @@
       ]
     },
     {
+      "id": "top",
+      "description": "top",
+      "command": "top",
+      "args": [
+        "-b1"
+      ]
+    },
+    {
       "id": "uptime",
       "description": "uptime",
       "command": "uptime"
