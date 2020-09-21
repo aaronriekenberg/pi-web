@@ -13,4 +13,4 @@ if [ -r output ]; then
   mv output output.prev
 fi
 
-nohup ./pi-web $CONFIG_FILE 2>&1 > output &
+nohup ./pi-web $CONFIG_FILE > output 2>&1 &
