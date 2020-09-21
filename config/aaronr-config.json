@@ -102,6 +102,19 @@
       "command": "uptime"
     },
     {
+      "id": "vmstat",
+      "description": "vmstat",
+      "command": "vmstat"
+    },
+    {
+      "id": "vmstat_i",
+      "description": "vmstat -i",
+      "command": "vmstat",
+      "args": [
+        "-i"
+      ]
+    },
+    {
       "id": "w",
       "description": "w",
       "command": "w"
