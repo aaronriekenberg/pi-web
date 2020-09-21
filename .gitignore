@@ -1,6 +1,7 @@
 *.out
 *.log
 *.pem
+*.key
 *.swp
 pi-web
 pi-web-linux*

@@ -1,0 +1,100 @@
+{
+  "logRequests": true,
+  "listenAddress": ":8443",
+  "tlsInfo": {
+    "enabled": true,
+    "certFile": "aaronr.digital.fullchain.pem",
+    "keyFile": "aaronr.digital.key"
+  },
+  "templatePageInfo": {
+    "cacheControlValue": "public, max-age=60"
+  },
+  "mainPageInfo": {
+    "title": "aaronr.openbsd.digital"
+  },
+  "pprofInfo": {
+    "enabled": false
+  },
+  "staticFiles": [
+    {
+      "httpPath": "/command.js",
+      "filePath": "static/command.js",
+      "cacheControlValue": "public, max-age=60"
+    },
+    {
+      "httpPath": "/proxy.js",
+      "filePath": "static/proxy.js",
+      "cacheControlValue": "public, max-age=60"
+    },
+    {
+      "httpPath": "/style.css",
+      "filePath": "static/style.css",
+      "cacheControlValue": "public, max-age=60"
+    },
+    {
+      "httpPath": "/favicon.ico",
+      "filePath": "static/go-favicon.ico",
+      "cacheControlValue": "public, max-age=60"
+    }
+  ],
+  "staticDirectories": [
+    {
+      "httpPath": "/pfstat/hour/",
+      "directoryPath": "/var/www/htdocs/aaronr.digital/pfstat/hour"
+    },
+    {
+      "httpPath": "/pfstat/day/",
+      "directoryPath": "/var/www/htdocs/aaronr.digital/pfstat/day"
+    },
+    {
+      "httpPath": "/pfstat/week/",
+      "directoryPath": "/var/www/htdocs/aaronr.digital/pfstat/week"
+    }
+  ],
+  "commandTimeoutInfo": {
+    "timeoutMilliseconds": 2000
+  },
+  "commands": [
+    {
+      "id": "ifconfig",
+      "description": "ifconfig",
+      "command": "ifconfig",
+      "args": [
+        "-a"
+      ]
+    },
+    {
+      "id": "netstat_an",
+      "description": "netstat -an",
+      "command": "netstat",
+      "args": [
+        "-a",
+        "-n"
+      ]
+    },
+    {
+      "id": "netstat_binh",
+      "description": "netstat -binh",
+      "command": "netstat",
+      "args": [
+        "-binh"
+      ]
+    },
+    {
+      "id": "ntpctl_sa",
+      "description": "ntpctl -sa",
+      "command": "ntpctl",
+      "args": [
+        "-sa"
+      ]
+    },
+    {
+      "id": "sysctl_hw",
+      "description": "sysctl hw",
+      "command": "sysctl",
+      "args": [
+        "hw"
+      ]
+    }
+  ]
+}
