@@ -1,11 +1,23 @@
 {
   "logRequests": false,
-  "listenAddress": ":8443",
-  "tlsInfo": {
-    "enabled": true,
-    "certFile": "aaronr.digital.fullchain.pem",
-    "keyFile": "aaronr.digital.key"
-  },
+  "listenInfoList": [
+    {
+      "listenAddress": "46.23.92.249:8443",
+      "tlsInfo": {
+        "enabled": true,
+        "certFile": "aaronr.digital.fullchain.pem",
+        "keyFile": "aaronr.digital.key"
+      }
+    },
+    {
+      "listenAddress": "[2a03:6000:6e65:626::249]:8443",
+      "tlsInfo": {
+        "enabled": true,
+        "certFile": "aaronr.digital.fullchain.pem",
+        "keyFile": "aaronr.digital.key"
+      }
+    }
+  ],
   "templatePageInfo": {
     "cacheControlValue": "public, max-age=60"
   },

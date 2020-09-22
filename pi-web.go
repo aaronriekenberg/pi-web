@@ -33,6 +33,11 @@ type tlsInfo struct {
 	KeyFile  string `json:"keyFile"`
 }
 
+type listenInfo struct {
+	TLSInfo       tlsInfo `json:"tlsInfo"`
+	ListenAddress string  `json:"listenAddress"`
+}
+
 type templatePageInfo struct {
 	CacheControlValue string `json:"cacheControlValue"`
 }
@@ -75,8 +80,7 @@ type proxyInfo struct {
 
 type configuration struct {
 	LogRequests        bool                  `json:"logRequests"`
-	ListenAddress      string                `json:"listenAddress"`
-	TLSInfo            tlsInfo               `json:"tlsInfo"`
+	ListenInfoList     []listenInfo          `json:"listenInfoList"`
 	TemplatePageInfo   templatePageInfo      `json:"templatePageInfo"`
 	MainPageInfo       mainPageInfo          `json:"mainPageInfo"`
 	PprofInfo          pprofInfo             `json:"pprofInfo"`
@@ -484,6 +488,23 @@ func getEnvironment() *environment {
 	}
 }
 
+func runServer(listenInfo listenInfo, serveHandler http.Handler) {
+	log.Printf("runServer listenInfo = %#v", listenInfo)
+	if listenInfo.TLSInfo.Enabled {
+		log.Fatal(
+			http.ListenAndServeTLS(
+				listenInfo.ListenAddress,
+				listenInfo.TLSInfo.CertFile,
+				listenInfo.TLSInfo.KeyFile,
+				serveHandler))
+	} else {
+		log.Fatal(
+			http.ListenAndServe(
+				listenInfo.ListenAddress,
+				serveHandler))
+	}
+}
+
 func awaitShutdownSignal() {
 	sig := make(chan os.Signal)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
@@ -554,19 +575,9 @@ func main() {
 		serveHandler = gorillaHandlers.LoggingHandler(os.Stdout, serveMux)
 	}
 
-	go awaitShutdownSignal()
-
-	if configuration.TLSInfo.Enabled {
-		log.Fatal(
-			http.ListenAndServeTLS(
-				configuration.ListenAddress,
-				configuration.TLSInfo.CertFile,
-				configuration.TLSInfo.KeyFile,
-				serveHandler))
-	} else {
-		log.Fatal(
-			http.ListenAndServe(
-				configuration.ListenAddress,
-				serveHandler))
+	for _, listenInfo := range configuration.ListenInfoList {
+		go runServer(listenInfo, serveHandler)
 	}
+
+	awaitShutdownSignal()
 }
