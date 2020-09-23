@@ -103,6 +103,7 @@ const (
 	mainTemplateFile           = "main.html"
 	commandTemplateFile        = "command.html"
 	proxyTemplateFile          = "proxy.html"
+	debugTemplateFile          = "debug.html"
 	cacheControlHeaderKey      = "cache-control"
 	maxAgeZero                 = "max-age=0"
 	contentTypeHeaderKey       = "content-type"
@@ -115,7 +116,9 @@ var templates = template.Must(
 	template.ParseFiles(
 		filepath.Join(templatesDirectory, mainTemplateFile),
 		filepath.Join(templatesDirectory, commandTemplateFile),
-		filepath.Join(templatesDirectory, proxyTemplateFile)))
+		filepath.Join(templatesDirectory, proxyTemplateFile),
+		filepath.Join(templatesDirectory, debugTemplateFile),
+	))
 
 func formatTime(t time.Time) string {
 	return t.Format("Mon Jan 2 15:04:05.000000000 -0700 MST 2006")
@@ -361,51 +364,78 @@ func proxyAPIHandlerFunc(proxyInfo proxyInfo) http.HandlerFunc {
 	}
 }
 
+type debugHTMLData struct {
+	Title   string
+	PreText string
+}
+
 func configurationHandlerFunction(configuration *configuration) http.HandlerFunc {
-	rawBytes, err := json.Marshal(configuration)
+	jsonBytes, err := json.Marshal(configuration)
 	if err != nil {
 		log.Fatalf("error generating configuration json")
 	}
 
-	var formattedBuffer bytes.Buffer
-	err = json.Indent(&formattedBuffer, rawBytes, "", "  ")
+	var formattedJSONBuffer bytes.Buffer
+	err = json.Indent(&formattedJSONBuffer, jsonBytes, "", "  ")
 	if err != nil {
 		log.Fatalf("error indenting configuration json")
 	}
-	formattedBytes := formattedBuffer.Bytes()
+	formattedJSONString := formattedJSONBuffer.String()
+
+	var htmlBuilder strings.Builder
+	debugHTMLData := &debugHTMLData{
+		Title:   "Configuration",
+		PreText: formattedJSONString,
+	}
+
+	if err := templates.ExecuteTemplate(&htmlBuilder, debugTemplateFile, debugHTMLData); err != nil {
+		log.Fatalf("error executing configuration page template %v", err)
+	}
+
+	htmlString := htmlBuilder.String()
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add(contentTypeHeaderKey, contentTypeTextPlain)
 		w.Header().Add(cacheControlHeaderKey, maxAgeZero)
 
-		io.Copy(w, bytes.NewReader(formattedBytes))
+		io.Copy(w, strings.NewReader(htmlString))
 	}
 }
 
 func environmentHandlerFunction(environment *environment) http.HandlerFunc {
-	rawBytes, err := json.Marshal(environment)
+	jsonBytes, err := json.Marshal(environment)
 	if err != nil {
 		log.Fatalf("error generating environment json")
 	}
 
-	var formattedBuffer bytes.Buffer
-	err = json.Indent(&formattedBuffer, rawBytes, "", "  ")
+	var formattedJSONBuffer bytes.Buffer
+	err = json.Indent(&formattedJSONBuffer, jsonBytes, "", "  ")
 	if err != nil {
 		log.Fatalf("error indenting environment json")
 	}
-	formattedBytes := formattedBuffer.Bytes()
+	formattedJSONString := formattedJSONBuffer.String()
+
+	var htmlBuilder strings.Builder
+	debugHTMLData := &debugHTMLData{
+		Title:   "Environment",
+		PreText: formattedJSONString,
+	}
+
+	if err := templates.ExecuteTemplate(&htmlBuilder, debugTemplateFile, debugHTMLData); err != nil {
+		log.Fatalf("error executing environment page template %v", err)
+	}
+
+	htmlString := htmlBuilder.String()
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add(contentTypeHeaderKey, contentTypeTextPlain)
 		w.Header().Add(cacheControlHeaderKey, maxAgeZero)
 
-		io.Copy(w, bytes.NewReader(formattedBytes))
+		io.Copy(w, strings.NewReader(htmlString))
 	}
 }
 
 func requestInfoHandlerFunc() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var buffer bytes.Buffer
+		var buffer strings.Builder
 
 		buffer.WriteString("Method: ")
 		buffer.WriteString(r.Method)
@@ -446,10 +476,21 @@ func requestInfoHandlerFunc() http.HandlerFunc {
 		buffer.WriteString("Headers:\n")
 		buffer.WriteString(httpHeaderToString(r.Header))
 
-		w.Header().Add(contentTypeHeaderKey, contentTypeTextPlain)
+		var htmlBuilder strings.Builder
+		debugHTMLData := &debugHTMLData{
+			Title:   "Request Info",
+			PreText: buffer.String(),
+		}
+
+		if err := templates.ExecuteTemplate(&htmlBuilder, debugTemplateFile, debugHTMLData); err != nil {
+			log.Fatalf("error executing request info page template %v", err)
+		}
+
+		htmlString := htmlBuilder.String()
+
 		w.Header().Add(cacheControlHeaderKey, maxAgeZero)
 
-		io.Copy(w, &buffer)
+		io.Copy(w, strings.NewReader(htmlString))
 	}
 }
 

@@ -11,34 +11,34 @@
 
   <h2>{{.MainPageInfo.Title}}</h2>
 
-{{ if .Commands }}
+  {{ if .Commands }}
   <h3>Commands:</h3>
   <ul>{{range .Commands}}
     <li><a href="/commands/{{.ID}}.html">{{.Description}}</a></li>{{end}}
   </ul>
-{{ end }}
+  {{ end }}
 
-{{ if .Proxies }}
+  {{ if .Proxies }}
   <h3>Proxies:</h3>
   <ul>{{range .Proxies}}
     <li><a href="/proxies/{{.ID}}.html">{{.Description}}</a></li>{{end}}
   </ul>
-{{ end }}
+  {{ end }}
 
-{{ if .StaticDirectories }}
+  {{ if .StaticDirectories }}
   <h3>Directories:</h3>
   <ul>{{range .StaticDirectories}}
     <li><a href="{{.HTTPPath}}">{{.DirectoryPath}}</a></li>{{end}}
   </ul>
-{{ end }}
+  {{ end }}
 
   <h3>Debugging:</h3>
   <ul>
     <li><a href="configuration">configuration</a></li>
     <li><a href="environment">environment</a></li>
-{{ if .PprofInfo.Enabled }}
+    {{ if .PprofInfo.Enabled }}
     <li><a href="debug/pprof">pprof</a></li>
-{{ end }}
+    {{ end }}
     <li><a href="reqinfo">reqinfo</a></li>
   </ul>
 
@@ -49,4 +49,5 @@
   <small>Git Commit: {{.GitCommit}}</small>
 
 </body>
+
 </html>
