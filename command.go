@@ -29,10 +29,6 @@ func createCommandHandler(configuration *configuration, serveMux *http.ServeMux)
 		semaphoreAcquireTimeout: time.Duration(commandConfiguration.SemaphoreAcquireTimeoutMilliseconds) * time.Millisecond,
 	}
 
-	log.Printf("commandHandler MaxConcurrentCommands = %v", commandConfiguration.MaxConcurrentCommands)
-	log.Printf("commandHandler.requestTimeout = %v", commandHandler.requestTimeout)
-	log.Printf("commandHandler.semaphoreAcquireTimeout = %v", commandHandler.semaphoreAcquireTimeout)
-
 	for _, commandInfo := range commandConfiguration.Commands {
 		apiPath := "/api/commands/" + commandInfo.ID
 		htmlPath := "/commands/" + commandInfo.ID + ".html"
