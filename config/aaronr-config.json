@@ -63,81 +63,83 @@
       "directoryPath": "/var/www/htdocs/aaronr.digital/pfstat/week"
     }
   ],
-  "commandTimeoutInfo": {
-    "timeoutMilliseconds": 2000
-  },
-  "commands": [
-    {
-      "id": "ifconfig",
-      "description": "ifconfig",
-      "command": "ifconfig",
-      "args": [
-        "-a"
-      ]
-    },
-    {
-      "id": "netstat_an",
-      "description": "netstat -an",
-      "command": "netstat",
-      "args": [
-        "-a",
-        "-n"
-      ]
-    },
-    {
-      "id": "netstat_binh",
-      "description": "netstat -binh",
-      "command": "netstat",
-      "args": [
-        "-binh"
-      ]
-    },
-    {
-      "id": "ntpctl_sa",
-      "description": "ntpctl -sa",
-      "command": "ntpctl",
-      "args": [
-        "-sa"
-      ]
-    },
-    {
-      "id": "sysctl_hw",
-      "description": "sysctl hw",
-      "command": "sysctl",
-      "args": [
-        "hw"
-      ]
-    },
-    {
-      "id": "top",
-      "description": "top",
-      "command": "top",
-      "args": [
-        "-b1"
-      ]
-    },
-    {
-      "id": "uptime",
-      "description": "uptime",
-      "command": "uptime"
-    },
-    {
-      "id": "vmstat",
-      "description": "vmstat",
-      "command": "vmstat"
-    },
-    {
-      "id": "vmstat_i",
-      "description": "vmstat -i",
-      "command": "vmstat",
-      "args": [
-        "-i"
-      ]
-    },
-    {
-      "id": "w",
-      "description": "w",
-      "command": "w"
-    }
-  ]
+  "commandConfiguration": {
+    "maxConcurrentCommands": 10,
+    "requestTimeoutMilliseconds": 2000,
+    "semaphoreAcquireTimeoutMilliseconds": 200,
+    "commands": [
+      {
+        "id": "ifconfig",
+        "description": "ifconfig",
+        "command": "ifconfig",
+        "args": [
+          "-a"
+        ]
+      },
+      {
+        "id": "netstat_an",
+        "description": "netstat -an",
+        "command": "netstat",
+        "args": [
+          "-a",
+          "-n"
+        ]
+      },
+      {
+        "id": "netstat_binh",
+        "description": "netstat -binh",
+        "command": "netstat",
+        "args": [
+          "-binh"
+        ]
+      },
+      {
+        "id": "ntpctl_sa",
+        "description": "ntpctl -sa",
+        "command": "ntpctl",
+        "args": [
+          "-sa"
+        ]
+      },
+      {
+        "id": "sysctl_hw",
+        "description": "sysctl hw",
+        "command": "sysctl",
+        "args": [
+          "hw"
+        ]
+      },
+      {
+        "id": "top",
+        "description": "top",
+        "command": "top",
+        "args": [
+          "-b1"
+        ]
+      },
+      {
+        "id": "uptime",
+        "description": "uptime",
+        "command": "uptime"
+      },
+      {
+        "id": "vmstat",
+        "description": "vmstat",
+        "command": "vmstat"
+      },
+      {
+        "id": "vmstat_i",
+        "description": "vmstat -i",
+        "command": "vmstat",
+        "args": [
+          "-i"
+        ]
+      },
+      {
+        "id": "w",
+        "description": "w",
+        "command": "w"
+      }
+    ]
+  }
 }

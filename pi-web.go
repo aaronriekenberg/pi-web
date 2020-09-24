@@ -12,7 +12,6 @@ import (
 	"net/http"
 	"net/http/pprof"
 	"os"
-	"os/exec"
 	"os/signal"
 	"path/filepath"
 	"runtime"
@@ -26,70 +25,6 @@ import (
 )
 
 var gitCommit string
-
-type tlsInfo struct {
-	Enabled  bool   `json:"enabled"`
-	CertFile string `json:"certFile"`
-	KeyFile  string `json:"keyFile"`
-}
-
-type listenInfo struct {
-	TLSInfo       tlsInfo `json:"tlsInfo"`
-	ListenAddress string  `json:"listenAddress"`
-}
-
-type templatePageInfo struct {
-	CacheControlValue string `json:"cacheControlValue"`
-}
-
-type mainPageInfo struct {
-	Title string `json:"title"`
-}
-
-type pprofInfo struct {
-	Enabled bool `json:"enabled"`
-}
-
-type staticFileInfo struct {
-	HTTPPath          string `json:"httpPath"`
-	FilePath          string `json:"filePath"`
-	CacheControlValue string `json:"cacheControlValue"`
-}
-
-type staticDirectoryInfo struct {
-	HTTPPath      string `json:"httpPath"`
-	DirectoryPath string `json:"directoryPath"`
-}
-
-type commandTimeoutInfo struct {
-	TimeoutMilliseconds int `json:"timeoutMilliseconds"`
-}
-
-type commandInfo struct {
-	ID          string   `json:"id"`
-	Description string   `json:"description"`
-	Command     string   `json:"command"`
-	Args        []string `json:"args"`
-}
-
-type proxyInfo struct {
-	ID          string `json:"id"`
-	Description string `json:"description"`
-	URL         string `json:"url"`
-}
-
-type configuration struct {
-	LogRequests        bool                  `json:"logRequests"`
-	ListenInfoList     []listenInfo          `json:"listenInfoList"`
-	TemplatePageInfo   templatePageInfo      `json:"templatePageInfo"`
-	MainPageInfo       mainPageInfo          `json:"mainPageInfo"`
-	PprofInfo          pprofInfo             `json:"pprofInfo"`
-	StaticFiles        []staticFileInfo      `json:"staticFiles"`
-	StaticDirectories  []staticDirectoryInfo `json:"staticDirectories"`
-	CommandTimeoutInfo commandTimeoutInfo    `json:"commandTimeoutInfo"`
-	Commands           []commandInfo         `json:"commands"`
-	Proxies            []proxyInfo           `json:"proxies"`
-}
 
 type environment struct {
 	EnvVars    []string `json:"envVars"`
@@ -189,82 +124,6 @@ func staticDirectoryHandler(staticDirectoryInfo staticDirectoryInfo) http.Handle
 	return http.StripPrefix(
 		staticDirectoryInfo.HTTPPath,
 		http.FileServer(http.Dir(staticDirectoryInfo.DirectoryPath)))
-}
-
-type commandHTMLData struct {
-	*commandInfo
-}
-
-func commandRunnerHTMLHandlerFunc(
-	configuration *configuration, commandInfo commandInfo) http.HandlerFunc {
-
-	cacheControlValue := configuration.TemplatePageInfo.CacheControlValue
-
-	commandHTMLData := &commandHTMLData{
-		commandInfo: &commandInfo,
-	}
-
-	var builder strings.Builder
-	if err := templates.ExecuteTemplate(&builder, commandTemplateFile, commandHTMLData); err != nil {
-		log.Fatalf("Error executing command template ID %v: %v", commandInfo.ID, err)
-	}
-
-	htmlString := builder.String()
-	lastModified := time.Now()
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add(cacheControlHeaderKey, cacheControlValue)
-		w.Header().Add(contentTypeHeaderKey, contentTypeTextHTML)
-		http.ServeContent(w, r, commandTemplateFile, lastModified, strings.NewReader(htmlString))
-	}
-}
-
-type commandAPIResponse struct {
-	*commandInfo
-	Now             string `json:"now"`
-	CommandDuration string `json:"commandDuration"`
-	CommandOutput   string `json:"commandOutput"`
-}
-
-func commandAPIHandlerFunc(commandInfo commandInfo, commandTimeoutInfo commandTimeoutInfo) http.HandlerFunc {
-	timeoutDuration := time.Duration(commandTimeoutInfo.TimeoutMilliseconds) * time.Millisecond
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx, cancel := context.WithTimeout(context.Background(), timeoutDuration)
-		defer cancel()
-
-		commandStartTime := time.Now()
-		rawCommandOutput, err := exec.CommandContext(
-			ctx, commandInfo.Command, commandInfo.Args...).CombinedOutput()
-		commandEndTime := time.Now()
-
-		var commandOutput string
-		if err != nil {
-			commandOutput = fmt.Sprintf("command error %v", err)
-		} else {
-			commandOutput = string(rawCommandOutput)
-		}
-
-		commandDuration := fmt.Sprintf("%.9f sec",
-			commandEndTime.Sub(commandStartTime).Seconds())
-
-		commandAPIResponse := &commandAPIResponse{
-			commandInfo:     &commandInfo,
-			Now:             formatTime(commandEndTime),
-			CommandDuration: commandDuration,
-			CommandOutput:   commandOutput,
-		}
-
-		var jsonText []byte
-		if jsonText, err = json.Marshal(commandAPIResponse); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		w.Header().Add(contentTypeHeaderKey, contentTypeApplicationJSON)
-		w.Header().Add(cacheControlHeaderKey, maxAgeZero)
-		io.Copy(w, bytes.NewReader(jsonText))
-	}
 }
 
 type proxyHTMLData struct {
@@ -504,22 +363,6 @@ func installPprofHandlers(pprofInfo pprofInfo, serveMux *http.ServeMux) {
 	}
 }
 
-func readConfiguration(configFile string) *configuration {
-	log.Printf("reading json file %v", configFile)
-
-	source, err := ioutil.ReadFile(configFile)
-	if err != nil {
-		log.Fatalf("error reading %v: %v", configFile, err)
-	}
-
-	var config configuration
-	if err = json.Unmarshal(source, &config); err != nil {
-		log.Fatalf("error parsing %v: %v", configFile, err)
-	}
-
-	return &config
-}
-
 func getEnvironment() *environment {
 	return &environment{
 		EnvVars:    os.Environ(),
@@ -554,7 +397,7 @@ func awaitShutdownSignal() {
 }
 
 func main() {
-	log.SetFlags(0)
+	log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds)
 
 	if len(os.Args) != 2 {
 		log.Fatalf("Usage: %v <config yml file>", os.Args[0])
@@ -584,16 +427,7 @@ func main() {
 			staticDirectoryHandler(staticDirectoryInfo))
 	}
 
-	for _, commandInfo := range configuration.Commands {
-		apiPath := "/api/commands/" + commandInfo.ID
-		htmlPath := "/commands/" + commandInfo.ID + ".html"
-		serveMux.Handle(
-			htmlPath,
-			commandRunnerHTMLHandlerFunc(configuration, commandInfo))
-		serveMux.Handle(
-			apiPath,
-			commandAPIHandlerFunc(commandInfo, configuration.CommandTimeoutInfo))
-	}
+	createCommandHandler(configuration, serveMux)
 
 	for _, proxyInfo := range configuration.Proxies {
 		apiPath := "/api/proxies/" + proxyInfo.ID

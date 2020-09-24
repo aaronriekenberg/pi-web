@@ -41,36 +41,38 @@
       "cacheControlValue": "public, max-age=60"
     }
   ],
-  "commandTimeoutInfo": {
-    "timeoutMilliseconds": 2000
+  "commandConfiguration": {
+    "maxConcurrentCommands": 1,
+    "requestTimeoutMilliseconds": 2000,
+    "semaphoreAcquireTimeoutMilliseconds": 200,
+    "commands": [
+      {
+        "id": "ifconfig",
+        "description": "ifconfig",
+        "command": "ifconfig",
+        "args": [
+          "-a"
+        ]
+      },
+      {
+        "id": "netstat_an",
+        "description": "netstat -an",
+        "command": "netstat",
+        "args": [
+          "-a",
+          "-n"
+        ]
+      },
+      {
+        "id": "sleep",
+        "description": "sleep .5",
+        "command": "sleep",
+        "args": [
+          ".5"
+        ]
+      }
+    ]
   },
-  "commands": [
-    {
-      "id": "ifconfig",
-      "description": "ifconfig",
-      "command": "ifconfig",
-      "args": [
-        "-a"
-      ]
-    },
-    {
-      "id": "netstat_an",
-      "description": "netstat -an",
-      "command": "netstat",
-      "args": [
-        "-a",
-        "-n"
-      ]
-    },
-    {
-      "id": "sleep",
-      "description": "sleep 5",
-      "command": "sleep",
-      "args": [
-        "5"
-      ]
-    }
-  ],
   "proxies": [
     {
       "id": "test_proxy",

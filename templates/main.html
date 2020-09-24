@@ -11,9 +11,9 @@
 
   <h2>{{.MainPageInfo.Title}}</h2>
 
-  {{ if .Commands }}
+  {{ if .CommandConfiguration.Commands }}
   <h3>Commands:</h3>
-  <ul>{{range .Commands}}
+  <ul>{{range .CommandConfiguration.Commands}}
     <li><a href="/commands/{{.ID}}.html">{{.Description}}</a></li>{{end}}
   </ul>
   {{ end }}
