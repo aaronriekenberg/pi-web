@@ -22,7 +22,7 @@
     "cacheControlValue": "public, max-age=60"
   },
   "mainPageInfo": {
-    "title": "aaronr.openbsd.digital"
+    "title": "aaronr.digital"
   },
   "pprofInfo": {
     "enabled": false
