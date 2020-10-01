@@ -2,19 +2,9 @@
   "logRequests": false,
   "listenInfoList": [
     {
-      "listenAddress": "46.23.92.249:8443",
+      "listenAddress": "127.0.0.1:8080",
       "tlsInfo": {
-        "enabled": true,
-        "certFile": "aaronr.digital.fullchain.pem",
-        "keyFile": "aaronr.digital.key"
-      }
-    },
-    {
-      "listenAddress": "[2a03:6000:6e65:626::249]:8443",
-      "tlsInfo": {
-        "enabled": true,
-        "certFile": "aaronr.digital.fullchain.pem",
-        "keyFile": "aaronr.digital.key"
+        "enabled": false
       }
     }
   ],
