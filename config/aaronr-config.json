@@ -43,17 +43,17 @@
     {
       "httpPath": "/pfstat/hour/",
       "directoryPath": "/var/www/htdocs/aaronr.digital/pfstat/hour",
-      "cacheControlValue": "public, max-age=300"
+      "cacheControlValue": "public, max-age=150"
     },
     {
       "httpPath": "/pfstat/day/",
       "directoryPath": "/var/www/htdocs/aaronr.digital/pfstat/day",
-      "cacheControlValue": "public, max-age=300"
+      "cacheControlValue": "public, max-age=150"
     },
     {
       "httpPath": "/pfstat/week/",
       "directoryPath": "/var/www/htdocs/aaronr.digital/pfstat/week",
-      "cacheControlValue": "public, max-age=300"
+      "cacheControlValue": "public, max-age=150"
     }
   ],
   "commandConfiguration": {
