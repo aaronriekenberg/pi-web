@@ -95,6 +95,15 @@
         ]
       },
       {
+        "id": "relayctl_show_sessions",
+        "description": "relayctl show sessions",
+        "command": "relayctl",
+        "args": [
+          "show",
+          "sessions"
+        ]
+      },
+      {
         "id": "sysctl_hw",
         "description": "sysctl hw",
         "command": "sysctl",
