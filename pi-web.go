@@ -120,10 +120,15 @@ func staticFileHandlerFunc(staticFileInfo staticFileInfo) http.HandlerFunc {
 	}
 }
 
-func staticDirectoryHandler(staticDirectoryInfo staticDirectoryInfo) http.Handler {
-	return http.StripPrefix(
+func staticDirectoryHandler(staticDirectoryInfo staticDirectoryInfo) http.HandlerFunc {
+	fileServer := http.StripPrefix(
 		staticDirectoryInfo.HTTPPath,
 		http.FileServer(http.Dir(staticDirectoryInfo.DirectoryPath)))
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add(cacheControlHeaderKey, staticDirectoryInfo.CacheControlValue)
+		fileServer.ServeHTTP(w, r)
+	}
 }
 
 type proxyHTMLData struct {

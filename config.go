@@ -36,8 +36,9 @@ type staticFileInfo struct {
 }
 
 type staticDirectoryInfo struct {
-	HTTPPath      string `json:"httpPath"`
-	DirectoryPath string `json:"directoryPath"`
+	HTTPPath          string `json:"httpPath"`
+	DirectoryPath     string `json:"directoryPath"`
+	CacheControlValue string `json:"cacheControlValue"`
 }
 
 type commandInfo struct {
