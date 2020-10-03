@@ -43,19 +43,19 @@
     {
       "httpPath": "/pfstat/hour/",
       "directoryPath": "/var/www/htdocs/aaronr.digital/pfstat/hour",
-      "cacheControlValue": "public, max-age=300",
+      "cacheControlValue": "public, max-age=150",
       "includeInMainPage": true
     },
     {
       "httpPath": "/pfstat/day/",
       "directoryPath": "/var/www/htdocs/aaronr.digital/pfstat/day",
-      "cacheControlValue": "public, max-age=300",
+      "cacheControlValue": "public, max-age=150",
       "includeInMainPage": true
     },
     {
       "httpPath": "/pfstat/week/",
       "directoryPath": "/var/www/htdocs/aaronr.digital/pfstat/week",
-      "cacheControlValue": "public, max-age=300",
+      "cacheControlValue": "public, max-age=150",
       "includeInMainPage": true
     },
     {
@@ -101,6 +101,15 @@
         "command": "ntpctl",
         "args": [
           "-sa"
+        ]
+      },
+      {
+        "id": "relayctl_show_sessions",
+        "description": "relayctl show sessions",
+        "command": "relayctl",
+        "args": [
+          "show",
+          "sessions"
         ]
       },
       {
