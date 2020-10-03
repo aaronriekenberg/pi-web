@@ -25,10 +25,12 @@
   </ul>
   {{ end }}
 
-  {{ if .StaticDirectories }}
+  {{ if .NumStaticDirectoriesInMainPage }}
   <h3>Directories:</h3>
   <ul>{{range .StaticDirectories}}
+    {{ if .IncludeInMainPage }}
     <li><a href="{{.HTTPPath}}">{{.DirectoryPath}}</a></li>{{end}}
+    {{ end }}
   </ul>
   {{ end }}
 

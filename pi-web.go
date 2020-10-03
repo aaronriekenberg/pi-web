@@ -79,6 +79,7 @@ func httpHeaderToString(header http.Header) string {
 
 type mainPageMetadata struct {
 	*configuration
+	NumStaticDirectoriesInMainPage int
 	*environment
 	LastModified string
 }
@@ -90,6 +91,13 @@ func buildMainPageString(configuration *configuration, environment *environment,
 		environment:   environment,
 		LastModified:  formatTime(lastModified),
 	}
+
+	for i := range configuration.StaticDirectories {
+		if configuration.StaticDirectories[i].IncludeInMainPage {
+			mainPageMetadata.NumStaticDirectoriesInMainPage++
+		}
+	}
+
 	if err := templates.ExecuteTemplate(&builder, mainTemplateFile, mainPageMetadata); err != nil {
 		log.Fatalf("error executing main page template %v", err)
 	}

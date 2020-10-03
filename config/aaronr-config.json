@@ -43,17 +43,26 @@
     {
       "httpPath": "/pfstat/hour/",
       "directoryPath": "/var/www/htdocs/aaronr.digital/pfstat/hour",
-      "cacheControlValue": "public, max-age=300"
+      "cacheControlValue": "public, max-age=300",
+      "includeInMainPage": true
     },
     {
       "httpPath": "/pfstat/day/",
       "directoryPath": "/var/www/htdocs/aaronr.digital/pfstat/day",
-      "cacheControlValue": "public, max-age=300"
+      "cacheControlValue": "public, max-age=300",
+      "includeInMainPage": true
     },
     {
       "httpPath": "/pfstat/week/",
       "directoryPath": "/var/www/htdocs/aaronr.digital/pfstat/week",
-      "cacheControlValue": "public, max-age=300"
+      "cacheControlValue": "public, max-age=300",
+      "includeInMainPage": true
+    },
+    {
+      "httpPath": "/.well-known/acme-challenge/",
+      "directoryPath": "/var/www/acme",
+      "cacheControlValue": "max-age=0",
+      "includeInMainPage": false
     }
   ],
   "commandConfiguration": {

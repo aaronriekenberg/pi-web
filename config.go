@@ -39,6 +39,7 @@ type staticDirectoryInfo struct {
 	HTTPPath          string `json:"httpPath"`
 	DirectoryPath     string `json:"directoryPath"`
 	CacheControlValue string `json:"cacheControlValue"`
+	IncludeInMainPage bool   `json:"includeInMainPage"`
 }
 
 type commandInfo struct {
