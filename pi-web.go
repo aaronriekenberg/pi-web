@@ -14,7 +14,6 @@ import (
 	"os/signal"
 	"path/filepath"
 	"runtime"
-	"sort"
 	"strings"
 	"syscall"
 	"time"
@@ -56,24 +55,6 @@ var templates = template.Must(
 
 func formatTime(t time.Time) string {
 	return t.Format("Mon Jan 2 15:04:05.000000000 -0700 MST 2006")
-}
-
-func httpHeaderToString(header http.Header) string {
-	var builder strings.Builder
-	keys := make([]string, 0, len(header))
-	for key := range header {
-		keys = append(keys, key)
-	}
-	sort.Strings(keys)
-	for i, key := range keys {
-		if i != 0 {
-			builder.WriteRune('\n')
-		}
-		builder.WriteString(key)
-		builder.WriteString(": ")
-		fmt.Fprintf(&builder, "%v", header[key])
-	}
-	return builder.String()
 }
 
 type mainPageMetadata struct {

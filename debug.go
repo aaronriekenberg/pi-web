@@ -8,8 +8,27 @@ import (
 	"log"
 	"net/http"
 	"net/http/pprof"
+	"sort"
 	"strings"
 )
+
+func httpHeaderToString(header http.Header) string {
+	var builder strings.Builder
+	keys := make([]string, 0, len(header))
+	for key := range header {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	for i, key := range keys {
+		if i != 0 {
+			builder.WriteRune('\n')
+		}
+		builder.WriteString(key)
+		builder.WriteString(": ")
+		fmt.Fprintf(&builder, "%v", header[key])
+	}
+	return builder.String()
+}
 
 type debugHTMLData struct {
 	Title   string
