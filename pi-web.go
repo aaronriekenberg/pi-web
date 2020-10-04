@@ -25,20 +25,6 @@ type environment struct {
 	GoVersion  string   `json:"goVersion"`
 }
 
-const (
-	templatesDirectory         = "templates"
-	mainTemplateFile           = "main.html"
-	commandTemplateFile        = "command.html"
-	proxyTemplateFile          = "proxy.html"
-	debugTemplateFile          = "debug.html"
-	cacheControlHeaderKey      = "cache-control"
-	maxAgeZero                 = "max-age=0"
-	contentTypeHeaderKey       = "content-type"
-	contentTypeTextHTML        = "text/html"
-	contentTypeTextPlain       = "text/plain"
-	contentTypeApplicationJSON = "application/json"
-)
-
 var templates = template.Must(
 	template.ParseFiles(
 		filepath.Join(templatesDirectory, mainTemplateFile),
@@ -95,24 +81,6 @@ func mainPageHandlerFunc(configuration *configuration, environment *environment)
 	}
 }
 
-func staticFileHandlerFunc(staticFileInfo staticFileInfo) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add(cacheControlHeaderKey, staticFileInfo.CacheControlValue)
-		http.ServeFile(w, r, staticFileInfo.FilePath)
-	}
-}
-
-func staticDirectoryHandler(staticDirectoryInfo staticDirectoryInfo) http.HandlerFunc {
-	fileServer := http.StripPrefix(
-		staticDirectoryInfo.HTTPPath,
-		http.FileServer(http.Dir(staticDirectoryInfo.DirectoryPath)))
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add(cacheControlHeaderKey, staticDirectoryInfo.CacheControlValue)
-		fileServer.ServeHTTP(w, r)
-	}
-}
-
 func getEnvironment() *environment {
 	return &environment{
 		EnvVars:    os.Environ(),
@@ -165,17 +133,7 @@ func main() {
 
 	serveMux.Handle("/", mainPageHandlerFunc(configuration, environment))
 
-	for _, staticFileInfo := range configuration.StaticFiles {
-		serveMux.Handle(
-			staticFileInfo.HTTPPath,
-			staticFileHandlerFunc(staticFileInfo))
-	}
-
-	for _, staticDirectoryInfo := range configuration.StaticDirectories {
-		serveMux.Handle(
-			staticDirectoryInfo.HTTPPath,
-			staticDirectoryHandler(staticDirectoryInfo))
-	}
+	createFileHandler(configuration, serveMux)
 
 	createCommandHandler(configuration, serveMux)
 
