@@ -169,3 +169,11 @@ func installPprofHandlers(pprofInfo pprofInfo, serveMux *http.ServeMux) {
 		serveMux.Handle("/debug/pprof/trace", http.HandlerFunc(pprof.Trace))
 	}
 }
+
+func createDebugHandler(configuration *configuration, environment *environment, serveMux *http.ServeMux) {
+	serveMux.Handle("/configuration", configurationHandlerFunction(configuration))
+	serveMux.Handle("/environment", environmentHandlerFunction(environment))
+	serveMux.Handle("/reqinfo", requestInfoHandlerFunc())
+	installPprofHandlers(configuration.PprofInfo, serveMux)
+
+}

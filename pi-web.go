@@ -179,21 +179,9 @@ func main() {
 
 	createCommandHandler(configuration, serveMux)
 
-	for _, proxyInfo := range configuration.Proxies {
-		apiPath := "/api/proxies/" + proxyInfo.ID
-		htmlPath := "/proxies/" + proxyInfo.ID + ".html"
-		serveMux.Handle(
-			htmlPath,
-			proxyHTMLHandlerFunc(configuration, proxyInfo))
-		serveMux.Handle(
-			apiPath,
-			proxyAPIHandlerFunc(proxyInfo))
-	}
+	createProxyHandler(configuration, serveMux)
 
-	serveMux.Handle("/configuration", configurationHandlerFunction(configuration))
-	serveMux.Handle("/environment", environmentHandlerFunction(environment))
-	serveMux.Handle("/reqinfo", requestInfoHandlerFunc())
-	installPprofHandlers(configuration.PprofInfo, serveMux)
+	createDebugHandler(configuration, environment, serveMux)
 
 	var serveHandler http.Handler = serveMux
 	if configuration.LogRequests {

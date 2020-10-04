@@ -109,3 +109,16 @@ func proxyAPIHandlerFunc(proxyInfo proxyInfo) http.HandlerFunc {
 		io.Copy(w, bytes.NewReader(jsonText))
 	}
 }
+
+func createProxyHandler(configuration *configuration, serveMux *http.ServeMux) {
+	for _, proxyInfo := range configuration.Proxies {
+		apiPath := "/api/proxies/" + proxyInfo.ID
+		htmlPath := "/proxies/" + proxyInfo.ID + ".html"
+		serveMux.Handle(
+			htmlPath,
+			proxyHTMLHandlerFunc(configuration, proxyInfo))
+		serveMux.Handle(
+			apiPath,
+			proxyAPIHandlerFunc(proxyInfo))
+	}
+}
