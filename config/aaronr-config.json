@@ -104,6 +104,24 @@
         ]
       },
       {
+        "id": "relayctl_show_hosts",
+        "description": "relayctl show hosts",
+        "command": "relayctl",
+        "args": [
+          "show",
+          "hosts"
+        ]
+      },
+      {
+        "id": "relayctl_show_relays",
+        "description": "relayctl show relays",
+        "command": "relayctl",
+        "args": [
+          "show",
+          "relays"
+        ]
+      },
+      {
         "id": "relayctl_show_sessions",
         "description": "relayctl show sessions",
         "command": "relayctl",
