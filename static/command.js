@@ -1,5 +1,3 @@
-const xRequest = new XMLHttpRequest();
-
 const updatePre = (text) => {
     const preCollection = document.getElementsByTagName('pre');
     for (i = 0; i < preCollection.length; ++i) {
@@ -7,25 +5,31 @@ const updatePre = (text) => {
     }
 };
 
-xRequest.onreadystatechange = function () {
-    if (this.readyState == 4 && this.status == 200) {
-        const jsonObject = JSON.parse(xRequest.responseText);
-        let command = jsonObject.command;
-        for (const arg of (jsonObject.args || [])) {
-          command += ` ${arg}`;
-        }
-        let preText = `Now: ${jsonObject.now}\n\n`;
-        preText += `Command Duration: ${jsonObject.commandDuration}\n\n`;
-        preText += `$ ${command}\n\n`;
-        preText += jsonObject.commandOutput;
-        updatePre(preText);
+const handleFetchResponse = (jsonObject) => {
+    let command = jsonObject.command;
+    for (const arg of (jsonObject.args || [])) {
+        command += ` ${arg}`;
     }
-};
+    let preText = `Now: ${jsonObject.now}\n\n`;
+    preText += `Command Duration: ${jsonObject.commandDuration}\n\n`;
+    preText += `$ ${command}\n\n`;
+    preText += jsonObject.commandOutput;
+    updatePre(preText);
+}
 
-const requestData = (apiPath) => {
-    xRequest.open('GET', apiPath, true);
-    xRequest.setRequestHeader('Accept', 'application/json');
-    xRequest.send();
+const fetchData = async (apiPath) => {
+    try {
+        const response = await fetch(apiPath, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+        const jsonObject = await response.json();
+        handleFetchResponse(jsonObject);
+    } catch (error) {
+        console.error('fetch error:', error);
+    }
 };
 
 const setTimer = (apiPath) => {
@@ -33,7 +37,7 @@ const setTimer = (apiPath) => {
 
     setInterval(() => {
         if (checkbox.checked) {
-            requestData(apiPath);
+            fetchData(apiPath);
         }
     }, 1000);
 };
@@ -44,7 +48,7 @@ const onload = (commandText, apiPath) => {
     preText += `$ ${commandText}`;
     updatePre(preText);
 
-    requestData(apiPath);
+    fetchData(apiPath);
 
     setTimer(apiPath);
 };
