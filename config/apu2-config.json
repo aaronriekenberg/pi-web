@@ -1,16 +1,20 @@
 {
   "logRequests": false,
-  "listenAddress": "192.168.1.1:8000",
-  "tlsInfo": {
-    "enabled": true,
-    "certFile": "cert.pem",
-    "keyFile": "key.pem"
-  },
+  "listenInfoList": [
+    {
+      "listenAddress": "192.168.1.1:8080",
+      "tlsInfo": {
+        "enabled": true,
+        "certFile": "cert.pem",
+        "keyFile": "key.pem"
+      }
+    }
+  ],
   "templatePageInfo": {
-    "cacheControlValue": "public, max-age=60"
+    "cacheControlValue": "public, max-age=86400"
   },
   "mainPageInfo": {
-    "title": "Aaron's APU2"
+    "title": "apu2.domain"
   },
   "pprofInfo": {
     "enabled": true
@@ -19,182 +23,121 @@
     {
       "httpPath": "/command.js",
       "filePath": "static/command.js",
-      "cacheControlValue": "public, max-age=60"
+      "cacheControlValue": "public, max-age=86400"
     },
     {
       "httpPath": "/proxy.js",
       "filePath": "static/proxy.js",
-      "cacheControlValue": "public, max-age=60"
+      "cacheControlValue": "public, max-age=86400"
     },
     {
       "httpPath": "/style.css",
       "filePath": "static/style.css",
-      "cacheControlValue": "public, max-age=60"
+      "cacheControlValue": "public, max-age=86400"
     },
     {
       "httpPath": "/favicon.ico",
       "filePath": "static/go-favicon.ico",
-      "cacheControlValue": "public, max-age=60"
+      "cacheControlValue": "public, max-age=86400"
     }
   ],
   "staticDirectories": [
     {
-      "httpPath": "/vnstat/",
-      "directoryPath": "/home/aaron/vnstat"
+      "httpPath": "/pfstat/hour/",
+      "directoryPath": "/var/www/htdocs/apu2.domain/pfstat/hour",
+      "cacheControlValue": "public, max-age=150",
+      "includeInMainPage": true
+    },
+    {
+      "httpPath": "/pfstat/day/",
+      "directoryPath": "/var/www/htdocs/apu2.domain/pfstat/day",
+      "cacheControlValue": "public, max-age=150",
+      "includeInMainPage": true
+    },
+    {
+      "httpPath": "/pfstat/week/",
+      "directoryPath": "/var/www/htdocs/apu2.domain/pfstat/week",
+      "cacheControlValue": "public, max-age=150",
+      "includeInMainPage": true
     }
   ],
-  "commandTimeoutInfo": {
-    "timeoutMilliseconds": 2000
-  },
-  "commands": [
-    {
-      "id": "arp",
-      "command": "/usr/sbin/arp",
-      "args": [
-        "-an"
-      ],
-      "description": "arp"
-    },
-    {
-      "id": "cpu_vulnerabilities",
-      "command": "/bin/bash",
-      "args": [
-        "-c",
-        "grep . /sys/devices/system/cpu/vulnerabilities/*"
-      ],
-      "description": "cpu_vulnerabilities"
-    },
-    {
-      "id": "df",
-      "command": "df",
-      "args": [
-        "-h"
-      ],
-      "description": "df"
-    },
-    {
-      "id": "go_dhcp_leases",
-      "command": "/home/aaron/go-dhcp-leases/run.sh",
-      "description": "go dhcp leases"
-    },
-    {
-      "id": "go_doh_proxy_logs",
-      "command": "journalctl",
-      "args": [
-        "--user-unit",
-        "go-doh-proxy.service",
-        "-n30",
-        "--no-pager",
-        "--output=cat"
-      ],
-      "description": "go-doh-proxy logs"
-    },
-    {
-      "id": "ifconfig",
-      "command": "/sbin/ifconfig",
-      "description": "ifconfig"
-    },
-    {
-      "id": "lscpu",
-      "command": "lscpu",
-      "description": "lscpu"
-    },
-    {
-      "id": "netstat_an",
-      "command": "netstat",
-      "args": [
-        "-an"
-      ],
-      "description": "netstat -an"
-    },
-    {
-      "id": "netstat_s",
-      "command": "netstat",
-      "args": [
-        "-s"
-      ],
-      "description": "netstat -s"
-    },
-    {
-      "id": "node_dns_logs",
-      "command": "journalctl",
-      "args": [
-        "--user-unit",
-        "node-dns.service",
-        "-n30",
-        "--no-pager",
-        "--output=cat"
-      ],
-      "description": "node-dns logs"
-    },
-    {
-      "id": "ntpq",
-      "command": "ntpq",
-      "args": [
-        "-pn"
-      ],
-      "description": "ntpq"
-    },
-    {
-      "id": "pi_web_logs",
-      "command": "journalctl",
-      "args": [
-        "--user-unit",
-        "pi-web.service",
-        "-n30",
-        "--no-pager"
-      ],
-      "description": "pi-web logs"
-    },
-    {
-      "id": "rust_doh_proxy_logs",
-      "command": "journalctl",
-      "args": [
-        "--user-unit",
-        "rust-doh-proxy.service",
-        "-n30",
-        "--no-pager"
-      ],
-      "description": "rust-doh-proxy logs"
-    },
-    {
-      "id": "sensors",
-      "command": "sensors",
-      "description": "sensors"
-    },
-    {
-      "id": "tc_qdisc",
-      "command": "/sbin/tc",
-      "args": [
-        "-s",
-        "qdisc",
-        "show"
-      ],
-      "description": "tc qdisc show"
-    },
-    {
-      "id": "top",
-      "command": "top",
-      "args": [
-        "-b",
-        "-n1"
-      ],
-      "description": "top"
-    },
-    {
-      "id": "uptime",
-      "command": "uptime",
-      "description": "uptime"
-    },
-    {
-      "id": "vmstat",
-      "command": "vmstat",
-      "description": "vmstat"
-    },
-    {
-      "id": "w",
-      "command": "w",
-      "description": "w"
-    }
-  ]
+  "commandConfiguration": {
+    "maxConcurrentCommands": 10,
+    "requestTimeoutMilliseconds": 2000,
+    "semaphoreAcquireTimeoutMilliseconds": 200,
+    "commands": [
+      {
+        "id": "ifconfig",
+        "description": "ifconfig",
+        "command": "ifconfig",
+        "args": [
+          "-a"
+        ]
+      },
+      {
+        "id": "netstat_an",
+        "description": "netstat -an",
+        "command": "netstat",
+        "args": [
+          "-a",
+          "-n"
+        ]
+      },
+      {
+        "id": "netstat_binh",
+        "description": "netstat -binh",
+        "command": "netstat",
+        "args": [
+          "-binh"
+        ]
+      },
+      {
+        "id": "ntpctl_sa",
+        "description": "ntpctl -sa",
+        "command": "ntpctl",
+        "args": [
+          "-sa"
+        ]
+      },
+      {
+        "id": "sysctl_hw",
+        "description": "sysctl hw",
+        "command": "sysctl",
+        "args": [
+          "hw"
+        ]
+      },
+      {
+        "id": "top",
+        "description": "top",
+        "command": "top",
+        "args": [
+          "-b1"
+        ]
+      },
+      {
+        "id": "uptime",
+        "description": "uptime",
+        "command": "uptime"
+      },
+      {
+        "id": "vmstat",
+        "description": "vmstat",
+        "command": "vmstat"
+      },
+      {
+        "id": "vmstat_i",
+        "description": "vmstat -i",
+        "command": "vmstat",
+        "args": [
+          "-i"
+        ]
+      },
+      {
+        "id": "w",
+        "description": "w",
+        "command": "w"
+      }
+    ]
+  }
 }
