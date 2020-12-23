@@ -8,6 +8,14 @@
         "certFile": "cert.pem",
         "keyFile": "key.pem"
       }
+    },
+    {
+      "listenAddress": "[fd12:3456:789a:1::1]:8080",
+      "tlsInfo": {
+        "enabled": true,
+        "certFile": "cert.pem",
+        "keyFile": "key.pem"
+      }
     }
   ],
   "templatePageInfo": {
