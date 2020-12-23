@@ -75,11 +75,27 @@
     "semaphoreAcquireTimeoutMilliseconds": 200,
     "commands": [
       {
+        "id": "arp_an",
+        "description": "arp -an",
+        "command": "/usr/sbin/arp",
+        "args": [
+          "-an"
+        ]
+      },
+      {
         "id": "ifconfig",
         "description": "ifconfig",
         "command": "ifconfig",
         "args": [
           "-a"
+        ]
+      },
+      {
+        "id": "ndp_an",
+        "description": "ndp -an",
+        "command": "/usr/sbin/ndp",
+        "args": [
+          "-an"
         ]
       },
       {
