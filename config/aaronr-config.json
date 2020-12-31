@@ -2,7 +2,7 @@
   "logRequests": false,
   "listenInfoList": [
     {
-      "listenAddress": "127.0.0.1:8080",
+      "listenAddress": "[::1]:8080",
       "tlsInfo": {
         "enabled": false
       }
