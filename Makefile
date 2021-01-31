@@ -17,3 +17,6 @@ build-linux-amd64:
 
 build-linux-arm:
 	GOOS=linux GOARCH=arm $(GOBUILD) -o $(BINARY_NAME_LINUX_ARM) -ldflags="-X main.gitCommit=$(GIT_COMMIT)"
+
+build-openbsd-amd64:
+	GOOS=openbsd GOARCH=amd64 $(GOBUILD) -o $(BINARY_NAME_LINUX_AMD64) -ldflags="-X main.gitCommit=$(GIT_COMMIT)"
