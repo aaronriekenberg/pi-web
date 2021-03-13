@@ -6,5 +6,5 @@ require (
 	github.com/gorilla/handlers v1.5.1
 	github.com/kr/pretty v0.2.1
 	github.com/kr/text v0.2.0 // indirect
-	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 )
