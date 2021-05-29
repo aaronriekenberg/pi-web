@@ -8,8 +8,6 @@ BINARY_NAME_OPENBSD_AMD64=pi-web-openbsd-amd64
 
 GIT_COMMIT := $(shell git rev-parse HEAD)
 
-all: build build-linux-amd64 build-linux-arm
-
 build:
 	$(GOBUILD) -o $(BINARY_NAME) -ldflags="-X main.gitCommit=$(GIT_COMMIT)"
 
