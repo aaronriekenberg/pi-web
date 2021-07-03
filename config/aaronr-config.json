@@ -71,6 +71,14 @@
     "semaphoreAcquireTimeoutMilliseconds": 200,
     "commands": [
       {
+        "id": "df",
+        "description": "df",
+        "command": "df",
+        "args": [
+          "-h"
+        ]
+      },
+      {
         "id": "ifconfig",
         "description": "ifconfig",
         "command": "ifconfig",
