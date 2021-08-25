@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"encoding/json"
@@ -6,75 +6,75 @@ import (
 	"log"
 )
 
-type tlsInfo struct {
+type TLSInfo struct {
 	Enabled  bool   `json:"enabled"`
 	CertFile string `json:"certFile"`
 	KeyFile  string `json:"keyFile"`
 }
 
-type listenInfo struct {
-	TLSInfo       tlsInfo `json:"tlsInfo"`
+type ListenInfo struct {
+	TLSInfo       TLSInfo `json:"tlsInfo"`
 	ListenAddress string  `json:"listenAddress"`
 }
 
-type templatePageInfo struct {
+type TemplatePageInfo struct {
 	CacheControlValue string `json:"cacheControlValue"`
 }
 
-type mainPageInfo struct {
+type MainPageInfo struct {
 	Title string `json:"title"`
 }
 
-type pprofInfo struct {
+type PprofInfo struct {
 	Enabled bool `json:"enabled"`
 }
 
-type staticFileInfo struct {
+type StaticFileInfo struct {
 	HTTPPath          string `json:"httpPath"`
 	FilePath          string `json:"filePath"`
 	CacheControlValue string `json:"cacheControlValue"`
 }
 
-type staticDirectoryInfo struct {
+type StaticDirectoryInfo struct {
 	HTTPPath          string `json:"httpPath"`
 	DirectoryPath     string `json:"directoryPath"`
 	CacheControlValue string `json:"cacheControlValue"`
 	IncludeInMainPage bool   `json:"includeInMainPage"`
 }
 
-type commandInfo struct {
+type CommandInfo struct {
 	ID          string   `json:"id"`
 	Description string   `json:"description"`
 	Command     string   `json:"command"`
 	Args        []string `json:"args"`
 }
 
-type commandConfiguration struct {
+type CommandConfiguration struct {
 	MaxConcurrentCommands               int64         `json:"maxConcurrentCommands"`
 	RequestTimeoutMilliseconds          int           `json:"requestTimeoutMilliseconds"`
 	SemaphoreAcquireTimeoutMilliseconds int           `json:"semaphoreAcquireTimeoutMilliseconds"`
-	Commands                            []commandInfo `json:"commands"`
+	Commands                            []CommandInfo `json:"commands"`
 }
 
-type proxyInfo struct {
+type ProxyInfo struct {
 	ID          string `json:"id"`
 	Description string `json:"description"`
 	URL         string `json:"url"`
 }
 
-type configuration struct {
+type Configuration struct {
 	LogRequests          bool                  `json:"logRequests"`
-	ListenInfoList       []listenInfo          `json:"listenInfoList"`
-	TemplatePageInfo     templatePageInfo      `json:"templatePageInfo"`
-	MainPageInfo         mainPageInfo          `json:"mainPageInfo"`
-	PprofInfo            pprofInfo             `json:"pprofInfo"`
-	StaticFiles          []staticFileInfo      `json:"staticFiles"`
-	StaticDirectories    []staticDirectoryInfo `json:"staticDirectories"`
-	CommandConfiguration commandConfiguration  `json:"commandConfiguration"`
-	Proxies              []proxyInfo           `json:"proxies"`
+	ListenInfoList       []ListenInfo          `json:"listenInfoList"`
+	TemplatePageInfo     TemplatePageInfo      `json:"templatePageInfo"`
+	MainPageInfo         MainPageInfo          `json:"mainPageInfo"`
+	PprofInfo            PprofInfo             `json:"pprofInfo"`
+	StaticFiles          []StaticFileInfo      `json:"staticFiles"`
+	StaticDirectories    []StaticDirectoryInfo `json:"staticDirectories"`
+	CommandConfiguration CommandConfiguration  `json:"commandConfiguration"`
+	Proxies              []ProxyInfo           `json:"proxies"`
 }
 
-func readConfiguration(configFile string) *configuration {
+func ReadConfiguration(configFile string) *Configuration {
 	log.Printf("reading json file %v", configFile)
 
 	source, err := ioutil.ReadFile(configFile)
@@ -82,7 +82,7 @@ func readConfiguration(configFile string) *configuration {
 		log.Fatalf("error reading %v: %v", configFile, err)
 	}
 
-	var config configuration
+	var config Configuration
 	if err = json.Unmarshal(source, &config); err != nil {
 		log.Fatalf("error parsing %v: %v", configFile, err)
 	}

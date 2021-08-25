@@ -1,4 +1,4 @@
-package main
+package debug
 
 import (
 	"bytes"
@@ -10,6 +10,11 @@ import (
 	"net/http/pprof"
 	"sort"
 	"strings"
+
+	"github.com/aaronriekenberg/pi-web/config"
+	"github.com/aaronriekenberg/pi-web/environment"
+	"github.com/aaronriekenberg/pi-web/templates"
+	"github.com/aaronriekenberg/pi-web/utils"
 )
 
 func httpHeaderToString(header http.Header) string {
@@ -35,7 +40,7 @@ type debugHTMLData struct {
 	PreText string
 }
 
-func configurationHandlerFunction(configuration *configuration) http.HandlerFunc {
+func configurationHandlerFunction(configuration *config.Configuration) http.HandlerFunc {
 	jsonBytes, err := json.Marshal(configuration)
 	if err != nil {
 		log.Fatalf("error generating configuration json")
@@ -54,20 +59,20 @@ func configurationHandlerFunction(configuration *configuration) http.HandlerFunc
 		PreText: formattedJSONString,
 	}
 
-	if err := templates.ExecuteTemplate(&htmlBuilder, debugTemplateFile, debugHTMLData); err != nil {
+	if err := templates.Templates.ExecuteTemplate(&htmlBuilder, templates.DebugTemplateFile, debugHTMLData); err != nil {
 		log.Fatalf("error executing configuration page template %v", err)
 	}
 
 	htmlString := htmlBuilder.String()
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add(cacheControlHeaderKey, maxAgeZero)
+		w.Header().Add(utils.CacheControlHeaderKey, utils.MaxAgeZero)
 
 		io.Copy(w, strings.NewReader(htmlString))
 	}
 }
 
-func environmentHandlerFunction(environment *environment) http.HandlerFunc {
+func environmentHandlerFunction(environment *environment.Environment) http.HandlerFunc {
 	jsonBytes, err := json.Marshal(environment)
 	if err != nil {
 		log.Fatalf("error generating environment json")
@@ -86,14 +91,14 @@ func environmentHandlerFunction(environment *environment) http.HandlerFunc {
 		PreText: formattedJSONString,
 	}
 
-	if err := templates.ExecuteTemplate(&htmlBuilder, debugTemplateFile, debugHTMLData); err != nil {
+	if err := templates.Templates.ExecuteTemplate(&htmlBuilder, templates.DebugTemplateFile, debugHTMLData); err != nil {
 		log.Fatalf("error executing environment page template %v", err)
 	}
 
 	htmlString := htmlBuilder.String()
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add(cacheControlHeaderKey, maxAgeZero)
+		w.Header().Add(utils.CacheControlHeaderKey, utils.MaxAgeZero)
 
 		io.Copy(w, strings.NewReader(htmlString))
 	}
@@ -148,19 +153,19 @@ func requestInfoHandlerFunc() http.HandlerFunc {
 			PreText: buffer.String(),
 		}
 
-		if err := templates.ExecuteTemplate(&htmlBuilder, debugTemplateFile, debugHTMLData); err != nil {
+		if err := templates.Templates.ExecuteTemplate(&htmlBuilder, templates.DebugTemplateFile, debugHTMLData); err != nil {
 			log.Fatalf("error executing request info page template %v", err)
 		}
 
 		htmlString := htmlBuilder.String()
 
-		w.Header().Add(cacheControlHeaderKey, maxAgeZero)
+		w.Header().Add(utils.CacheControlHeaderKey, utils.MaxAgeZero)
 
 		io.Copy(w, strings.NewReader(htmlString))
 	}
 }
 
-func installPprofHandlers(pprofInfo pprofInfo, serveMux *http.ServeMux) {
+func installPprofHandlers(pprofInfo config.PprofInfo, serveMux *http.ServeMux) {
 	if pprofInfo.Enabled {
 		serveMux.Handle("/debug/pprof/", http.HandlerFunc(pprof.Index))
 		serveMux.Handle("/debug/pprof/cmdline", http.HandlerFunc(pprof.Cmdline))
@@ -170,10 +175,9 @@ func installPprofHandlers(pprofInfo pprofInfo, serveMux *http.ServeMux) {
 	}
 }
 
-func createDebugHandler(configuration *configuration, environment *environment, serveMux *http.ServeMux) {
+func CreateDebugHandler(configuration *config.Configuration, environment *environment.Environment, serveMux *http.ServeMux) {
 	serveMux.Handle("/configuration", configurationHandlerFunction(configuration))
 	serveMux.Handle("/environment", environmentHandlerFunction(environment))
 	serveMux.Handle("/reqinfo", requestInfoHandlerFunc())
 	installPprofHandlers(configuration.PprofInfo, serveMux)
-
 }

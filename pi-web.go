@@ -1,96 +1,25 @@
 package main
 
 import (
-	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
-	"path/filepath"
-	"runtime"
-	"strings"
 	"syscall"
-	"time"
 
 	gorillaHandlers "github.com/gorilla/handlers"
 	"github.com/kr/pretty"
+
+	"github.com/aaronriekenberg/pi-web/command"
+	"github.com/aaronriekenberg/pi-web/config"
+	"github.com/aaronriekenberg/pi-web/debug"
+	"github.com/aaronriekenberg/pi-web/environment"
+	"github.com/aaronriekenberg/pi-web/file"
+	"github.com/aaronriekenberg/pi-web/mainpage"
+	"github.com/aaronriekenberg/pi-web/proxy"
 )
 
-var gitCommit string
-
-type environment struct {
-	EnvVars    []string `json:"envVars"`
-	GitCommit  string   `json:"gitCommit"`
-	GoMaxProcs int      `json:"goMaxProcs"`
-	GoVersion  string   `json:"goVersion"`
-}
-
-var templates = template.Must(
-	template.ParseFiles(
-		filepath.Join(templatesDirectory, mainTemplateFile),
-		filepath.Join(templatesDirectory, commandTemplateFile),
-		filepath.Join(templatesDirectory, proxyTemplateFile),
-		filepath.Join(templatesDirectory, debugTemplateFile),
-	))
-
-func formatTime(t time.Time) string {
-	return t.Format("Mon Jan 2 15:04:05.000000000 -0700 MST 2006")
-}
-
-type mainPageMetadata struct {
-	*configuration
-	NumStaticDirectoriesInMainPage int
-	*environment
-	LastModified string
-}
-
-func buildMainPageString(configuration *configuration, environment *environment, lastModified time.Time) string {
-	var builder strings.Builder
-	mainPageMetadata := &mainPageMetadata{
-		configuration: configuration,
-		environment:   environment,
-		LastModified:  formatTime(lastModified),
-	}
-
-	for i := range configuration.StaticDirectories {
-		if configuration.StaticDirectories[i].IncludeInMainPage {
-			mainPageMetadata.NumStaticDirectoriesInMainPage++
-		}
-	}
-
-	if err := templates.ExecuteTemplate(&builder, mainTemplateFile, mainPageMetadata); err != nil {
-		log.Fatalf("error executing main page template %v", err)
-	}
-	return builder.String()
-}
-
-func mainPageHandlerFunc(configuration *configuration, environment *environment) http.HandlerFunc {
-	lastModified := time.Now()
-	mainPageString := buildMainPageString(configuration, environment, lastModified)
-	cacheControlValue := configuration.TemplatePageInfo.CacheControlValue
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/" {
-			http.NotFound(w, r)
-			return
-		}
-
-		w.Header().Add(cacheControlHeaderKey, cacheControlValue)
-		w.Header().Add(contentTypeHeaderKey, contentTypeTextHTML)
-		http.ServeContent(w, r, mainTemplateFile, lastModified, strings.NewReader(mainPageString))
-	}
-}
-
-func getEnvironment() *environment {
-	return &environment{
-		EnvVars:    os.Environ(),
-		GitCommit:  gitCommit,
-		GoMaxProcs: runtime.GOMAXPROCS(0),
-		GoVersion:  runtime.Version(),
-	}
-}
-
-func runServer(listenInfo listenInfo, serveHandler http.Handler) {
+func runServer(listenInfo config.ListenInfo, serveHandler http.Handler) {
 	log.Printf("runServer listenInfo = %#v", listenInfo)
 	if listenInfo.TLSInfo.Enabled {
 		log.Fatal(
@@ -123,23 +52,23 @@ func main() {
 
 	configFile := os.Args[1]
 
-	configuration := readConfiguration(configFile)
+	configuration := config.ReadConfiguration(configFile)
 	log.Printf("configuration:\n%# v", pretty.Formatter(configuration))
 
-	environment := getEnvironment()
+	environment := environment.GetEnvironment()
 	log.Printf("environment:\n%# v", pretty.Formatter(environment))
 
 	serveMux := http.NewServeMux()
 
-	serveMux.Handle("/", mainPageHandlerFunc(configuration, environment))
+	mainpage.CreateMainPageHandler(configuration, serveMux, environment)
 
-	createFileHandler(configuration, serveMux)
+	file.CreateFileHandler(configuration, serveMux)
 
-	createCommandHandler(configuration, serveMux)
+	command.CreateCommandHandler(configuration, serveMux)
 
-	createProxyHandler(configuration, serveMux)
+	proxy.CreateProxyHandler(configuration, serveMux)
 
-	createDebugHandler(configuration, environment, serveMux)
+	debug.CreateDebugHandler(configuration, environment, serveMux)
 
 	var serveHandler http.Handler = serveMux
 	if configuration.LogRequests {

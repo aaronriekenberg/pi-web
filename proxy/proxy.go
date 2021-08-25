@@ -1,4 +1,4 @@
-package main
+package proxy
 
 import (
 	"bytes"
@@ -11,23 +11,27 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/aaronriekenberg/pi-web/config"
+	"github.com/aaronriekenberg/pi-web/templates"
+	"github.com/aaronriekenberg/pi-web/utils"
 )
 
 type proxyHTMLData struct {
-	*proxyInfo
+	*config.ProxyInfo
 }
 
 func proxyHTMLHandlerFunc(
-	configuration *configuration, proxyInfo proxyInfo) http.HandlerFunc {
+	configuration *config.Configuration, proxyInfo config.ProxyInfo) http.HandlerFunc {
 
 	cacheControlValue := configuration.TemplatePageInfo.CacheControlValue
 
 	proxyHTMLData := &proxyHTMLData{
-		proxyInfo: &proxyInfo,
+		ProxyInfo: &proxyInfo,
 	}
 
 	var builder strings.Builder
-	if err := templates.ExecuteTemplate(&builder, proxyTemplateFile, proxyHTMLData); err != nil {
+	if err := templates.Templates.ExecuteTemplate(&builder, templates.ProxyTemplateFile, proxyHTMLData); err != nil {
 		log.Fatalf("Error executing proxy template ID %v: %v", proxyInfo.ID, err)
 	}
 
@@ -35,14 +39,14 @@ func proxyHTMLHandlerFunc(
 	lastModified := time.Now()
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add(cacheControlHeaderKey, cacheControlValue)
-		w.Header().Add(contentTypeHeaderKey, contentTypeTextHTML)
-		http.ServeContent(w, r, proxyTemplateFile, lastModified, strings.NewReader(htmlString))
+		w.Header().Add(utils.CacheControlHeaderKey, cacheControlValue)
+		w.Header().Add(utils.ContentTypeHeaderKey, utils.ContentTypeTextHTML)
+		http.ServeContent(w, r, templates.ProxyTemplateFile, lastModified, strings.NewReader(htmlString))
 	}
 }
 
 type proxyAPIResponse struct {
-	*proxyInfo
+	*config.ProxyInfo
 	Now              string      `json:"now"`
 	ProxyDuration    string      `json:"proxyDuration"`
 	ProxyStatus      string      `json:"proxyStatus"`
@@ -50,7 +54,7 @@ type proxyAPIResponse struct {
 	ProxyOutput      string      `json:"proxyOutput"`
 }
 
-func makeProxyRequest(ctx context.Context, proxyInfo *proxyInfo) (response *proxyAPIResponse, err error) {
+func makeProxyRequest(ctx context.Context, proxyInfo *config.ProxyInfo) (response *proxyAPIResponse, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(5)*time.Second)
 	defer cancel()
 
@@ -77,8 +81,8 @@ func makeProxyRequest(ctx context.Context, proxyInfo *proxyInfo) (response *prox
 	proxyDuration := fmt.Sprintf("%.9f sec", proxyEndTime.Sub(proxyStartTime).Seconds())
 
 	response = &proxyAPIResponse{
-		proxyInfo:        proxyInfo,
-		Now:              formatTime(proxyEndTime),
+		ProxyInfo:        proxyInfo,
+		Now:              utils.FormatTime(proxyEndTime),
 		ProxyDuration:    proxyDuration,
 		ProxyStatus:      proxyResponse.Status,
 		ProxyRespHeaders: proxyResponse.Header,
@@ -87,7 +91,7 @@ func makeProxyRequest(ctx context.Context, proxyInfo *proxyInfo) (response *prox
 	return
 }
 
-func proxyAPIHandlerFunc(proxyInfo proxyInfo) http.HandlerFunc {
+func proxyAPIHandlerFunc(proxyInfo config.ProxyInfo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
@@ -104,13 +108,13 @@ func proxyAPIHandlerFunc(proxyInfo proxyInfo) http.HandlerFunc {
 			return
 		}
 
-		w.Header().Add(contentTypeHeaderKey, contentTypeApplicationJSON)
-		w.Header().Add(cacheControlHeaderKey, maxAgeZero)
+		w.Header().Add(utils.ContentTypeHeaderKey, utils.ContentTypeApplicationJSON)
+		w.Header().Add(utils.CacheControlHeaderKey, utils.MaxAgeZero)
 		io.Copy(w, bytes.NewReader(jsonText))
 	}
 }
 
-func createProxyHandler(configuration *configuration, serveMux *http.ServeMux) {
+func CreateProxyHandler(configuration *config.Configuration, serveMux *http.ServeMux) {
 	for _, proxyInfo := range configuration.Proxies {
 		apiPath := "/api/proxies/" + proxyInfo.ID
 		htmlPath := "/proxies/" + proxyInfo.ID + ".html"

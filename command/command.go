@@ -1,4 +1,4 @@
-package main
+package command
 
 import (
 	"bytes"
@@ -13,6 +13,10 @@ import (
 	"time"
 
 	"golang.org/x/sync/semaphore"
+
+	"github.com/aaronriekenberg/pi-web/config"
+	"github.com/aaronriekenberg/pi-web/templates"
+	"github.com/aaronriekenberg/pi-web/utils"
 )
 
 type commandHandler struct {
@@ -21,7 +25,7 @@ type commandHandler struct {
 	semaphoreAcquireTimeout time.Duration
 }
 
-func createCommandHandler(configuration *configuration, serveMux *http.ServeMux) {
+func CreateCommandHandler(configuration *config.Configuration, serveMux *http.ServeMux) {
 	commandConfiguration := &configuration.CommandConfiguration
 	commandHandler := &commandHandler{
 		commandSemaphore:        semaphore.NewWeighted(commandConfiguration.MaxConcurrentCommands),
@@ -42,20 +46,20 @@ func createCommandHandler(configuration *configuration, serveMux *http.ServeMux)
 }
 
 type commandHTMLData struct {
-	*commandInfo
+	*config.CommandInfo
 }
 
 func (commandHandler *commandHandler) commandRunnerHTMLHandlerFunc(
-	configuration *configuration, commandInfo commandInfo) http.HandlerFunc {
+	configuration *config.Configuration, commandInfo config.CommandInfo) http.HandlerFunc {
 
 	cacheControlValue := configuration.TemplatePageInfo.CacheControlValue
 
 	commandHTMLData := &commandHTMLData{
-		commandInfo: &commandInfo,
+		CommandInfo: &commandInfo,
 	}
 
 	var builder strings.Builder
-	if err := templates.ExecuteTemplate(&builder, commandTemplateFile, commandHTMLData); err != nil {
+	if err := templates.Templates.ExecuteTemplate(&builder, templates.CommandTemplateFile, commandHTMLData); err != nil {
 		log.Fatalf("Error executing command template ID %v: %v", commandInfo.ID, err)
 	}
 
@@ -63,9 +67,9 @@ func (commandHandler *commandHandler) commandRunnerHTMLHandlerFunc(
 	lastModified := time.Now()
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add(cacheControlHeaderKey, cacheControlValue)
-		w.Header().Add(contentTypeHeaderKey, contentTypeTextHTML)
-		http.ServeContent(w, r, commandTemplateFile, lastModified, strings.NewReader(htmlString))
+		w.Header().Add(utils.CacheControlHeaderKey, cacheControlValue)
+		w.Header().Add(utils.ContentTypeHeaderKey, utils.ContentTypeTextHTML)
+		http.ServeContent(w, r, templates.CommandTemplateFile, lastModified, strings.NewReader(htmlString))
 	}
 }
 
@@ -85,18 +89,18 @@ func (commandHandler *commandHandler) releaseCommandSemaphore() {
 }
 
 type commandAPIResponse struct {
-	*commandInfo
+	*config.CommandInfo
 	Now             string `json:"now"`
 	CommandDuration string `json:"commandDuration"`
 	CommandOutput   string `json:"commandOutput"`
 }
 
-func (commandHandler *commandHandler) runCommand(ctx context.Context, commandInfo *commandInfo) (response *commandAPIResponse) {
+func (commandHandler *commandHandler) runCommand(ctx context.Context, commandInfo *config.CommandInfo) (response *commandAPIResponse) {
 	err := commandHandler.acquireCommandSemaphore(ctx)
 	if err != nil {
 		response = &commandAPIResponse{
-			commandInfo:   commandInfo,
-			Now:           formatTime(time.Now()),
+			CommandInfo:   commandInfo,
+			Now:           utils.FormatTime(time.Now()),
 			CommandOutput: fmt.Sprintf("%v", err),
 		}
 		return
@@ -119,15 +123,15 @@ func (commandHandler *commandHandler) runCommand(ctx context.Context, commandInf
 		commandEndTime.Sub(commandStartTime).Seconds())
 
 	response = &commandAPIResponse{
-		commandInfo:     commandInfo,
-		Now:             formatTime(commandEndTime),
+		CommandInfo:     commandInfo,
+		Now:             utils.FormatTime(commandEndTime),
 		CommandDuration: commandDuration,
 		CommandOutput:   commandOutput,
 	}
 	return
 }
 
-func (commandHandler *commandHandler) commandAPIHandlerFunc(commandInfo commandInfo) http.HandlerFunc {
+func (commandHandler *commandHandler) commandAPIHandlerFunc(commandInfo config.CommandInfo) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(context.Background(), commandHandler.requestTimeout)
 		defer cancel()
@@ -141,8 +145,8 @@ func (commandHandler *commandHandler) commandAPIHandlerFunc(commandInfo commandI
 			return
 		}
 
-		w.Header().Add(contentTypeHeaderKey, contentTypeApplicationJSON)
-		w.Header().Add(cacheControlHeaderKey, maxAgeZero)
+		w.Header().Add(utils.ContentTypeHeaderKey, utils.ContentTypeApplicationJSON)
+		w.Header().Add(utils.CacheControlHeaderKey, utils.MaxAgeZero)
 		io.Copy(w, bytes.NewReader(jsonText))
 	}
 }
