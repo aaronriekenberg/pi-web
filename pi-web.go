@@ -10,13 +10,13 @@ import (
 	gorillaHandlers "github.com/gorilla/handlers"
 	"github.com/kr/pretty"
 
-	"github.com/aaronriekenberg/pi-web/command"
 	"github.com/aaronriekenberg/pi-web/config"
-	"github.com/aaronriekenberg/pi-web/debug"
 	"github.com/aaronriekenberg/pi-web/environment"
-	"github.com/aaronriekenberg/pi-web/file"
-	"github.com/aaronriekenberg/pi-web/mainpage"
-	"github.com/aaronriekenberg/pi-web/proxy"
+	"github.com/aaronriekenberg/pi-web/handlers/command"
+	"github.com/aaronriekenberg/pi-web/handlers/debug"
+	"github.com/aaronriekenberg/pi-web/handlers/file"
+	"github.com/aaronriekenberg/pi-web/handlers/mainpage"
+	"github.com/aaronriekenberg/pi-web/handlers/proxy"
 )
 
 func runServer(listenInfo config.ListenInfo, serveHandler http.Handler) {
