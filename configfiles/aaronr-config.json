@@ -2,9 +2,19 @@
   "logRequests": false,
   "listenInfoList": [
     {
-      "listenAddress": "[::1]:8080",
+      "listenAddress": "[2a03:6000:6e63:627::166]:8443",
       "tlsInfo": {
-        "enabled": false
+        "enabled": true,
+        "certFile": "aaronr.digital.fullchain.pem",
+        "keyFile": "aaronr.digital.key"
+      }
+    },
+    {
+      "listenAddress": "46.23.89.166:8443",
+      "tlsInfo": {
+        "enabled": true,
+        "certFile": "aaronr.digital.fullchain.pem",
+        "keyFile": "aaronr.digital.key"
       }
     }
   ],
@@ -109,33 +119,6 @@
         "command": "ntpctl",
         "args": [
           "-sa"
-        ]
-      },
-      {
-        "id": "relayctl_show_hosts",
-        "description": "relayctl show hosts",
-        "command": "relayctl",
-        "args": [
-          "show",
-          "hosts"
-        ]
-      },
-      {
-        "id": "relayctl_show_relays",
-        "description": "relayctl show relays",
-        "command": "relayctl",
-        "args": [
-          "show",
-          "relays"
-        ]
-      },
-      {
-        "id": "relayctl_show_sessions",
-        "description": "relayctl show sessions",
-        "command": "relayctl",
-        "args": [
-          "show",
-          "sessions"
         ]
       },
       {
