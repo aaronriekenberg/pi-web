@@ -50,8 +50,8 @@ func runHTTP3Server(listenInfo config.ListenInfo, serveHandler http.Handler) {
 	log.Fatal(
 		http3.ListenAndServe(
 			listenInfo.ListenAddress,
-			listenInfo.TLSInfo.CertFile,
-			listenInfo.TLSInfo.KeyFile,
+			listenInfo.HTTP3Info.CertFile,
+			listenInfo.HTTP3Info.KeyFile,
 			handler))
 }
 
