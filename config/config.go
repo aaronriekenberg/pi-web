@@ -6,6 +6,19 @@ import (
 	"log"
 )
 
+type AltSvcRewriteInfo struct {
+	Enabled     bool   `json:"enabled"`
+	RewriteFrom string `json:"rewriteFrom"`
+	RewriteTo   string `json:"rewriteTo"`
+}
+
+type HTTP3Info struct {
+	Enabled           bool              `json:"enabled"`
+	CertFile          string            `json:"certFile"`
+	KeyFile           string            `json:"keyFile"`
+	AltSvcRewriteInfo AltSvcRewriteInfo `json:"altSvcRewriteInfo"`
+}
+
 type TLSInfo struct {
 	Enabled  bool   `json:"enabled"`
 	CertFile string `json:"certFile"`
@@ -13,8 +26,9 @@ type TLSInfo struct {
 }
 
 type ListenInfo struct {
-	TLSInfo       TLSInfo `json:"tlsInfo"`
-	ListenAddress string  `json:"listenAddress"`
+	HTTP3Info     HTTP3Info `json:"http3Info"`
+	TLSInfo       TLSInfo   `json:"tlsInfo"`
+	ListenAddress string    `json:"listenAddress"`
 }
 
 type TemplatePageInfo struct {

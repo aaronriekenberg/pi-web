@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	gorillaHandlers "github.com/gorilla/handlers"
@@ -20,23 +21,52 @@ import (
 	"github.com/aaronriekenberg/pi-web/handlers/proxy"
 )
 
+func runHTTP3Server(listenInfo config.ListenInfo, serveHandler http.Handler) {
+	log.Printf("runHTTP3Server listenInfo = %#v", listenInfo)
+
+	var handler http.Handler = serveHandler
+
+	if listenInfo.HTTP3Info.AltSvcRewriteInfo.Enabled {
+		const altSvcHeaderKey = "Alt-Svc"
+
+		var altSvcRewriteHandler http.HandlerFunc = func(w http.ResponseWriter, r *http.Request) {
+			altSvcValue := w.Header().Get(altSvcHeaderKey)
+
+			if altSvcValue != "" {
+				altSvcValue = strings.ReplaceAll(
+					altSvcValue,
+					listenInfo.HTTP3Info.AltSvcRewriteInfo.RewriteFrom,
+					listenInfo.HTTP3Info.AltSvcRewriteInfo.RewriteTo,
+				)
+				w.Header().Set(altSvcHeaderKey, altSvcValue)
+			}
+
+			serveHandler.ServeHTTP(w, r)
+		}
+
+		handler = altSvcRewriteHandler
+	}
+
+	log.Fatal(
+		http3.ListenAndServe(
+			listenInfo.ListenAddress,
+			listenInfo.TLSInfo.CertFile,
+			listenInfo.TLSInfo.KeyFile,
+			handler))
+}
+
 func runServer(listenInfo config.ListenInfo, serveHandler http.Handler) {
 	log.Printf("runServer listenInfo = %#v", listenInfo)
-	if listenInfo.TLSInfo.Enabled {
-		//redirectHandler := http.RedirectHandler("https://aaronr.digital:8443", 301)
-		handler := func(w http.ResponseWriter, r *http.Request) {
-			//if r.Host != "aaronr.digital:8443" {
-			//	redirectHandler.ServeHTTP(w, r)
-			//} else {
-			serveHandler.ServeHTTP(w, r)
-			//}
-		}
+
+	if listenInfo.HTTP3Info.Enabled {
+		runHTTP3Server(listenInfo, serveHandler)
+	} else if listenInfo.TLSInfo.Enabled {
 		log.Fatal(
-			http3.ListenAndServe(
+			http.ListenAndServeTLS(
 				listenInfo.ListenAddress,
 				listenInfo.TLSInfo.CertFile,
 				listenInfo.TLSInfo.KeyFile,
-				http.HandlerFunc(handler)))
+				serveHandler))
 	} else {
 		log.Fatal(
 			http.ListenAndServe(

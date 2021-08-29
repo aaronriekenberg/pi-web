@@ -2,20 +2,30 @@
   "logRequests": false,
   "listenInfoList": [
     {
-      "listenAddress": "[2a03:6000:6e63:627::166]:8443",
-      "tlsInfo": {
+      "http3Info": {
         "enabled": true,
         "certFile": "aaronr.digital.fullchain.pem",
-        "keyFile": "aaronr.digital.key"
-      }
+        "keyFile": "aaronr.digital.key",
+        "altSvcRewriteInfo": {
+          "enabled": true,
+          "rewriteFrom": ":8443",
+          "rewriteTo": ":443"
+        }
+      },
+      "listenAddress": "[2a03:6000:6e63:627::166]:8443"
     },
     {
-      "listenAddress": "46.23.89.166:8443",
-      "tlsInfo": {
+      "http3Info": {
         "enabled": true,
         "certFile": "aaronr.digital.fullchain.pem",
-        "keyFile": "aaronr.digital.key"
-      }
+        "keyFile": "aaronr.digital.key",
+        "altSvcRewriteInfo": {
+          "enabled": true,
+          "rewriteFrom": ":8443",
+          "rewriteTo": ":443"
+        }
+      },
+      "listenAddress": "46.23.89.166:8443"
     }
   ],
   "templatePageInfo": {
