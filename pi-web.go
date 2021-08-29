@@ -9,6 +9,7 @@ import (
 
 	gorillaHandlers "github.com/gorilla/handlers"
 	"github.com/kr/pretty"
+	"github.com/lucas-clemente/quic-go/http3"
 
 	"github.com/aaronriekenberg/pi-web/config"
 	"github.com/aaronriekenberg/pi-web/environment"
@@ -22,12 +23,20 @@ import (
 func runServer(listenInfo config.ListenInfo, serveHandler http.Handler) {
 	log.Printf("runServer listenInfo = %#v", listenInfo)
 	if listenInfo.TLSInfo.Enabled {
+		//redirectHandler := http.RedirectHandler("https://aaronr.digital:8443", 301)
+		handler := func(w http.ResponseWriter, r *http.Request) {
+			//if r.Host != "aaronr.digital:8443" {
+			//	redirectHandler.ServeHTTP(w, r)
+			//} else {
+			serveHandler.ServeHTTP(w, r)
+			//}
+		}
 		log.Fatal(
-			http.ListenAndServeTLS(
+			http3.ListenAndServe(
 				listenInfo.ListenAddress,
 				listenInfo.TLSInfo.CertFile,
 				listenInfo.TLSInfo.KeyFile,
-				serveHandler))
+				http.HandlerFunc(handler)))
 	} else {
 		log.Fatal(
 			http.ListenAndServe(
