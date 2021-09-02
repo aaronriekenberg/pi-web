@@ -1,6 +1,6 @@
 module github.com/aaronriekenberg/pi-web
 
-go 1.15
+go 1.16
 
 require (
 	github.com/felixge/httpsnoop v1.0.2 // indirect
