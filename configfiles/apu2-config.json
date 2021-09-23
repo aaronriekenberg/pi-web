@@ -2,30 +2,27 @@
   "logRequests": false,
   "listenInfoList": [
     {
-      "listenAddress": "192.168.1.1:8080",
-      "tlsInfo": {
+      "http3Info": {
         "enabled": true,
         "certFile": "cert.pem",
-        "keyFile": "key.pem"
-      }
-    },
-    {
-      "listenAddress": "[fd00:192:168:1::1]:8080",
-      "tlsInfo": {
-        "enabled": true,
-        "certFile": "cert.pem",
-        "keyFile": "key.pem"
-      }
+        "keyFile": "key.pem",
+        "altSvcRewriteInfo": {
+          "enabled": true,
+          "rewriteFrom": ":8443",
+          "rewriteTo": ":443"
+        }
+      },
+      "listenAddress": ":8443"
     }
   ],
   "templatePageInfo": {
     "cacheControlValue": "public, max-age=86400"
   },
   "mainPageInfo": {
-    "title": "apu2.domain"
+    "title": "aaronr.digital"
   },
   "pprofInfo": {
-    "enabled": true
+    "enabled": false
   },
   "staticFiles": [
     {
@@ -52,21 +49,27 @@
   "staticDirectories": [
     {
       "httpPath": "/pfstat/hour/",
-      "directoryPath": "/var/www/htdocs/apu2.domain/pfstat/hour",
+      "directoryPath": "/var/www/htdocs/aaronr.digital/pfstat/hour",
       "cacheControlValue": "public, max-age=150",
       "includeInMainPage": true
     },
     {
       "httpPath": "/pfstat/day/",
-      "directoryPath": "/var/www/htdocs/apu2.domain/pfstat/day",
+      "directoryPath": "/var/www/htdocs/aaronr.digital/pfstat/day",
       "cacheControlValue": "public, max-age=150",
       "includeInMainPage": true
     },
     {
       "httpPath": "/pfstat/week/",
-      "directoryPath": "/var/www/htdocs/apu2.domain/pfstat/week",
+      "directoryPath": "/var/www/htdocs/aaronr.digital/pfstat/week",
       "cacheControlValue": "public, max-age=150",
       "includeInMainPage": true
+    },
+    {
+      "httpPath": "/.well-known/acme-challenge/",
+      "directoryPath": "/var/www/acme",
+      "cacheControlValue": "max-age=0",
+      "includeInMainPage": false
     }
   ],
   "commandConfiguration": {
@@ -75,11 +78,11 @@
     "semaphoreAcquireTimeoutMilliseconds": 200,
     "commands": [
       {
-        "id": "arp_an",
-        "description": "arp -an",
-        "command": "/usr/sbin/arp",
+        "id": "df",
+        "description": "df",
+        "command": "df",
         "args": [
-          "-an"
+          "-h"
         ]
       },
       {
@@ -88,14 +91,6 @@
         "command": "ifconfig",
         "args": [
           "-a"
-        ]
-      },
-      {
-        "id": "ndp_an",
-        "description": "ndp -an",
-        "command": "/usr/sbin/ndp",
-        "args": [
-          "-an"
         ]
       },
       {
