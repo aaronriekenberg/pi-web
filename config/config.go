@@ -6,17 +6,16 @@ import (
 	"log"
 )
 
-type AltSvcRewriteInfo struct {
-	Enabled     bool   `json:"enabled"`
-	RewriteFrom string `json:"rewriteFrom"`
-	RewriteTo   string `json:"rewriteTo"`
+type AltSvcPortInfo struct {
+	OverrideAltSvcPortEnabled bool   `json:"overrideAltSvcPortEnabled"`
+	OverrideAltSvcPortValue   uint32 `json:"overrideAltSvcPortValue"`
 }
 
 type HTTP3Info struct {
-	Enabled           bool              `json:"enabled"`
-	CertFile          string            `json:"certFile"`
-	KeyFile           string            `json:"keyFile"`
-	AltSvcRewriteInfo AltSvcRewriteInfo `json:"altSvcRewriteInfo"`
+	Enabled        bool           `json:"enabled"`
+	CertFile       string         `json:"certFile"`
+	KeyFile        string         `json:"keyFile"`
+	AltSvcPortInfo AltSvcPortInfo `json:"altSvcPortInfo"`
 }
 
 type TLSInfo struct {

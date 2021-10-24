@@ -5,12 +5,10 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 
 	gorillaHandlers "github.com/gorilla/handlers"
 	"github.com/kr/pretty"
-	"github.com/lucas-clemente/quic-go/http3"
 
 	"github.com/aaronriekenberg/pi-web/config"
 	"github.com/aaronriekenberg/pi-web/environment"
@@ -21,47 +19,17 @@ import (
 	"github.com/aaronriekenberg/pi-web/handlers/proxy"
 )
 
-func runHTTP3Server(listenAddress string, http3Info config.HTTP3Info, serveHandler http.Handler) {
-	log.Printf("runHTTP3Server listenAddress = %q http3Info = %#v", listenAddress, http3Info)
-
-	handler := serveHandler
-
-	if http3Info.AltSvcRewriteInfo.Enabled {
-		const altSvcHeaderKey = "Alt-Svc"
-		altSvcRewriteFrom := http3Info.AltSvcRewriteInfo.RewriteFrom
-		altSvcRewriteTo := http3Info.AltSvcRewriteInfo.RewriteTo
-
-		var altSvcRewriteHandler http.HandlerFunc = func(w http.ResponseWriter, r *http.Request) {
-			altSvcValue := w.Header().Get(altSvcHeaderKey)
-
-			if altSvcValue != "" {
-				altSvcValue = strings.ReplaceAll(
-					altSvcValue,
-					altSvcRewriteFrom,
-					altSvcRewriteTo,
-				)
-				w.Header().Set(altSvcHeaderKey, altSvcValue)
-			}
-
-			serveHandler.ServeHTTP(w, r)
-		}
-
-		handler = altSvcRewriteHandler
-	}
-
-	log.Fatal(
-		http3.ListenAndServe(
-			listenAddress,
-			http3Info.CertFile,
-			http3Info.KeyFile,
-			handler))
-}
-
 func runServer(listenInfo config.ListenInfo, serveHandler http.Handler) {
 	log.Printf("runServer listenInfo = %#v", listenInfo)
 
 	if listenInfo.HTTP3Info.Enabled {
-		runHTTP3Server(listenInfo.ListenAddress, listenInfo.HTTP3Info, serveHandler)
+		log.Fatalf("runHTTP3Server error = %v",
+			runHTTP3Server(
+				listenInfo.ListenAddress,
+				listenInfo.HTTP3Info,
+				serveHandler,
+			),
+		)
 	} else if listenInfo.TLSInfo.Enabled {
 		log.Fatal(
 			http.ListenAndServeTLS(
