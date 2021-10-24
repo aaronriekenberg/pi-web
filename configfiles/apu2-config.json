@@ -6,10 +6,8 @@
         "enabled": true,
         "certFile": "cert.pem",
         "keyFile": "key.pem",
-        "altSvcPortInfo": {
-          "overrideAltSvcPortEnabled": true,
-          "overrideAltSvcPortValue": 443
-        }
+        "overrideAltSvcPortEnabled": true,
+        "overrideAltSvcPortValue": 443
       },
       "listenAddress": ":8443"
     }

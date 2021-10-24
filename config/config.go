@@ -6,16 +6,12 @@ import (
 	"log"
 )
 
-type AltSvcPortInfo struct {
+type HTTP3Info struct {
+	Enabled                   bool   `json:"enabled"`
+	CertFile                  string `json:"certFile"`
+	KeyFile                   string `json:"keyFile"`
 	OverrideAltSvcPortEnabled bool   `json:"overrideAltSvcPortEnabled"`
 	OverrideAltSvcPortValue   uint32 `json:"overrideAltSvcPortValue"`
-}
-
-type HTTP3Info struct {
-	Enabled        bool           `json:"enabled"`
-	CertFile       string         `json:"certFile"`
-	KeyFile        string         `json:"keyFile"`
-	AltSvcPortInfo AltSvcPortInfo `json:"altSvcPortInfo"`
 }
 
 type TLSInfo struct {
