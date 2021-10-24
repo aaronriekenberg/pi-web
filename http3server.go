@@ -12,6 +12,7 @@ import (
 )
 
 // See https://github.com/lucas-clemente/quic-go/blob/master/http3/server.go#L492
+// This function is needed so we can set quicServer.Port to http3Info.OverrideAltSvcPortValue.
 func runHTTP3Server(
 	listenAddress string,
 	http3Info config.HTTP3Info,
