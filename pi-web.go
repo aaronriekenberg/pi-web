@@ -23,10 +23,12 @@ func runServer(listenInfo config.ListenInfo, serveHandler http.Handler) {
 	log.Printf("runServer listenInfo = %#v", listenInfo)
 
 	if listenInfo.HTTP3Info.Enabled {
-		runHTTP3Server(
-			listenInfo.ListenAddress,
-			listenInfo.HTTP3Info,
-			serveHandler,
+		log.Fatalf("runHTTP3Server error %v",
+			runHTTP3Server(
+				listenInfo.ListenAddress,
+				listenInfo.HTTP3Info,
+				serveHandler,
+			),
 		)
 	} else if listenInfo.TLSInfo.Enabled {
 		log.Fatal(

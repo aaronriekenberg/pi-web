@@ -1,7 +1,9 @@
 package main
 
 import (
+	"crypto/tls"
 	"log"
+	"net"
 	"net/http"
 
 	"github.com/lucas-clemente/quic-go/http3"
@@ -15,41 +17,81 @@ func runHTTP3Server(
 	listenAddress string,
 	http3Info config.HTTP3Info,
 	handler http.Handler,
-) {
+) error {
 
 	log.Printf("runHTTP3Server listenAddress = %q http3Info = %+v", listenAddress, http3Info)
 
-	// Start the servers
-	httpServer := &http.Server{
-		Addr: listenAddress,
+	// Load certs
+	var err error
+	certs := make([]tls.Certificate, 1)
+	certs[0], err = tls.LoadX509KeyPair(http3Info.CertFile, http3Info.KeyFile)
+	if err != nil {
+		return err
+	}
+	// We currently only use the cert-related stuff from tls.Config,
+	// so we don't need to make a full copy.
+	config := &tls.Config{
+		Certificates: certs,
 	}
 
-	http3Server := &http3.Server{
+	// Open the listeners
+	udpAddr, err := net.ResolveUDPAddr("udp", listenAddress)
+	if err != nil {
+		return err
+	}
+	udpConn, err := net.ListenUDP("udp", udpAddr)
+	if err != nil {
+		return err
+	}
+	defer udpConn.Close()
+
+	tcpAddr, err := net.ResolveTCPAddr("tcp", listenAddress)
+	if err != nil {
+		return err
+	}
+	tcpConn, err := net.ListenTCP("tcp", tcpAddr)
+	if err != nil {
+		return err
+	}
+	defer tcpConn.Close()
+
+	tlsConn := tls.NewListener(tcpConn, config)
+	defer tlsConn.Close()
+
+	// Start the servers
+	httpServer := &http.Server{
+		Addr:      listenAddress,
+		TLSConfig: config,
+	}
+
+	quicServer := &http3.Server{
 		Server: httpServer,
 	}
 
 	if http3Info.OverrideAltSvcPortEnabled {
-		http3Server.Port = http3Info.OverrideAltSvcPortValue
+		quicServer.Port = http3Info.OverrideAltSvcPortValue
 	}
 
 	httpServer.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http3Server.SetQuicHeaders(w.Header())
+		quicServer.SetQuicHeaders(w.Header())
 		handler.ServeHTTP(w, r)
 	})
 
 	hErr := make(chan error)
-	h3Err := make(chan error)
+	qErr := make(chan error)
 	go func() {
-		hErr <- httpServer.ListenAndServeTLS(http3Info.CertFile, http3Info.KeyFile)
+		hErr <- httpServer.Serve(tlsConn)
 	}()
 	go func() {
-		h3Err <- http3Server.ListenAndServeTLS(http3Info.CertFile, http3Info.KeyFile)
+		qErr <- quicServer.Serve(udpConn)
 	}()
 
 	select {
 	case err := <-hErr:
-		log.Fatalf("got http server error %v", err)
-	case err := <-h3Err:
-		log.Fatalf("got http3 server error %v", err)
+		quicServer.Close()
+		return err
+	case err := <-qErr:
+		// Cannot close the HTTP server or wait for requests to complete properly :/
+		return err
 	}
 }
