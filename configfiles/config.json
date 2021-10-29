@@ -2,12 +2,14 @@
   "logRequests": true,
   "listenInfoList": [
     {
-      "listenAddress": ":8000",
-      "tlsInfo": {
+      "http3Info": {
         "enabled": true,
         "certFile": "cert.pem",
-        "keyFile": "key.pem"
-      }
+        "keyFile": "key.pem",
+        "overrideAltSvcPortEnabled": false,
+        "overrideAltSvcPortValue": 8443
+      },
+      "listenAddress": ":8443"
     }
   ],
   "templatePageInfo": {
