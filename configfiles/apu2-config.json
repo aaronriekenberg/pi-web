@@ -4,8 +4,8 @@
     {
       "http3Info": {
         "enabled": true,
-        "certFile": "cert.pem",
-        "keyFile": "key.pem",
+        "certFile": "aaronr.digital.fullchain.pem",
+        "keyFile": "aaronr.digital.key",
         "overrideAltSvcPortEnabled": true,
         "overrideAltSvcPortValue": 443
       },
