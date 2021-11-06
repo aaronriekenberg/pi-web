@@ -10,6 +10,9 @@
         "overrideAltSvcPortValue": 443
       },
       "listenAddress": ":8443"
+    },
+    {
+      "listenAddress": ":8080"
     }
   ],
   "templatePageInfo": {
