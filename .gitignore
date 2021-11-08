@@ -6,5 +6,6 @@
 pi-web
 pi-web-linux*
 logs/output*
+logs/lock*
 output
 output.prev

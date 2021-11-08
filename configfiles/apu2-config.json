@@ -1,5 +1,5 @@
 {
-  "logRequests": false,
+  "logRequests": true,
   "listenInfoList": [
     {
       "http3Info": {
