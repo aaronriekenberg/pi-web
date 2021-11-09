@@ -9,10 +9,10 @@
         "overrideAltSvcPortEnabled": true,
         "overrideAltSvcPortValue": 443
       },
-      "listenAddress": ":8443"
+      "listenAddress": "127.0.0.1:8443"
     },
     {
-      "listenAddress": ":8080"
+      "listenAddress": "127.0.0.1:8080"
     },
     {
       "http3Info": {
