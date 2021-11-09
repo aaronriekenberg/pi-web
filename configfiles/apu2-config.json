@@ -13,6 +13,19 @@
     },
     {
       "listenAddress": ":8080"
+    },
+    {
+      "http3Info": {
+        "enabled": true,
+        "certFile": "aaronr.digital.fullchain.pem",
+        "keyFile": "aaronr.digital.key",
+        "overrideAltSvcPortEnabled": true,
+        "overrideAltSvcPortValue": 443
+      },
+      "listenAddress": "[::1]:8443"
+    },
+    {
+      "listenAddress": "[::1]:8080"
     }
   ],
   "templatePageInfo": {
