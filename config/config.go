@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
+	"net/http"
+	"time"
 )
 
 type HTTP3Info struct {
@@ -20,10 +22,24 @@ type TLSInfo struct {
 	KeyFile  string `json:"keyFile"`
 }
 
+type ServerTimeouts struct {
+	ReadTimeoutMilliseconds  int `json:"readTimeoutMilliseconds"`
+	WriteTimeoutMilliseconds int `json:"writeTimeoutMilliseconds"`
+}
+
+func (serverTimeouts ServerTimeouts) ApplyToHTTPServer(httpServer *http.Server) {
+	httpServer.ReadTimeout = time.Duration(serverTimeouts.ReadTimeoutMilliseconds) * time.Millisecond
+	httpServer.WriteTimeout = time.Duration(serverTimeouts.WriteTimeoutMilliseconds) * time.Millisecond
+
+	log.Printf("set httpServer.ReadTimeout = %v", httpServer.ReadTimeout)
+	log.Printf("set httpServer.WriteTimeout = %v", httpServer.WriteTimeout)
+}
+
 type ListenInfo struct {
-	HTTP3Info     HTTP3Info `json:"http3Info"`
-	TLSInfo       TLSInfo   `json:"tlsInfo"`
-	ListenAddress string    `json:"listenAddress"`
+	HTTP3Info      HTTP3Info      `json:"http3Info"`
+	TLSInfo        TLSInfo        `json:"tlsInfo"`
+	ListenAddress  string         `json:"listenAddress"`
+	ServerTimeouts ServerTimeouts `json:"serverTimeouts"`
 }
 
 type TemplatePageInfo struct {

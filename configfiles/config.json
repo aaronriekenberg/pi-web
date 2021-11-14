@@ -9,6 +9,10 @@
         "overrideAltSvcPortEnabled": false,
         "overrideAltSvcPortValue": 8443
       },
+      "serverTimeouts": {
+        "readTimeoutMilliseconds": 30000,
+        "writeTimeoutMilliseconds": 30000
+      },
       "listenAddress": ":8443"
     }
   ],

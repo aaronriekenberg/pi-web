@@ -9,10 +9,18 @@
         "overrideAltSvcPortEnabled": true,
         "overrideAltSvcPortValue": 443
       },
-      "listenAddress": "127.0.0.1:8443"
+      "listenAddress": "127.0.0.1:8443",
+      "serverTimeouts": {
+        "readTimeoutMilliseconds": 30000,
+        "writeTimeoutMilliseconds": 30000
+      }
     },
     {
-      "listenAddress": "127.0.0.1:8080"
+      "listenAddress": "127.0.0.1:8080",
+      "serverTimeouts": {
+        "readTimeoutMilliseconds": 30000,
+        "writeTimeoutMilliseconds": 30000
+      }
     },
     {
       "http3Info": {
@@ -22,10 +30,18 @@
         "overrideAltSvcPortEnabled": true,
         "overrideAltSvcPortValue": 443
       },
-      "listenAddress": "[::1]:8443"
+      "listenAddress": "[::1]:8443",
+      "serverTimeouts": {
+        "readTimeoutMilliseconds": 30000,
+        "writeTimeoutMilliseconds": 30000
+      }
     },
     {
-      "listenAddress": "[::1]:8080"
+      "listenAddress": "[::1]:8080",
+      "serverTimeouts": {
+        "readTimeoutMilliseconds": 30000,
+        "writeTimeoutMilliseconds": 30000
+      }
     }
   ],
   "templatePageInfo": {

@@ -13,13 +13,15 @@ import (
 
 // See https://github.com/lucas-clemente/quic-go/blob/master/http3/server.go#L492
 // This function is needed so we can set quicServer.Port to http3Info.OverrideAltSvcPortValue.
+// Also read and write timeouts are set on the TCP http server to listenInfo.ServerTimeouts.
 func runHTTP3Server(
-	listenAddress string,
-	http3Info config.HTTP3Info,
+	listenInfo config.ListenInfo,
 	handler http.Handler,
 ) error {
 
-	log.Printf("runHTTP3Server listenAddress = %q http3Info = %+v", listenAddress, http3Info)
+	log.Printf("runHTTP3Server listenInfo = %+v", listenInfo)
+
+	http3Info := &listenInfo.HTTP3Info
 
 	// Load certs
 	var err error
@@ -35,7 +37,7 @@ func runHTTP3Server(
 	}
 
 	// Open the listeners
-	udpAddr, err := net.ResolveUDPAddr("udp", listenAddress)
+	udpAddr, err := net.ResolveUDPAddr("udp", listenInfo.ListenAddress)
 	if err != nil {
 		return err
 	}
@@ -45,7 +47,7 @@ func runHTTP3Server(
 	}
 	defer udpConn.Close()
 
-	tcpAddr, err := net.ResolveTCPAddr("tcp", listenAddress)
+	tcpAddr, err := net.ResolveTCPAddr("tcp", listenInfo.ListenAddress)
 	if err != nil {
 		return err
 	}
@@ -60,9 +62,10 @@ func runHTTP3Server(
 
 	// Start the servers
 	httpServer := &http.Server{
-		Addr:      listenAddress,
+		Addr:      listenInfo.ListenAddress,
 		TLSConfig: config,
 	}
+	listenInfo.ServerTimeouts.ApplyToHTTPServer(httpServer)
 
 	quicServer := &http3.Server{
 		Server: httpServer,
