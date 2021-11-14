@@ -144,7 +144,7 @@ func requestInfoHandlerFunc() http.HandlerFunc {
 		fmt.Fprintf(&buffer, "%#v", r.TLS)
 		buffer.WriteString("\n\n")
 
-		buffer.WriteString("Headers:\n")
+		buffer.WriteString("Request Headers:\n")
 		buffer.WriteString(httpHeaderToString(r.Header))
 
 		var htmlBuilder strings.Builder
@@ -178,6 +178,6 @@ func installPprofHandlers(pprofInfo config.PprofInfo, serveMux *http.ServeMux) {
 func CreateDebugHandler(configuration *config.Configuration, environment *environment.Environment, serveMux *http.ServeMux) {
 	serveMux.Handle("/configuration", configurationHandlerFunction(configuration))
 	serveMux.Handle("/environment", environmentHandlerFunction(environment))
-	serveMux.Handle("/reqinfo", requestInfoHandlerFunc())
+	serveMux.Handle("/request_info", requestInfoHandlerFunc())
 	installPprofHandlers(configuration.PprofInfo, serveMux)
 }
