@@ -22,24 +22,24 @@ type TLSInfo struct {
 	KeyFile  string `json:"keyFile"`
 }
 
-type ServerTimeouts struct {
+type HTTPServerTimeouts struct {
 	ReadTimeoutMilliseconds  int `json:"readTimeoutMilliseconds"`
 	WriteTimeoutMilliseconds int `json:"writeTimeoutMilliseconds"`
 }
 
-func (serverTimeouts ServerTimeouts) ApplyToHTTPServer(httpServer *http.Server) {
-	httpServer.ReadTimeout = time.Duration(serverTimeouts.ReadTimeoutMilliseconds) * time.Millisecond
-	httpServer.WriteTimeout = time.Duration(serverTimeouts.WriteTimeoutMilliseconds) * time.Millisecond
+func (httpServerTimeouts HTTPServerTimeouts) ApplyToHTTPServer(httpServer *http.Server) {
+	httpServer.ReadTimeout = time.Duration(httpServerTimeouts.ReadTimeoutMilliseconds) * time.Millisecond
+	httpServer.WriteTimeout = time.Duration(httpServerTimeouts.WriteTimeoutMilliseconds) * time.Millisecond
 
 	log.Printf("set httpServer.ReadTimeout = %v", httpServer.ReadTimeout)
 	log.Printf("set httpServer.WriteTimeout = %v", httpServer.WriteTimeout)
 }
 
 type ListenInfo struct {
-	HTTP3Info      HTTP3Info      `json:"http3Info"`
-	TLSInfo        TLSInfo        `json:"tlsInfo"`
-	ListenAddress  string         `json:"listenAddress"`
-	ServerTimeouts ServerTimeouts `json:"serverTimeouts"`
+	HTTP3Info          HTTP3Info          `json:"http3Info"`
+	TLSInfo            TLSInfo            `json:"tlsInfo"`
+	ListenAddress      string             `json:"listenAddress"`
+	HTTPServerTimeouts HTTPServerTimeouts `json:"httpServerTimeouts"`
 }
 
 type TemplatePageInfo struct {

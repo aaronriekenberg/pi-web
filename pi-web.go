@@ -35,7 +35,7 @@ func runServer(listenInfo config.ListenInfo, serveHandler http.Handler) {
 			Addr:    listenInfo.ListenAddress,
 			Handler: serveHandler,
 		}
-		listenInfo.ServerTimeouts.ApplyToHTTPServer(server)
+		listenInfo.HTTPServerTimeouts.ApplyToHTTPServer(server)
 
 		if listenInfo.TLSInfo.Enabled {
 			log.Fatalf(
