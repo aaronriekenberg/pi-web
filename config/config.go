@@ -8,16 +8,7 @@ import (
 	"time"
 )
 
-type HTTP3Info struct {
-	Enabled                   bool   `json:"enabled"`
-	CertFile                  string `json:"certFile"`
-	KeyFile                   string `json:"keyFile"`
-	OverrideAltSvcPortEnabled bool   `json:"overrideAltSvcPortEnabled"`
-	OverrideAltSvcPortValue   uint32 `json:"overrideAltSvcPortValue"`
-}
-
 type TLSInfo struct {
-	Enabled  bool   `json:"enabled"`
 	CertFile string `json:"certFile"`
 	KeyFile  string `json:"keyFile"`
 }
@@ -27,7 +18,11 @@ type HTTPServerTimeouts struct {
 	WriteTimeoutMilliseconds int `json:"writeTimeoutMilliseconds"`
 }
 
-func (httpServerTimeouts HTTPServerTimeouts) ApplyToHTTPServer(httpServer *http.Server) {
+func (httpServerTimeouts *HTTPServerTimeouts) ApplyToHTTPServer(httpServer *http.Server) {
+	if httpServerTimeouts == nil {
+		return
+	}
+
 	httpServer.ReadTimeout = time.Duration(httpServerTimeouts.ReadTimeoutMilliseconds) * time.Millisecond
 	httpServer.WriteTimeout = time.Duration(httpServerTimeouts.WriteTimeoutMilliseconds) * time.Millisecond
 
@@ -35,11 +30,22 @@ func (httpServerTimeouts HTTPServerTimeouts) ApplyToHTTPServer(httpServer *http.
 	log.Printf("set httpServer.WriteTimeout = %v", httpServer.WriteTimeout)
 }
 
-type ListenInfo struct {
-	HTTP3Info          HTTP3Info          `json:"http3Info"`
-	TLSInfo            TLSInfo            `json:"tlsInfo"`
-	ListenAddress      string             `json:"listenAddress"`
-	HTTPServerTimeouts HTTPServerTimeouts `json:"httpServerTimeouts"`
+type HTTP3ServerInfo struct {
+	TLSInfo                 TLSInfo             `json:"tlsInfo"`
+	OverrideAltSvcPortValue *uint32             `json:"overrideAltSvcPortValue"`
+	HTTPServerTimeouts      *HTTPServerTimeouts `json:"httpServerTimeouts"`
+	ListenAddress           string              `json:"listenAddress"`
+}
+
+type HTTPServerInfo struct {
+	TLSInfo            *TLSInfo            `json:"tlsInfo"`
+	HTTPServerTimeouts *HTTPServerTimeouts `json:"httpServerTimeouts"`
+	ListenAddress      string              `json:"listenAddress"`
+}
+
+type ServerInfo struct {
+	HTTP3ServerInfo *HTTP3ServerInfo `json:"http3ServerInfo"`
+	HTTPServerInfo  *HTTPServerInfo  `json:"httpServerInfo"`
 }
 
 type TemplatePageInfo struct {
@@ -89,7 +95,7 @@ type ProxyInfo struct {
 
 type Configuration struct {
 	LogRequests          bool                  `json:"logRequests"`
-	ListenInfoList       []ListenInfo          `json:"listenInfoList"`
+	ServerInfoList       []ServerInfo          `json:"serverInfoList"`
 	TemplatePageInfo     TemplatePageInfo      `json:"templatePageInfo"`
 	MainPageInfo         MainPageInfo          `json:"mainPageInfo"`
 	PprofInfo            PprofInfo             `json:"pprofInfo"`

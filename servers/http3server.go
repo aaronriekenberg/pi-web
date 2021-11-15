@@ -1,4 +1,4 @@
-package main
+package servers
 
 import (
 	"crypto/tls"
@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 
+	"github.com/kr/pretty"
 	"github.com/lucas-clemente/quic-go/http3"
 
 	"github.com/aaronriekenberg/pi-web/config"
@@ -14,19 +15,17 @@ import (
 // See https://github.com/lucas-clemente/quic-go/blob/master/http3/server.go#L492
 // This function is needed so we can set quicServer.Port to http3Info.OverrideAltSvcPortValue.
 // Also read and write timeouts are set on the TCP http server to listenInfo.HTTPServerTimeouts.
-func runHTTP3Server(
-	listenInfo config.ListenInfo,
+func RunHTTP3Server(
+	http3ServerInfo config.HTTP3ServerInfo,
 	handler http.Handler,
 ) error {
 
-	log.Printf("runHTTP3Server listenInfo = %+v", listenInfo)
-
-	http3Info := &listenInfo.HTTP3Info
+	log.Printf("runHTTP3Server http3ServerInfo:\n%# v", pretty.Formatter(http3ServerInfo))
 
 	// Load certs
 	var err error
 	certs := make([]tls.Certificate, 1)
-	certs[0], err = tls.LoadX509KeyPair(http3Info.CertFile, http3Info.KeyFile)
+	certs[0], err = tls.LoadX509KeyPair(http3ServerInfo.TLSInfo.CertFile, http3ServerInfo.TLSInfo.KeyFile)
 	if err != nil {
 		return err
 	}
@@ -37,7 +36,7 @@ func runHTTP3Server(
 	}
 
 	// Open the listeners
-	udpAddr, err := net.ResolveUDPAddr("udp", listenInfo.ListenAddress)
+	udpAddr, err := net.ResolveUDPAddr("udp", http3ServerInfo.ListenAddress)
 	if err != nil {
 		return err
 	}
@@ -47,7 +46,7 @@ func runHTTP3Server(
 	}
 	defer udpConn.Close()
 
-	tcpAddr, err := net.ResolveTCPAddr("tcp", listenInfo.ListenAddress)
+	tcpAddr, err := net.ResolveTCPAddr("tcp", http3ServerInfo.ListenAddress)
 	if err != nil {
 		return err
 	}
@@ -62,17 +61,17 @@ func runHTTP3Server(
 
 	// Start the servers
 	httpServer := &http.Server{
-		Addr:      listenInfo.ListenAddress,
+		Addr:      http3ServerInfo.ListenAddress,
 		TLSConfig: config,
 	}
-	listenInfo.HTTPServerTimeouts.ApplyToHTTPServer(httpServer)
+	http3ServerInfo.HTTPServerTimeouts.ApplyToHTTPServer(httpServer)
 
 	quicServer := &http3.Server{
 		Server: httpServer,
 	}
 
-	if http3Info.OverrideAltSvcPortEnabled {
-		quicServer.Port = http3Info.OverrideAltSvcPortValue
+	if http3ServerInfo.OverrideAltSvcPortValue != nil {
+		quicServer.Port = *http3ServerInfo.OverrideAltSvcPortValue
 	}
 
 	httpServer.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

@@ -1,46 +1,50 @@
 {
   "logRequests": true,
-  "listenInfoList": [
+  "serverInfoList": [
     {
-      "http3Info": {
-        "enabled": true,
-        "certFile": "aaronr.digital.fullchain.pem",
-        "keyFile": "aaronr.digital.key",
-        "overrideAltSvcPortEnabled": true,
-        "overrideAltSvcPortValue": 443
-      },
-      "listenAddress": "127.0.0.1:8443",
-      "httpServerTimeouts": {
-        "readTimeoutMilliseconds": 30000,
-        "writeTimeoutMilliseconds": 30000
+      "http3ServerInfo": {
+        "tlsInfo": {
+          "certFile": "aaronr.digital.fullchain.pem",
+          "keyFile": "aaronr.digital.key"
+        },
+        "overrideAltSvcPortValue": 443,
+        "httpServerTimeouts": {
+          "readTimeoutMilliseconds": 30000,
+          "writeTimeoutMilliseconds": 30000
+        },
+        "listenAddress": "127.0.0.1:8443"
       }
     },
     {
-      "listenAddress": "127.0.0.1:8080",
-      "httpServerTimeouts": {
-        "readTimeoutMilliseconds": 30000,
-        "writeTimeoutMilliseconds": 30000
+      "httpServerInfo": {
+        "httpServerTimeouts": {
+          "readTimeoutMilliseconds": 30000,
+          "writeTimeoutMilliseconds": 30000
+        },
+        "listenAddress": "127.0.0.1:8080"
       }
     },
     {
-      "http3Info": {
-        "enabled": true,
-        "certFile": "aaronr.digital.fullchain.pem",
-        "keyFile": "aaronr.digital.key",
-        "overrideAltSvcPortEnabled": true,
-        "overrideAltSvcPortValue": 443
-      },
-      "listenAddress": "[::1]:8443",
-      "httpServerTimeouts": {
-        "readTimeoutMilliseconds": 30000,
-        "writeTimeoutMilliseconds": 30000
+      "http3ServerInfo": {
+        "tlsInfo": {
+          "certFile": "aaronr.digital.fullchain.pem",
+          "keyFile": "aaronr.digital.key"
+        },
+        "overrideAltSvcPortValue": 443,
+        "httpServerTimeouts": {
+          "readTimeoutMilliseconds": 30000,
+          "writeTimeoutMilliseconds": 30000
+        },
+        "listenAddress": "[::1]:8443"
       }
     },
     {
-      "listenAddress": "[::1]:8080",
-      "httpServerTimeouts": {
-        "readTimeoutMilliseconds": 30000,
-        "writeTimeoutMilliseconds": 30000
+      "httpServerInfo": {
+        "httpServerTimeouts": {
+          "readTimeoutMilliseconds": 30000,
+          "writeTimeoutMilliseconds": 30000
+        },
+        "listenAddress": "[::1]:8080"
       }
     }
   ],

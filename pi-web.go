@@ -17,41 +17,31 @@ import (
 	"github.com/aaronriekenberg/pi-web/handlers/file"
 	"github.com/aaronriekenberg/pi-web/handlers/mainpage"
 	"github.com/aaronriekenberg/pi-web/handlers/proxy"
+	"github.com/aaronriekenberg/pi-web/servers"
 )
 
-func runServer(listenInfo config.ListenInfo, serveHandler http.Handler) {
-	log.Printf("runServer listenInfo = %#v", listenInfo)
+func runServer(serverInfo config.ServerInfo, serveHandler http.Handler) {
+	log.Printf("runServer serverInfo = %#v", serverInfo)
 
-	if listenInfo.HTTP3Info.Enabled {
+	if serverInfo.HTTP3ServerInfo != nil {
 		log.Fatalf(
-			"runHTTP3Server error %v",
-			runHTTP3Server(
-				listenInfo,
+			"RunHTTP3Server error %v",
+			servers.RunHTTP3Server(
+				*serverInfo.HTTP3ServerInfo,
 				serveHandler,
 			),
 		)
-	} else {
-		server := &http.Server{
-			Addr:    listenInfo.ListenAddress,
-			Handler: serveHandler,
-		}
-		listenInfo.HTTPServerTimeouts.ApplyToHTTPServer(server)
-
-		if listenInfo.TLSInfo.Enabled {
-			log.Fatalf(
-				"ListenAndServeTLS error %v",
-				server.ListenAndServeTLS(
-					listenInfo.TLSInfo.CertFile,
-					listenInfo.TLSInfo.KeyFile,
-				),
-			)
-		} else {
-			log.Fatalf(
-				"ListenAndServe error %v",
-				server.ListenAndServe(),
-			)
-		}
+	} else if serverInfo.HTTPServerInfo != nil {
+		log.Fatalf(
+			"RunHTTPServer error %v",
+			servers.RunHTTPServer(
+				*serverInfo.HTTPServerInfo,
+				serveHandler,
+			),
+		)
 	}
+
+	log.Fatalf("invalid serverInfo %+v", serverInfo)
 }
 
 func awaitShutdownSignal() {
@@ -93,8 +83,8 @@ func main() {
 		serveHandler = gorillaHandlers.LoggingHandler(os.Stdout, serveMux)
 	}
 
-	for _, listenInfo := range configuration.ListenInfoList {
-		go runServer(listenInfo, serveHandler)
+	for _, serverInfo := range configuration.ServerInfoList {
+		go runServer(serverInfo, serveHandler)
 	}
 
 	awaitShutdownSignal()

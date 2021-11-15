@@ -1,19 +1,19 @@
 {
   "logRequests": true,
-  "listenInfoList": [
+  "serverInfoList": [
     {
-      "http3Info": {
-        "enabled": true,
-        "certFile": "cert.pem",
-        "keyFile": "key.pem",
-        "overrideAltSvcPortEnabled": false,
-        "overrideAltSvcPortValue": 8443
-      },
-      "httpServerTimeouts": {
-        "readTimeoutMilliseconds": 30000,
-        "writeTimeoutMilliseconds": 30000
-      },
-      "listenAddress": ":8443"
+      "http3ServerInfo": {
+        "tlsInfo": {
+          "certFile": "cert.pem",
+          "keyFile": "key.pem"
+        },
+        "overrideAltSvcPortValue": 8443,
+        "httpServerTimeouts": {
+          "readTimeoutMilliseconds": 30000,
+          "writeTimeoutMilliseconds": 30000
+        },
+        "listenAddress": ":8443"
+      }
     }
   ],
   "templatePageInfo": {
