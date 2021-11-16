@@ -20,30 +20,6 @@ import (
 	"github.com/aaronriekenberg/pi-web/servers"
 )
 
-func runServer(serverInfo config.ServerInfo, serveHandler http.Handler) {
-	log.Printf("runServer serverInfo = %#v", serverInfo)
-
-	if serverInfo.HTTP3ServerInfo != nil {
-		log.Fatalf(
-			"RunHTTP3Server error %v",
-			servers.RunHTTP3Server(
-				*serverInfo.HTTP3ServerInfo,
-				serveHandler,
-			),
-		)
-	} else if serverInfo.HTTPServerInfo != nil {
-		log.Fatalf(
-			"RunHTTPServer error %v",
-			servers.RunHTTPServer(
-				*serverInfo.HTTPServerInfo,
-				serveHandler,
-			),
-		)
-	}
-
-	log.Fatalf("invalid serverInfo %+v", serverInfo)
-}
-
 func awaitShutdownSignal() {
 	sig := make(chan os.Signal)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
@@ -83,9 +59,12 @@ func main() {
 		serveHandler = gorillaHandlers.LoggingHandler(os.Stdout, serveMux)
 	}
 
-	for _, serverInfo := range configuration.ServerInfoList {
-		go runServer(serverInfo, serveHandler)
-	}
+	servers.StartServers(
+		configuration.ServerInfoList,
+		serveHandler,
+	)
+
+	log.Printf("after StartServers")
 
 	awaitShutdownSignal()
 }

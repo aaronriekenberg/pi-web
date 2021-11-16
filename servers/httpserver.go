@@ -4,11 +4,12 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/aaronriekenberg/pi-web/config"
 	"github.com/kr/pretty"
+
+	"github.com/aaronriekenberg/pi-web/config"
 )
 
-func RunHTTPServer(
+func runHTTPServer(
 	httpServerInfo config.HTTPServerInfo,
 	serveHandler http.Handler,
 ) error {
