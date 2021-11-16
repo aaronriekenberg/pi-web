@@ -56,7 +56,7 @@ func main() {
 
 	var serveHandler http.Handler = serveMux
 	if configuration.LogRequests {
-		serveHandler = gorillaHandlers.LoggingHandler(os.Stdout, serveMux)
+		serveHandler = gorillaHandlers.CombinedLoggingHandler(os.Stdout, serveMux)
 	}
 
 	servers.StartServers(
