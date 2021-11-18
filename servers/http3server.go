@@ -13,8 +13,8 @@ import (
 )
 
 // See https://github.com/lucas-clemente/quic-go/blob/master/http3/server.go#L492
-// This function is needed so we can set quicServer.Port to http3Info.OverrideAltSvcPortValue.
-// Also read and write timeouts are set on the TCP http server to listenInfo.HTTPServerTimeouts.
+// This function is needed so we can set quicServer.Port to http3ServerInfo.OverrideAltSvcPortValue.
+// Also read and write timeouts are set on the TCP http server to http3ServerInfo.HTTPServerTimeouts.
 func runHTTP3Server(
 	http3ServerInfo config.HTTP3ServerInfo,
 	handler http.Handler,
