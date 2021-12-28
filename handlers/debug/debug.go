@@ -154,7 +154,9 @@ func requestInfoHandlerFunc() http.HandlerFunc {
 		}
 
 		if err := templates.Templates.ExecuteTemplate(&htmlBuilder, templates.DebugTemplateFile, debugHTMLData); err != nil {
-			log.Fatalf("error executing request info page template %v", err)
+			log.Printf("error executing request info page template %v", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 
 		htmlString := htmlBuilder.String()
