@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/gorilla/handlers v1.5.1
 	github.com/kr/pretty v0.3.0
-	github.com/lucas-clemente/quic-go v0.24.0
+	github.com/lucas-clemente/quic-go v0.25.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 )
 
@@ -18,12 +18,13 @@ require (
 	github.com/marten-seemann/qpack v0.2.1 // indirect
 	github.com/marten-seemann/qtls-go1-16 v0.1.4 // indirect
 	github.com/marten-seemann/qtls-go1-17 v0.1.0 // indirect
+	github.com/marten-seemann/qtls-go1-18 v0.1.0-beta.1 // indirect
 	github.com/nxadm/tail v1.4.8 // indirect
 	github.com/onsi/ginkgo v1.16.5 // indirect
 	github.com/rogpeppe/go-internal v1.8.1 // indirect
 	golang.org/x/crypto v0.0.0-20220112180741-5e0467b6c7ce // indirect
 	golang.org/x/mod v0.5.1 // indirect
-	golang.org/x/net v0.0.0-20220114011407-0dd24b26b47d // indirect
+	golang.org/x/net v0.0.0-20220121210141-e204ce36a2ba // indirect
 	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.1.8 // indirect
