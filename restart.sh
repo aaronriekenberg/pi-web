@@ -9,4 +9,4 @@ sleep 2
 
 export PATH=${HOME}/bin:$PATH
 
-nohup ./pi-web $CONFIG_FILE 2>&1 | simplerotate logs &
+nohup ./pi-web $CONFIG_FILE 2>&1 | go-simplerotate logs &
