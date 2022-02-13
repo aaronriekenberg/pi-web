@@ -26,13 +26,12 @@ func (httpServerTimeouts *HTTPServerTimeouts) ApplyToHTTPServer(httpServer *http
 	httpServer.ReadTimeout = time.Duration(httpServerTimeouts.ReadTimeoutMilliseconds) * time.Millisecond
 	httpServer.WriteTimeout = time.Duration(httpServerTimeouts.WriteTimeoutMilliseconds) * time.Millisecond
 
-	log.Printf("set httpServer.ReadTimeout = %v", httpServer.ReadTimeout)
-	log.Printf("set httpServer.WriteTimeout = %v", httpServer.WriteTimeout)
+	log.Printf("set httpServer.ReadTimeout = %v httpServer.WriteTimeout = %v", httpServer.ReadTimeout, httpServer.WriteTimeout)
 }
 
 type HTTP3ServerInfo struct {
 	TLSInfo                 TLSInfo             `json:"tlsInfo"`
-	OverrideAltSvcPortValue *uint32             `json:"overrideAltSvcPortValue"`
+	OverrideAltSvcPortValue *int                `json:"overrideAltSvcPortValue"`
 	HTTPServerTimeouts      *HTTPServerTimeouts `json:"httpServerTimeouts"`
 	ListenAddress           string              `json:"listenAddress"`
 }

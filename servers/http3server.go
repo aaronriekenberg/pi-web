@@ -71,7 +71,7 @@ func runHTTP3Server(
 	}
 
 	if http3ServerInfo.OverrideAltSvcPortValue != nil {
-		quicServer.Port = *http3ServerInfo.OverrideAltSvcPortValue
+		quicServer.Port = uint32(*http3ServerInfo.OverrideAltSvcPortValue)
 	}
 
 	httpServer.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
