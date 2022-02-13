@@ -15,7 +15,7 @@ import (
 )
 
 func awaitShutdownSignal() {
-	sig := make(chan os.Signal)
+	sig := make(chan os.Signal, 2)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
 	s := <-sig
 	log.Fatalf("Signal (%v) received, stopping", s)
