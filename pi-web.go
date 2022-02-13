@@ -33,8 +33,7 @@ func main() {
 	configuration := config.ReadConfiguration(configFile)
 	log.Printf("configuration:\n%# v", pretty.Formatter(configuration))
 
-	environment := environment.GetEnvironment()
-	log.Printf("environment:\n%# v", pretty.Formatter(environment))
+	log.Printf("environment:\n%# v", pretty.Formatter(environment.GetEnvironment()))
 
 	serveHandler := handlers.CreateHandlers(
 		configuration,
