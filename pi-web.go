@@ -25,7 +25,7 @@ func main() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds)
 
 	if len(os.Args) != 2 {
-		log.Fatalf("Usage: %v <config yml file>", os.Args[0])
+		log.Fatalf("Usage: %v <config json file>", os.Args[0])
 	}
 
 	configFile := os.Args[1]
