@@ -72,7 +72,8 @@ func configurationHandlerFunction(configuration *config.Configuration) http.Hand
 	}
 }
 
-func environmentHandlerFunction(environment *environment.Environment) http.HandlerFunc {
+func environmentHandlerFunction() http.HandlerFunc {
+	environment := environment.GetEnvironment()
 	jsonBytes, err := json.Marshal(environment)
 	if err != nil {
 		log.Fatalf("error generating environment json")
@@ -177,9 +178,9 @@ func installPprofHandlers(pprofInfo config.PprofInfo, serveMux *http.ServeMux) {
 	}
 }
 
-func CreateDebugHandler(configuration *config.Configuration, environment *environment.Environment, serveMux *http.ServeMux) {
+func CreateDebugHandler(configuration *config.Configuration, serveMux *http.ServeMux) {
 	serveMux.Handle("/configuration", configurationHandlerFunction(configuration))
-	serveMux.Handle("/environment", environmentHandlerFunction(environment))
+	serveMux.Handle("/environment", environmentHandlerFunction())
 	serveMux.Handle("/request_info", requestInfoHandlerFunc())
 	installPprofHandlers(configuration.PprofInfo, serveMux)
 }

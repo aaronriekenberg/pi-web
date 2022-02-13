@@ -14,8 +14,14 @@ type Environment struct {
 	GoVersion  string   `json:"goVersion"`
 }
 
+var environment *Environment
+
 func GetEnvironment() *Environment {
-	return &Environment{
+	return environment
+}
+
+func init() {
+	environment = &Environment{
 		EnvVars:    os.Environ(),
 		GitCommit:  gitCommit,
 		GoMaxProcs: runtime.GOMAXPROCS(0),

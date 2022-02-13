@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/aaronriekenberg/pi-web/config"
-	"github.com/aaronriekenberg/pi-web/environment"
 	"github.com/aaronriekenberg/pi-web/handlers/command"
 	"github.com/aaronriekenberg/pi-web/handlers/debug"
 	"github.com/aaronriekenberg/pi-web/handlers/file"
@@ -17,12 +16,11 @@ import (
 
 func CreateHandlers(
 	configuration *config.Configuration,
-	environment *environment.Environment,
 ) http.Handler {
 
 	serveMux := http.NewServeMux()
 
-	mainpage.CreateMainPageHandler(configuration, serveMux, environment)
+	mainpage.CreateMainPageHandler(configuration, serveMux)
 
 	file.CreateFileHandler(configuration, serveMux)
 
@@ -30,7 +28,7 @@ func CreateHandlers(
 
 	proxy.CreateProxyHandler(configuration, serveMux)
 
-	debug.CreateDebugHandler(configuration, environment, serveMux)
+	debug.CreateDebugHandler(configuration, serveMux)
 
 	var serveHandler http.Handler = serveMux
 	if configuration.LogRequests {

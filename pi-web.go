@@ -38,7 +38,6 @@ func main() {
 
 	serveHandler := handlers.CreateHandlers(
 		configuration,
-		environment,
 	)
 
 	servers.StartServers(

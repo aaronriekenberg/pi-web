@@ -19,11 +19,12 @@ type mainPageMetadata struct {
 	LastModified string
 }
 
-func buildMainPageString(configuration *config.Configuration, environment *environment.Environment, lastModified time.Time) string {
+func buildMainPageString(configuration *config.Configuration, lastModified time.Time) string {
 	var builder strings.Builder
+
 	mainPageMetadata := &mainPageMetadata{
 		Configuration: configuration,
-		Environment:   environment,
+		Environment:   environment.GetEnvironment(),
 		LastModified:  utils.FormatTime(lastModified),
 	}
 
@@ -39,9 +40,9 @@ func buildMainPageString(configuration *config.Configuration, environment *envir
 	return builder.String()
 }
 
-func mainPageHandlerFunc(configuration *config.Configuration, environment *environment.Environment) http.HandlerFunc {
+func mainPageHandlerFunc(configuration *config.Configuration) http.HandlerFunc {
 	lastModified := time.Now()
-	mainPageString := buildMainPageString(configuration, environment, lastModified)
+	mainPageString := buildMainPageString(configuration, lastModified)
 	cacheControlValue := configuration.TemplatePageInfo.CacheControlValue
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -56,6 +57,6 @@ func mainPageHandlerFunc(configuration *config.Configuration, environment *envir
 	}
 }
 
-func CreateMainPageHandler(configuration *config.Configuration, serveMux *http.ServeMux, environment *environment.Environment) {
-	serveMux.Handle("/", mainPageHandlerFunc(configuration, environment))
+func CreateMainPageHandler(configuration *config.Configuration, serveMux *http.ServeMux) {
+	serveMux.Handle("/", mainPageHandlerFunc(configuration))
 }
