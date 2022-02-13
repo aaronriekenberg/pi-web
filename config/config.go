@@ -2,9 +2,9 @@ package config
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -108,7 +108,7 @@ type Configuration struct {
 func ReadConfiguration(configFile string) *Configuration {
 	log.Printf("reading json file %v", configFile)
 
-	source, err := ioutil.ReadFile(configFile)
+	source, err := os.ReadFile(configFile)
 	if err != nil {
 		log.Fatalf("error reading %v: %v", configFile, err)
 	}
