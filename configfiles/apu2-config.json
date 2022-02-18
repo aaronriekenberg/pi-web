@@ -49,7 +49,7 @@
     }
   ],
   "templatePageInfo": {
-    "cacheControlValue": "public, max-age=86400"
+    "cacheControlValue": "public, max-age=3600"
   },
   "mainPageInfo": {
     "title": "apu2"
@@ -61,25 +61,25 @@
     {
       "httpPath": "/command.js",
       "filePath": "static/command.js",
-      "cacheControlValue": "public, max-age=86400",
+      "cacheControlValue": "public, max-age=3600",
       "cacheContentInMemory": true
     },
     {
       "httpPath": "/proxy.js",
       "filePath": "static/proxy.js",
-      "cacheControlValue": "public, max-age=86400",
+      "cacheControlValue": "public, max-age=3600",
       "cacheContentInMemory": true
     },
     {
       "httpPath": "/style.css",
       "filePath": "static/style.css",
-      "cacheControlValue": "public, max-age=86400",
+      "cacheControlValue": "public, max-age=3600",
       "cacheContentInMemory": true
     },
     {
       "httpPath": "/favicon.ico",
       "filePath": "static/go-favicon.ico",
-      "cacheControlValue": "public, max-age=86400",
+      "cacheControlValue": "public, max-age=3600",
       "cacheContentInMemory": true
     }
   ],
