@@ -60,9 +60,10 @@ type PprofInfo struct {
 }
 
 type StaticFileInfo struct {
-	HTTPPath          string `json:"httpPath"`
-	FilePath          string `json:"filePath"`
-	CacheControlValue string `json:"cacheControlValue"`
+	HTTPPath             string `json:"httpPath"`
+	FilePath             string `json:"filePath"`
+	CacheControlValue    string `json:"cacheControlValue"`
+	CacheContentInMemory bool   `json:"cacheContentInMemory"`
 }
 
 type StaticDirectoryInfo struct {
