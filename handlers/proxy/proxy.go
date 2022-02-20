@@ -18,7 +18,7 @@ import (
 )
 
 type proxyHTMLData struct {
-	*config.ProxyInfo
+	ProxyInfo *config.ProxyInfo
 }
 
 func proxyHTMLHandlerFunc(
@@ -46,12 +46,12 @@ func proxyHTMLHandlerFunc(
 }
 
 type proxyAPIResponse struct {
-	*config.ProxyInfo
-	Now              string      `json:"now"`
-	ProxyDuration    string      `json:"proxyDuration"`
-	ProxyStatus      string      `json:"proxyStatus"`
-	ProxyRespHeaders http.Header `json:"proxyRespHeaders"`
-	ProxyOutput      string      `json:"proxyOutput"`
+	ProxyInfo        *config.ProxyInfo `json:"proxyInfo"`
+	Now              string            `json:"now"`
+	ProxyDuration    string            `json:"proxyDuration"`
+	ProxyStatus      string            `json:"proxyStatus"`
+	ProxyRespHeaders http.Header       `json:"proxyRespHeaders"`
+	ProxyOutput      string            `json:"proxyOutput"`
 }
 
 func makeProxyRequest(ctx context.Context, proxyInfo *config.ProxyInfo) (response *proxyAPIResponse, err error) {

@@ -11,7 +11,7 @@ const updatePre = (text) => {
 const handleFetchResponse = (jsonObject) => {
     let preText = `Now: ${jsonObject.now}\n\n`;
     preText += `Proxy Duration: ${jsonObject.proxyDuration}\n\n`;
-    preText += `GET ${jsonObject.url}\n\n`;
+    preText += `GET ${jsonObject.proxyInfo.url}\n\n`;
     preText += `Response Status: ${jsonObject.proxyStatus}\n\n`;
     preText += `Response Headers:\n${stringifyPretty(jsonObject.proxyRespHeaders)}\n\n`;
     preText += jsonObject.proxyOutput;

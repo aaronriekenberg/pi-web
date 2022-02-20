@@ -13,10 +13,10 @@ import (
 )
 
 type mainPageMetadata struct {
-	*config.Configuration
+	Configuration                  *config.Configuration
 	NumStaticDirectoriesInMainPage int
-	*environment.Environment
-	LastModified string
+	Environment                    *environment.Environment
+	LastModified                   string
 }
 
 func buildMainPageString(configuration *config.Configuration, lastModified time.Time) string {

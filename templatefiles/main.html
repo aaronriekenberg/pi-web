@@ -2,32 +2,32 @@
 <html>
 
 <head>
-  <title>{{.MainPageInfo.Title}}</title>
+  <title>{{.Configuration.MainPageInfo.Title}}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 
 <body>
 
-  <h2>{{.MainPageInfo.Title}}</h2>
+  <h2>{{.Configuration.MainPageInfo.Title}}</h2>
 
-  {{ if .CommandConfiguration.Commands }}
+  {{ if .Configuration.CommandConfiguration.Commands }}
   <h3>Commands:</h3>
-  <ul>{{range .CommandConfiguration.Commands}}
+  <ul>{{range .Configuration.CommandConfiguration.Commands}}
     <li><a href="/commands/{{.ID}}.html">{{.Description}}</a></li>{{end}}
   </ul>
   {{ end }}
 
-  {{ if .Proxies }}
+  {{ if .Configuration.Proxies }}
   <h3>Proxies:</h3>
-  <ul>{{range .Proxies}}
+  <ul>{{range .Configuration.Proxies}}
     <li><a href="/proxies/{{.ID}}.html">{{.Description}}</a></li>{{end}}
   </ul>
   {{ end }}
 
   {{ if .NumStaticDirectoriesInMainPage }}
   <h3>Directories:</h3>
-  <ul>{{range .StaticDirectories}}
+  <ul>{{range .Configuration.StaticDirectories}}
     {{ if .IncludeInMainPage }}
     <li><a href="{{.HTTPPath}}">{{.DirectoryPath}}</a></li>{{end}}
     {{ end }}
@@ -38,7 +38,7 @@
   <ul>
     <li><a href="configuration">configuration</a></li>
     <li><a href="environment">environment</a></li>
-    {{ if .PprofInfo.Enabled }}
+    {{ if .Configuration.PprofInfo.Enabled }}
     <li><a href="debug/pprof">pprof</a></li>
     {{ end }}
     <li><a href="request_info">request_info</a></li>
@@ -48,7 +48,7 @@
 
   <small>Last Modified: {{.LastModified}}</small>
   <br>
-  <small>Git Commit: {{.GitCommit}}</small>
+  <small>Git Commit: {{.Environment.GitCommit}}</small>
 
 </body>
 

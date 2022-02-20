@@ -2,13 +2,13 @@
 <html>
 
 <head>
-  <title>{{.Description}}</title>
+  <title>{{.ProxyInfo.Description}}</title>
   <meta name="viewport" content="width=device, initial-scale=1" />
   <link rel="stylesheet" type="text/css" href="/style.css" />
   <script src="/proxy.js"></script>
 </head>
 
-<body onload="onload('GET {{.URL}}', '/api/proxies/{{.ID}}')">
+<body onload="onload('GET {{.ProxyInfo.URL}}', '/api/proxies/{{.ProxyInfo.ID}}')">
 
   <div>
     <a href="..">..</a>

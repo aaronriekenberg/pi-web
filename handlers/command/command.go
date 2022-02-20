@@ -46,7 +46,7 @@ func CreateCommandHandler(configuration *config.Configuration, serveMux *http.Se
 }
 
 type commandHTMLData struct {
-	*config.CommandInfo
+	CommandInfo *config.CommandInfo
 }
 
 func (commandHandler *commandHandler) commandRunnerHTMLHandlerFunc(
@@ -89,10 +89,10 @@ func (commandHandler *commandHandler) releaseCommandSemaphore() {
 }
 
 type commandAPIResponse struct {
-	*config.CommandInfo
-	Now             string `json:"now"`
-	CommandDuration string `json:"commandDuration"`
-	CommandOutput   string `json:"commandOutput"`
+	CommandInfo     *config.CommandInfo `json:"commandInfo"`
+	Now             string              `json:"now"`
+	CommandDuration string              `json:"commandDuration"`
+	CommandOutput   string              `json:"commandOutput"`
 }
 
 func (commandHandler *commandHandler) runCommand(ctx context.Context, commandInfo *config.CommandInfo) (response *commandAPIResponse) {

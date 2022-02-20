@@ -6,13 +6,13 @@ const updatePre = (text) => {
 };
 
 const handleFetchResponse = (jsonObject) => {
-    let command = jsonObject.command;
-    for (const arg of (jsonObject.args || [])) {
-        command += ` ${arg}`;
+    let commandAndArgsString = jsonObject.commandInfo.command;
+    for (const arg of (jsonObject.commandInfo.args || [])) {
+        commandAndArgsString += ` ${arg}`;
     }
     let preText = `Now: ${jsonObject.now}\n\n`;
     preText += `Command Duration: ${jsonObject.commandDuration}\n\n`;
-    preText += `$ ${command}\n\n`;
+    preText += `$ ${commandAndArgsString}\n\n`;
     preText += jsonObject.commandOutput;
     updatePre(preText);
 }
