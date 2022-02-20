@@ -13,6 +13,8 @@ type Environment struct {
 	GitCommit  string   `json:"gitCommit"`
 	GoMaxProcs int      `json:"goMaxProcs"`
 	GoVersion  string   `json:"goVersion"`
+	GoOS       string   `json:"goOS"`
+	GoArch     string   `json:"goArch"`
 }
 
 func (environment *Environment) deepCopy() *Environment {
@@ -24,6 +26,8 @@ func (environment *Environment) deepCopy() *Environment {
 		GitCommit:  environment.GitCommit,
 		GoMaxProcs: environment.GoMaxProcs,
 		GoVersion:  environment.GoVersion,
+		GoOS:       environment.GoOS,
+		GoArch:     environment.GoArch,
 	}
 }
 
@@ -42,5 +46,7 @@ func init() {
 		GitCommit:  gitCommit,
 		GoMaxProcs: runtime.GOMAXPROCS(0),
 		GoVersion:  runtime.Version(),
+		GoOS:       runtime.GOOS,
+		GoArch:     runtime.GOARCH,
 	}
 }
