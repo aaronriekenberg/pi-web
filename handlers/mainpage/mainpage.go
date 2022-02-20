@@ -15,7 +15,7 @@ import (
 type mainPageMetadata struct {
 	Configuration                  *config.Configuration
 	NumStaticDirectoriesInMainPage int
-	Environment                    *environment.Environment
+	Environment                    environment.Environment
 	LastModified                   string
 }
 

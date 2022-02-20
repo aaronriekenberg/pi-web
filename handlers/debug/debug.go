@@ -74,9 +74,9 @@ func configurationHandlerFunction(configuration *config.Configuration) http.Hand
 
 func environmentHandlerFunction() http.HandlerFunc {
 	environment := environment.GetEnvironment()
-	jsonBytes, err := json.Marshal(environment)
+	jsonBytes, err := environment.MarshalJSON()
 	if err != nil {
-		log.Fatalf("error generating environment json")
+		log.Fatalf("error generating environment json: %v", err)
 	}
 
 	var formattedJSONBuffer bytes.Buffer
