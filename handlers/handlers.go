@@ -14,6 +14,11 @@ import (
 	gorillaHandlers "github.com/gorilla/handlers"
 )
 
+var allowedHTTPMethods = map[string]bool{
+	http.MethodGet:  true,
+	http.MethodHead: true,
+}
+
 func CreateHandlers(
 	configuration *config.Configuration,
 ) http.Handler {
@@ -30,8 +35,8 @@ func CreateHandlers(
 
 	debug.CreateDebugHandler(configuration, serveMux)
 
-	disallowNonGETHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet {
+	allowedHTTPMethodsHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !allowedHTTPMethods[r.Method] {
 			http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 			return
 		}
@@ -39,9 +44,9 @@ func CreateHandlers(
 		serveMux.ServeHTTP(w, r)
 	})
 
-	var serveHandler http.Handler = disallowNonGETHandler
+	var serveHandler http.Handler = allowedHTTPMethodsHandler
 	if configuration.LogRequests {
-		serveHandler = gorillaHandlers.CombinedLoggingHandler(os.Stdout, disallowNonGETHandler)
+		serveHandler = gorillaHandlers.CombinedLoggingHandler(os.Stdout, serveHandler)
 	}
 
 	return serveHandler
