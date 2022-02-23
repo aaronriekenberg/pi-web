@@ -30,9 +30,18 @@ func CreateHandlers(
 
 	debug.CreateDebugHandler(configuration, serveMux)
 
-	var serveHandler http.Handler = serveMux
+	disallowNonGETHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+			return
+		}
+
+		serveMux.ServeHTTP(w, r)
+	})
+
+	var serveHandler http.Handler = disallowNonGETHandler
 	if configuration.LogRequests {
-		serveHandler = gorillaHandlers.CombinedLoggingHandler(os.Stdout, serveMux)
+		serveHandler = gorillaHandlers.CombinedLoggingHandler(os.Stdout, disallowNonGETHandler)
 	}
 
 	return serveHandler
